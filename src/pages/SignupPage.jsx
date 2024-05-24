@@ -1,12 +1,12 @@
 import React from 'react'
 import Signup from '../features/auth/components/Signup'
 
-function Signup() {
+function SignupPage() {
   return (
     <div>
-      <SignupPage />
+      <Signup />
     </div>
   )
 }
 
-export default Signup
+export default SignupPage
