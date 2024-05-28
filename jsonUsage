@@ -1,0 +1,14 @@
+login user and get token
+get current user
+check user login
+
+PRODUCTS
+get all products
+get a single product
+search by category
+sort products by title in ascending or descending
+get all catgories
+add a new product
+update a product
+delete a product
+get limited products according to page
