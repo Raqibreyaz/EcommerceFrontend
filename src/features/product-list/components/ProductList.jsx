@@ -4,13 +4,13 @@ import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, Transitio
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, StarIcon } from '@heroicons/react/20/solid'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
-import { fetchAllProductsAsync, filterProductsAsync } from '../ProductSlice'
+import { fetchCategoriesAsync, fetchProductsAsync } from '../ProductSlice'
 import Filter from './Filter'
+import { Link, useNavigate } from 'react-router-dom'
+import { fetchUserAsync } from '../../user/userSlice'
+import MessageDialog from '../../../components/MessageDialog'
 
 function ProductList() {
-
-  // {_sort:field,order:order}
-  // const [sort, setSort] = useState({})
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
@@ -20,32 +20,31 @@ function ProductList() {
     { name: 'Price: High to Low', sort: 'price', order: 'desc' },
   ]
 
-  const items = [
-    { id: 1, title: 'Back End Developer', department: 'Engineering', type: 'Full-time', location: 'Remote' },
-    { id: 2, title: 'Front End Developer', department: 'Engineering', type: 'Full-time', location: 'Remote' },
-    { id: 3, title: 'User Interface Designer', department: 'Design', type: 'Full-time', location: 'Remote' },
-  ]
-
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
 
   const dispatch = useDispatch()
 
+  useEffect(() => {
+    dispatch(fetchUserAsync())
+    dispatch(fetchProductsAsync({}))
+  }, [])
+
+
   const handleSort = (field, order) => {
-    const newSort = { _sort: field, order }
-    dispatch(filterProductsAsync(newSort))
+    const newSort = { sort: field, order }
+    // dispatch(fetchProductsAsync(newSort))
   }
 
+  const products = useSelector(state => state.product.products);
 
-  useEffect(() => {
-    dispatch(fetchAllProductsAsync())
-  }, [dispatch])
+  const productOwners = [...new Set(products.map(product => product.owner.fullname))]
 
   return (
     <div className="bg-white overflow-hidden">
       <div>
-        <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} />
+        <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} productOwners={productOwners} />
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sticky top-0">
           <div className="flex items-baseline justify-between border-b border-gray-200 pb-6  ">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900">All Products</h1>
@@ -116,11 +115,11 @@ function ProductList() {
               {/* Filters */}
               <div className='sticky top-[20px]'>
                 <form className="hidden lg:block h-screen">
-                  <Filter />
+                  <Filter productOwners={productOwners} />
                 </form>
               </div>
               {/* Product grid */}
-              <ProductGrid />
+              <ProductGrid products={products} />
             </div>
           </section>
           <Pagination />
@@ -130,7 +129,7 @@ function ProductList() {
   )
 }
 
-function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen }) {
+function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners }) {
 
   return (
     < Transition show={mobileFiltersOpen} as={Fragment}>
@@ -173,7 +172,7 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen }) {
               {/* Filters */}
               <form className="mt-4 border-t border-gray-200 sticky top-0">
                 <h3 className="sr-only">Categories</h3>
-                <Filter px='px-4' />
+                <Filter px='px-4' productOwners={productOwners} />
               </form>
             </DialogPanel>
           </TransitionChild>
@@ -183,31 +182,34 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen }) {
   )
 }
 
-function ProductGrid() {
+function ProductGrid({ products }) {
 
-  const products = useSelector(state => state.product.products);
+  // {id,thumbnail.url,price,rating,discount,owner.fullname}
 
+  const Navigate = useNavigate();
+
+  const error = useSelector(state => state.product.error)
 
   return (
     <div className="lg:col-span-3 overflow-auto">
-
+      {error && <MessageDialog message={error} />}
       <div className="bg-white">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
 
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8 ">
           {products.map((product) => (
-            <div key={product.id} className="group relative border rounded p-2">
+            <div onClick={() => Navigate(`/product-details/${product._id}`)} key={product._id} className="group relative border rounded p-2">
               <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                 <img
-                  src={product.thumbnail}
-                  className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                  src={product.thumbnail.url}
+                  className="h-full w-full  lg:h-full lg:w-full"
                 />
               </div>
               <div className="mt-4 flex justify-between">
                 <div>
                   <h3 className="text-sm text-gray-700">
                     <span aria-hidden="true" className="absolute inset-0" />
-                    {product.name}
+                    {product.product_name}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 flex items-center">
                     <StarIcon className='h-6 w-6' />  {product.rating}
@@ -227,91 +229,101 @@ function ProductGrid() {
 }
 
 function Pagination() {
+
+  const totalPages = useSelector(state => state.product.totalPages)
+  const filteredTotal = useSelector(state => state.product.filteredTotal)
+  const overallTotal = useSelector(state => state.product.overallTotal)
+
+  const [page, setPage] = useState(1)
+
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
-        <a
-          href="#"
+        <Link
+          onClick={() => setPage(page - 1)}
+          disabled={page === 1}
           className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           Previous
-        </a>
-        <a
-          href="#"
+        </Link>
+        <Link
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages}
           className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           Next
-        </a>
+        </Link>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
-            <span className="font-medium">97</span> results
+            Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredTotal}</span> of{' '}
+            <span className="font-medium">{filteredTotal}</span> results
           </p>
         </div>
         <div>
           <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-            <a
-              href="#"
+            <Link
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
               className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-            </a>
-            {/* Current: "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-            <a
-              href="#"
+            </Link>
+            <Link
+              // onClick={ }
               aria-current="page"
               className="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               1
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              // onClick={ }
               className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               2
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              // onClick={ }
               className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
             >
               3
-            </a>
+            </Link>
             <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
               ...
             </span>
-            <a
-              href="#"
+            <Link
+              // onClick={ }
               className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
             >
               8
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              // onClick={ }
               className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               9
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              // onClick={ }
               className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               10
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
               className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               <span className="sr-only">Next</span>
               <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-            </a>
+            </Link>
           </nav>
         </div>
       </div>
     </div>
-    )
+  )
 }
 
 export default ProductList

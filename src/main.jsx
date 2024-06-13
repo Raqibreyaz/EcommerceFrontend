@@ -6,14 +6,10 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import App from './App.jsx'
-import SignupPage from './pages/SignupPage.jsx';
-import LoginPage from './pages/LoginPage.jsx'
-import Home from './pages/Home.jsx';
-import CartPage from './pages/CartPage.jsx'
-import Checkout from './pages/Checkout.jsx'
-import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage } from './pages/index.js'
+import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
   {
@@ -24,30 +20,107 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: (<Home />)
+        element: (<HomePage />)
       },
       {
-        path: '/product-details',
-        element: (<ProductDetailPage />)
+        path: '/product-details/:id',
+        element: (
+          <ProductDetailPage />)
       },
       {
         path: '/cart',
-        element: (<CartPage />)
+        element: (
+          <Authenticate authState={true}>
+            <CartPage />
+          </Authenticate>
+        )
       },
       {
         path: '/checkout',
-        element: (<Checkout />)
+        element: (
+          <Authenticate authState={true}>
+            <CheckoutPage />
+          </Authenticate>
+        )
       },
       {
         path: '/login',
         element: (
-          <LoginPage />
+          <Authenticate authState={false}>
+            <LoginPage />
+          </Authenticate>
         )
       },
       {
         path: '/signup',
         element: (
-          <SignupPage />
+          <Authenticate authState={false}>
+            <SignupPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/add-product',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <AddProductPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/edit-product',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <EditProductPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/dashboard',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <DashBoardPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/orders',
+        element: (
+          <Authenticate authState={true}>
+            <OrdersPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/order-details',
+        element: (
+          <Authenticate authState={true}>
+            <OrderDetailsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/wishlist',
+        element: (
+          <Authenticate authState={true}>
+            <WishlistPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/messages',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <OrderDetailsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/profile',
+        element: (
+          <Authenticate authState={true}>
+            <UserProfilePage />
+          </Authenticate>
         )
       },
     ]

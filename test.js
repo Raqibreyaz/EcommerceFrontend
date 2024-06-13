@@ -413,3 +413,28 @@ console.log(categories);
 const brands = [...new Set(products.map(b => b.brand))]
 
 console.log(brands);
+
+     // sizes.length > 0 && colors.length > 0 && (
+                //     <div className="border p-4 rounded-lg space-y-4">
+                //         <h2 className="text-lg font-semibold">Stocks:</h2>
+                //         {
+                //             sizeFields.map((size, sizeIndex) => {
+                //                 // if (!size)
+                //                 //     return null
+                //                 return colorFields.map((color, colorIndex) => {
+                //                     // if (!color.color)
+                //                     //     return null
+                //                     return <div key={`${size.size}-${color.color}`} className="flex space-x-2 mb-2">
+                //                         <span className="font-semibold">Size: {size.size}, Color: {color.color}</span>
+                //                         <input
+                //                             type="number"
+                //                             placeholder="Stock"
+                //                             {...register(`stocks.${sizeIndex * colors.length + colorIndex}.stock`, { required: true })}
+                //                             className="border p-2 rounded"
+                //                         />
+
+                //                     </div>
+                //                 })
+                //             })}
+                //     </div>
+                // )})

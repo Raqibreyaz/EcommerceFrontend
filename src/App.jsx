@@ -5,6 +5,8 @@ import { Outlet } from 'react-router-dom'
 
 function App() {
 
+console.log('hi app jsx');
+
   return (
     <>
       <Navbar />

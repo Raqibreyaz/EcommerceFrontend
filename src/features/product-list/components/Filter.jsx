@@ -1,94 +1,88 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
-import { filterProductsAsync } from '../ProductSlice';
-import { useDispatch } from 'react-redux';
+import { fetchCategoriesAsync } from '../ProductSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 
-function Filter({px = '' }) {
+function Filter({ productOwners, px = '' }) {
 
-    const filters = [
-        {
-            id: 'color',
-            name: 'color',
-            options: [
-                { value: 'white', label: 'White', checked: false },
-                { value: 'beige', label: 'Beige', checked: false },
-                { value: 'blue', label: 'Blue', checked: false },
-                { value: 'brown', label: 'Brown', checked: false },
-                { value: 'green', label: 'Green', checked: false },
-                { value: 'purple', label: 'Purple', checked: false },
-            ],
-        },
-        {
-            id: 'category',
-            name: 'category',
-            options: [
-                { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-                { value: 'sale', label: 'Sale', checked: false },
-                { value: 'travel', label: 'Travel', checked: false },
-                { value: 'organization', label: 'Organization', checked: false },
-                { value: 'accessories', label: 'Accessories', checked: false },
-            ],
-            options: [
-                { value: 'clothing', label: 'Clothing', checked: false },
-                { value: 'electronics', label: 'Electronics', checked: false },
-                { value: 'accessories', label: 'Accessories', checked: false },
-                { value: 'footwear', label: 'Footwear', checked: false }],
-        },
-        {
-            id: 'size',
-            name: 'size',
-            options: [
-                { value: '2l', label: '2L', checked: false },
-                { value: '6l', label: '6L', checked: false },
-                { value: '12l', label: '12L', checked: false },
-                { value: '18l', label: '18L', checked: false },
-                { value: '20l', label: '20L', checked: false },
-                { value: '40l', label: '40L', checked: false },
-            ],
-        },
-        {
-            id: "brands",
-            name: "brands",
-            options: [
-                'Nike', 'Apple', 'Tommy Hilfiger', 'Adidas', 'Casio', 'Ralph Lauren', 'Samsung',
-                'Fossil', 'Under Armour', 'Sony', 'Logitech', 'Herschel Supply Co.', 'Levi\'s',
-                'Ring', 'Dr. Martens', 'Wrangler', 'JBL', 'Calvin Klein', 'Merrell', 'Lacoste',
-                'Seagate', 'Ray-Ban', 'Razer', 'Michael Kors', 'Steve Madden'
-            ].map((brand) => (
-                { value: brand.toLowerCase(), label: brand, checked: false }
-            ))
-        }
-    ]
-
-    // {color:'red',rating:'4.3'}
+    // {color:['red','blue'],rating:['4.3','4.6']}
     const [filter, setFilter] = useState({})
-
-    // const [checked, setChecked] = useState(false)
 
     const dispatch = useDispatch()
 
-    function handleChange(field, value) {
-        // let newChecked = !checked
-        let newFilter;
+    function handleChange(e, field, value) {
 
-        // if (newChecked) {
-        newFilter = { ...filter, [field]: value }
-        // }
-        // else {
-        //     const { [field]: deletedValue, ...remainingFields } = newFilter = remainingFields
-        // }
-
+        let newFilter = { ...filter }
+        if (e.target.checked) {
+            (newFilter[field] ??= []).push(value)
+            // newFilter[field].push(value)
+        }
+        else {
+            newFilter[field] = newFilter[field].filter((val) => (val !== value))
+        }
         console.log(newFilter);
-        dispatch(filterProductsAsync(newFilter))
-        // setChecked(!checked)
         setFilter(newFilter)
     }
+
+    useEffect(() => {
+        console.log('going to take categories');
+        dispatch(fetchCategoriesAsync())
+    }
+        , [])
+
+    let categories = useSelector(state => state.product.categories)
+
+    console.log(categories);
 
     return (
         <div>
             {
-                filters.map((section) => (
+                [
+                    {
+                        id: 'category',
+                        name: 'category',
+                        options: categories.map(category => (
+                            {
+                                value: category.name,
+                                label: category.name,
+                                checked: false
+                            }
+                        ))
+                    },
+                    {
+                        id: "pricing",
+                        name: "pricing",
+                        options: [
+                            "100 to 1k",
+                            "1k to 5k",
+                            "5k to 10k",
+                            "10k or above"
+                        ].map((priceRange) => (
+                            { value: priceRange, label: priceRange, checked: false }
+                        ))
+                    },
+                    {
+                        id: "discount",
+                        name: "discount",
+                        options: [
+                            "at least 10%",
+                            "at least 20%",
+                            "at least 30%",
+                            "at least 40%"
+                        ].map((discount) => (
+                            { value: discount, label: discount, checked: false }
+                        ))
+                    },
+                    {
+                        id: "product owners",
+                        name: "product owners",
+                        options: productOwners.map((brand) => (
+                            { value: brand.toLowerCase(), label: brand, checked: false }
+                        ))
+                    },
+                ].map((section) => (
                     <Disclosure as="div" key={section.id} className={`border-b border-gray-200 ${px} py-6`}>
                         {({ open }) => (
                             <>
@@ -115,7 +109,7 @@ function Filter({px = '' }) {
                                                     defaultValue={option.value}
                                                     type="checkbox"
                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                    onChange={(e) => handleChange(section.name, option.value)}
+                                                    onChange={(e) => handleChange(e, section.name, option.value)}
                                                 />
                                                 <label
                                                     htmlFor={`filter-${section.id}-${optionIdx}`}
