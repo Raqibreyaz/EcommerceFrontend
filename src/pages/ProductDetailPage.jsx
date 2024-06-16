@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductDetails from '../features/product-list/components/ProductDetails'
+import ProductDetails from '../features/product-list/components/product-details/ProductDetails'
 
 function ProductDetailPage() {
     return (

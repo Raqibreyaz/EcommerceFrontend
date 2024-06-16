@@ -1,39 +1,88 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchUserCart } from "./cartApi.js";
+import { fetchUserCart, addProductToCart, removeProductFromCart } from "./cartApi.js";
+import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
 
 const initialState = {
-    cart: null,
+    userCart: { products: [] },
     status: 'idle',
     error: null,
+    success: ''
 };
 
 const fetchUserCartAsync = createAsyncThunk("cart/fetchUserCart", async () => {
-    const response = await fetchUserCart();
-    return response.data;
+    const [error, result] = await catchAsyncError(fetchUserCart)
+
+    if (error)
+        throw new Error(error.response.data.message)
+
+    return result.data;
 })
+
+const addProductToCartAsync = createAsyncThunk('cart/addProductToCart', async (cartProduct) => {
+    const [error, result] = await catchAsyncError(addProductToCart, cartProduct)
+
+    if (error)
+        throw new Error(error.response.data.message)
+
+    return result.data
+}
+)
+
+const removeProductFromCartAsync = createAsyncThunk('cart/removeProductFromCart', async (cartProduct) => {
+    const [error, result] = await catchAsyncError(removeProductFromCart, cartProduct)
+
+    if (error)
+        throw new Error(error.response.data.message)
+    return result.data
+}
+)
+
+const handleAsyncActions = (builder, asyncThunk) => {
+
+    builder
+        .addCase(asyncThunk.pending, (state) => {
+            state.status = 'loading',
+                state.error = null
+            state.success = ''
+        }
+        )
+        .addCase(asyncThunk.fulfilled, (state, action) => {
+
+            state.success = action.message
+            state.status = 'idle'
+            state.userCart = action.payload.userCart.products ? action.payload.userCart : { products: [] }
+            if (action.type === 'cart/addProductToCart/fulfilled') {
+                console.log(action.payload);
+            }
+            if (action.type === 'cart/fetchUserCart/fulfilled') {
+                console.log(action.payload);
+            }
+        }
+        )
+        .addCase(asyncThunk.rejected, (state, action) => {
+            state.error = action.error.message
+            state.status = 'failed'
+        }
+        )
+
+};
+
 
 const cartSlice = createSlice({
     initialState,
     name: "cart",
     reducers: {},
     extraReducers: (builder) => {
-        builder
-            .addCase(fetchUserCartAsync.pending, (state) => {
-                state.status = 'pending'
-            })
-            .addCase(fetchUserCartAsync.fulfilled, (state, action) => {
-
-            })
-            .addCase(fetchUserCartAsync.rejected, (state, action) => {
-                state.status = 'rejected'
-                state.error = action.error.message;
-            })
+        handleAsyncActions(builder, fetchUserCartAsync)
+        handleAsyncActions(builder, addProductToCartAsync)
+        handleAsyncActions(builder, removeProductFromCartAsync)
     }
 })
 
 export {
-  fetchUserCartAsync
+    fetchUserCartAsync,
+    addProductToCartAsync,
+    removeProductFromCartAsync
 }
 
 export default cartSlice.reducer;

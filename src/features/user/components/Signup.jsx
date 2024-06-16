@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import FormError from '../../../components/FormError'
 import { signUpUserAsync } from '../userSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import MessageDialog from '../../../components/MessageDialog'
+// import MessageDialog from '../../../components/MessageDialog'
 
 // fullNAME  email phone avatar password address
 
@@ -39,7 +39,9 @@ function Signup() {
       }
     }
 
-    formData.append('address', address)
+    console.log(address);
+
+    formData.append('address', JSON.stringify(address))
 
     dispatch(signUpUserAsync(formData))
 
@@ -54,8 +56,8 @@ function Signup() {
 
   return (
     <>
-      {error && <MessageDialog head={error} />}
-      {success && <MessageDialog head={success} buttonMessage='okay' className='bg-green-500' />}
+      {/* {error && <MessageDialog head={error} />}
+      {success && <MessageDialog head={success} buttonMessage='okay' className='bg-green-500' />} */}
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

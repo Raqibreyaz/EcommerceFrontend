@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct } from './ProductApi';
-import { useSelector } from 'react-redux';
+import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory } from './ProductApi';
 import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
 
-// Define the async thunk
+// fetches product as well as in case of filter
 export const fetchProductsAsync = createAsyncThunk(
     'product/fetchProducts',
     async (filter = '') => {
@@ -19,6 +18,7 @@ export const fetchProductsAsync = createAsyncThunk(
     }
 );
 
+// fetches all the details of that particular product including reviews 
 export const fetchProductDetailsAsync = createAsyncThunk('product/fetchProductDetails', async (id) => {
     const [error, response] = await catchAsyncError(fetchProductDetails, id)
 
@@ -30,6 +30,30 @@ export const fetchProductDetailsAsync = createAsyncThunk('product/fetchProductDe
 }
 )
 
+// adds a new product to the database
+export const addNewProductAsync = createAsyncThunk('product/addNewProduct', async (productData) => {
+
+    let [error, result] = await catchAsyncError(addNewProduct, productData)
+
+    if (error) {
+        throw new Error(error.response.data.message)
+    }
+    return result.data
+}
+)
+
+// deletes the product from the database
+export const deleteProductAsync = createAsyncThunk('product/deleteProduct', async (id) => {
+    const [error, result] = catchAsyncError(deleteProduct, id)
+
+    if (error)
+        throw new Error(error.response.data.message)
+
+    return result.data
+}
+)
+
+// fetches all the categories of products
 export const fetchCategoriesAsync = createAsyncThunk('product/fetchCategories', async () => {
 
     const [error, result] = await catchAsyncError(fetchCategories)
@@ -41,13 +65,14 @@ export const fetchCategoriesAsync = createAsyncThunk('product/fetchCategories', 
 }
 )
 
-export const addNewProductAsync = createAsyncThunk('product/addNewProduct', async (productData) => {
+// adds a new category
+export const addNewCategoryAsync = createAsyncThunk('product/addNewCategory', async (category) => {
 
-    let [error, result] = await catchAsyncError(addNewProduct, productData)
+    const [error, result] = catchAsyncError(addNewCategory, category)
 
-    if (error) {
+    if (error)
         throw new Error(error.response.data.message)
-    }
+
     return result.data
 }
 )
@@ -60,7 +85,8 @@ const handleAsyncActions = (builder, asyncThunk) => {
         })
         .addCase(asyncThunk.fulfilled, (state, action) => {
 
-            state.status = 'idle';
+            state.status = 'idle'
+
             state.error = null
             state.success = action.payload.message
 
@@ -85,9 +111,11 @@ const handleAsyncActions = (builder, asyncThunk) => {
 
         })
         .addCase(asyncThunk.rejected, (state, action) => {
-            state.status = 'failed';
+
+            state.status = 'rejected'
+
             state.error = action.error.message;
-            if(action.type ==='product/fetchCategories/rejected')
+            if (action.type === 'product/fetchCategories/rejected')
                 console.log(action);
         });
 };
@@ -101,7 +129,16 @@ const productSlice = createSlice({
         overallTotal: 0,
         totalPages: 0,
         categories: [],
-        currentProduct: {},
+        currentProduct: {
+            product_name: '',
+            keyHighlights: [],
+            sizes: [],
+            colors: [],
+            details: '',
+            price: '',
+            description: '',
+            reviews: []
+        },
         productOwners: [],
         status: 'idle',
         success: '',

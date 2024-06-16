@@ -1,9 +1,26 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import 'tailwindcss/tailwind.css';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 const UserProfileCompo = ({ user }) => {
+
+  const { handleSubmit, register, control, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: {
+      fullname: user.name,
+      phoneNo: user.phoneNo,
+      email: user.email,
+      addresses: user.addresses
+    }
+  })
+
+  useFieldArray({
+    control,
+    name: 'addresses'
+  })
+
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="max-w-4xl  bg-white shadow-md rounded-lg overflow-hidden">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-center p-6 bg-gradient-to-r from-blue-500 to-teal-500 text-white">
         <img
@@ -27,14 +44,26 @@ const UserProfileCompo = ({ user }) => {
           <span className="w-24 font-bold">Phone:</span>
           <span>{user.phone}</span>
         </div>
-        <div className="flex items-center">
+        <div className="flex flex-col ">
           <span className="w-24 font-bold">Address:</span>
-          <span>{user.address}</span>
+          {
+            user.addresses.map(({ house_no, city, state, pincode }, index) => (
+              <div className='mt-3'>
+                <h1 className='font-semibold'>Address {index + 1}</h1>
+                <div className='capitalize flex flex-col'>
+                  <span>house no: {house_no}</span>
+                  <span>city: {city}</span>
+                  <span>state: {state}</span>
+                  <span>pincode: <input type="text" value={ } />{pincode}</span>
+                </div>
+              </div>
+            ))
+          }
         </div>
       </div>
 
       {/* Product Cards */}
-      <div className="p-6 bg-gray-100">
+      {/* <div className="p-6 bg-gray-100">
         <h3 className="text-2xl font-bold mb-4">Products</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {user.products.map((product) => (
@@ -49,43 +78,47 @@ const UserProfileCompo = ({ user }) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
 
 const UserProfile = () => {
+
+  const userData = useSelector(state => state.user.userData)
+
   const user = {
-    name: 'James Cartel',
-    title: 'Design Student',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    email: 'james.cartel@example.com',
-    phone: '123-456-7890',
-    address: '1234 Design Street, Creative City, Designland',
-    products: [
-      {
-        id: 1,
-        name: 'Product 1',
-        description: 'This is a description for product 1.',
-        image: 'https://via.placeholder.com/300x200',
-      },
-      {
-        id: 2,
-        name: 'Product 2',
-        description: 'This is a description for product 2.',
-        image: 'https://via.placeholder.com/300x200',
-      },
-      {
-        id: 3,
-        name: 'Product 3',
-        description: 'This is a description for product 3.',
-        image: 'https://via.placeholder.com/300x200',
-      },
-    ],
-  };
+    name: userData.fullname,
+    title: userData.role,
+    avatar: userData.avatar.url,
+    email: userData.email,
+    phone: userData.phoneNo,
+    addresses: userData.addresses
+  }
+  //   products: [
+  //     {
+  //       id: 1,
+  //       name: 'Product 1',
+  //       description: 'This is a description for product 1.',
+  //       image: 'https://via.placeholder.com/300x200',
+  //     },
+  //     {
+  //       id: 2,
+  //       name: 'Product 2',
+  //       description: 'This is a description for product 2.',
+  //       image: 'https://via.placeholder.com/300x200',
+  //     },
+  //     {
+  //       id: 3,
+  //       name: 'Product 3',
+  //       description: 'This is a description for product 3.',
+  //       image: 'https://via.placeholder.com/300x200',
+  //     },
+  //   ],
+  // };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-100  p-4">
       <UserProfileCompo user={user} />
     </div>
   );

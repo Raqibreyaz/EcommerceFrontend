@@ -30,11 +30,28 @@ const addNewProduct = async (productData) => {
   return response
 }
 
+const deleteProduct = async (id) => {
+  return await axios.delete(`http://localhost:4000/api/v1/products/delete-product/${id}`)
+}
+
+const addNewCategory = async (category) => {
+  return await axios.post('http://localhost:4000/api/v1/products/category/add-category', {
+    name: category
+  }, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+}
+
 
 export {
   fetchProducts,
   fetchCategories,
   fetchProductDetails,
-  addNewProduct
+  addNewProduct,
+  deleteProduct,
+  addNewCategory
 }
 

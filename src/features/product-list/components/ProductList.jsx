@@ -2,13 +2,14 @@ import React, { useState, Fragment, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, TransitionChild } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, StarIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, StarIcon, EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { fetchCategoriesAsync, fetchProductsAsync } from '../ProductSlice'
 import Filter from './Filter'
 import { Link, useNavigate } from 'react-router-dom'
 import { fetchUserAsync } from '../../user/userSlice'
-import MessageDialog from '../../../components/MessageDialog'
+import { FailedMessage } from '../../../components/MessageDialog'
+import DropDown from '../../../components/DropDown'
 
 function ProductList() {
 
@@ -34,7 +35,6 @@ function ProductList() {
 
   const handleSort = (field, order) => {
     const newSort = { sort: field, order }
-    // dispatch(fetchProductsAsync(newSort))
   }
 
   const products = useSelector(state => state.product.products);
@@ -190,19 +190,49 @@ function ProductGrid({ products }) {
 
   const error = useSelector(state => state.product.error)
 
+  const [dropDown, setDropDown] = useState(false)
+
   return (
     <div className="lg:col-span-3 overflow-auto">
-      {error && <MessageDialog message={error} />}
+      {error && <FailedMessage title={error} />}
       <div className="bg-white">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
-
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8 ">
           {products.map((product) => (
-            <div onClick={() => Navigate(`/product-details/${product._id}`)} key={product._id} className="group relative border rounded p-2">
-              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+            // <div key={product._id} className="group relative border rounded p-2  duration-700" >
+            //   <span className='absolute right-0' onClick={() => setDropDown(!dropDown)}>
+            //     <DropDown />
+            //   </span>
+            //   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none  lg:h-80" onClick={() => Navigate(`/product-details/${product._id}`)}>
+            //     <img
+            //       src={product.thumbnail.url}
+            //       className="h-full w-full  lg:h-full lg:w-full"
+            //     />
+            //   </div>
+            //   <div className="mt-4 flex justify-between">
+            //     <div>
+            //       <h3 className="text-sm text-gray-700">
+            //         <span aria-hidden="true" className="absolute inset-0" />
+            //         {product.product_name}
+            //       </h3>
+            //       <p className="mt-1 text-sm text-gray-500 flex items-center">
+            //         <StarIcon className='h-6 w-6' />  {product.rating}
+            //       </p>
+            //     </div>
+            //     <div>
+            //       <p className="text-sm font-medium text-gray-900">${Math.round(product.price * (1 - product.discount * 0.01))}</p>
+            //       {product.discount != 0 && <p className={`text-sm ${product.discount != 0 ? 'line-through' : ''} text-gray-400`}>${product.price}</p>}
+            //     </div>
+            //   </div>
+            // </div>
+            <div key={product._id} className="group relative border rounded p-2 duration-700" onClick={() => Navigate(`/product-details/${product._id}`)}>
+              <div
+                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none lg:h-80"
+
+              >
                 <img
                   src={product.thumbnail.url}
-                  className="h-full w-full  lg:h-full lg:w-full"
+                  className="h-full w-full object-cover lg:h-full lg:w-full"
+                  alt={product.product_name}
                 />
               </div>
               <div className="mt-4 flex justify-between">
@@ -212,12 +242,18 @@ function ProductGrid({ products }) {
                     {product.product_name}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 flex items-center">
-                    <StarIcon className='h-6 w-6' />  {product.rating}
+                    <StarIcon className="h-6 w-6 text-yellow-500" /> {product.rating}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">${Math.round(product.price * (1 - product.discount * 0.01))}</p>
-                  {product.discount != 0 && <p className={`text-sm ${product.discount != 0 ? 'line-through' : ''} text-gray-400`}>${product.price}</p>}
+                  <p className="text-sm font-medium text-gray-900">
+                    ${Math.round(product.price * (1 - product.discount * 0.01))}
+                  </p>
+                  {product.discount !== 0 && (
+                    <p className={`text-sm ${product.discount !== 0 ? 'line-through' : ''} text-gray-400`}>
+                      ${product.price}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
