@@ -3,15 +3,17 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import FormError from '../components/FormError';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewProductAsync, fetchCategoriesAsync } from '../features/product-list/ProductSlice';
-// import MessageDialog from '../components/MessageDialog';
+import { FailedMessage, SuccessMessage } from '../components/MessageDialog';
+import { PopImage } from '../components/PopImage';
 import AddCategory from '../features/product-list/components/AddCategory';
 import { fetchCategories } from '../features/product-list/ProductApi';
+import { ImageSection } from '../components/ImageSection'
 
 const ProductForm = () => {
 
     const dispatch = useDispatch()
 
-    const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
+    const { register, control, handleSubmit, watch, setValue, reset, formState: { errors }, formState, getFieldState, getValues } = useForm({
         defaultValues: {
             productName: '',
             description: '',
@@ -92,11 +94,11 @@ const ProductForm = () => {
     const success = useSelector(state => state.product.success)
     const categories = useSelector(state => state.product.categories)
 
-
     const sizes = watch('sizes')
     const colors = watch('colors')
 
     const [currentColor, setCurrentColor] = useState(colors.at(-1).color)
+    const [previews, setPreviews] = useState({})
 
     const handleChange = (field, value, index) => {
 
@@ -117,10 +119,42 @@ const ProductForm = () => {
             setValue('stocks', newStocks);
     }
 
+    const handleFileChange = (field, files, subField, index = 0) => {
+
+        let newPreviews = { ...previews }
+
+        if (field === 'thumbnail') {
+            console.log(field, files);
+            newPreviews[field] = files
+        }
+        else {
+            console.log(field, index, subField, files);
+            if (!newPreviews[field] || newPreviews[field].length <= index) {
+                (newPreviews[field] ??= []).push({ [subField]: files })
+            }
+            else
+                newPreviews[field][index][subField] = files
+        }
+        console.log(newPreviews);
+
+        setPreviews(newPreviews)
+    }
+
+
     useEffect(() => {
-        dispatch(fetchCategoriesAsync())
+        // dispatch(fetchCategoriesAsync())
     }
         , [])
+
+    if (error) {
+        FailedMessage(error)
+        // .then((result) => (console.log(result)))
+    }
+    if (success) {
+        SuccessMessage(success)
+        // .then((result) => (console.log(result)))
+    }
+
 
     return (
         <div className='flex gap-2'>
@@ -193,10 +227,11 @@ const ProductForm = () => {
                     <button type='button' className='bg-blue-500 text-white p-2 rounded block' onClick={() => appendHighlights({ highlight: '' })}>Add Highlight</button>
                 </div>
                 {/* thumbnail */}
-                <div className='border p-2 rounded '>
+                <div className='border p-2 rounded flex gap-2'>
                     <label htmlFor="thumbnail" className='font-semibold'>Thumbnail: </label>
-                    <input id='thumbnail' type="file" {...register('thumbnail', { required: true })} />
+                    <input id='thumbnail' type="file" {...register('thumbnail', { required: true })} onChange={(e) => handleFileChange("thumbnail", e.target.files)} />
                     <FormError error={errors} field={'thumbnail'} />
+                    <ImageSection files={previews.thumbnail ? previews.thumbnail : null} />
                 </div>
 
                 {/* return policy */}
@@ -257,13 +292,17 @@ const ProductForm = () => {
                                     removeStock(index)
                                 }} className="text-red-500">Remove</button>
                             </div>
-                            <div>
+                            <div className='flex gap-2'>
                                 <label htmlFor="images" className='capitalize font-semibold'>images: </label>
-                                <input id='images' type="file" multiple {...register(`colors[${index}].images`, { required: true })} />
+                                <input id='images' type="file" multiple {...register(`colors[${index}].images`, { required: true })}
+                                    onChange={(e) => handleFileChange('colors', e.target.files, 'images', index)} />
+                                <ImageSection files={previews.colors ? previews.colors[index].images : null} />
                             </div>
-                            <div>
+                            <div className='flex gap-2'>
                                 <label htmlFor="mainImage" className='capitalize font-semibold'>MainImage: </label>
-                                <input id='mainImage' type="file" {...register(`colors[${index}].mainImage`, { required: true })} />
+                                <input id='mainImage' type="file" {...register(`colors[${index}].mainImage`, { required: true })}
+                                    onChange={(e) => handleFileChange('colors', e.target.files, 'mainImage', index)} />
+                                <ImageSection files={previews.colors ? previews.colors[index].mainImage : null} />
                             </div>
                         </div>
                     ))}
@@ -308,4 +347,5 @@ const ProductForm = () => {
         </div>
     );
 }
+
 export default ProductForm;

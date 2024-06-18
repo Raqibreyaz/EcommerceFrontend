@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import 'tailwindcss/tailwind.css';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { PencilIcon } from '@heroicons/react/20/solid';
 
 const UserProfileCompo = ({ user }) => {
 
@@ -14,7 +15,7 @@ const UserProfileCompo = ({ user }) => {
     }
   })
 
-  useFieldArray({
+  const { fields: addressFields, append: appendField, remove: removeField } = useFieldArray({
     control,
     name: 'addresses'
   })
@@ -47,14 +48,14 @@ const UserProfileCompo = ({ user }) => {
         <div className="flex flex-col ">
           <span className="w-24 font-bold">Address:</span>
           {
-            user.addresses.map(({ house_no, city, state, pincode }, index) => (
+            addressFields.map(({ house_no, city, state, pincode, disabled }, index) => (
               <div className='mt-3'>
                 <h1 className='font-semibold'>Address {index + 1}</h1>
-                <div className='capitalize flex flex-col'>
-                  <span>house no: {house_no}</span>
-                  <span>city: {city}</span>
-                  <span>state: {state}</span>
-                  <span>pincode: <input type="text" value={ } />{pincode}</span>
+                <div className='capitalize flex flex-col gap-2'>
+                  <div className='border rounded p-1 flex'>house no:<input type="text" {...register(`addresses[${index}].house_no`)} defaultValue={house_no} disabled={disabled} /> <PencilIcon className='size-4 text-blue-500' /></div>
+                  <div className='border rounded p-1 flex'>city: <input type="text" {...register(`addresses[${index}].city`)} defaultValue={city} disabled={disabled} /><PencilIcon className='size-4 text-blue-500' /></div>
+                  <div className='border rounded p-1 flex'>state: <input type="text" defaultValue={state} /><PencilIcon className='size-4 text-blue-500' /></div>
+                  <div className='border rounded p-1 flex'>pincode: <input type="number" defaultValue={pincode} /><PencilIcon className='size-4 text-blue-500' /></div>
                 </div>
               </div>
             ))
@@ -93,7 +94,10 @@ const UserProfile = () => {
     avatar: userData.avatar.url,
     email: userData.email,
     phone: userData.phoneNo,
-    addresses: userData.addresses
+    addresses: userData?.addresses.map((address) => ({
+      ...address,
+      disabled: true
+    }))
   }
   //   products: [
   //     {

@@ -62,7 +62,7 @@ export default function ProductDetails() {
 
   if (userCart && userCart.products) {
     for (const prdct of userCart.products) {
-      if (prdct.product === productId) {
+      if (prdct.product === productId && selectedColor.color === prdct.color && selectedSize === prdct.size) {
         isAddedToCart = true
         break;
       }
