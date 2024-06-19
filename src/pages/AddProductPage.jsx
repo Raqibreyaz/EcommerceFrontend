@@ -4,38 +4,24 @@ import FormError from '../components/FormError';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewProductAsync, fetchCategoriesAsync } from '../features/product-list/ProductSlice';
 import { FailedMessage, SuccessMessage } from '../components/MessageDialog';
-import { PopImage } from '../components/PopImage';
 import AddCategory from '../features/product-list/components/AddCategory';
-import { fetchCategories } from '../features/product-list/ProductApi';
 import { ImageSection } from '../components/ImageSection'
+
 
 const ProductForm = () => {
 
     const dispatch = useDispatch()
 
-    const { register, control, handleSubmit, watch, setValue, reset, formState: { errors }, formState, getFieldState, getValues } = useForm({
+    const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
         defaultValues: {
-            productName: '',
+            product_name: '',
+            discount: 0,
             description: '',
             isReturnable: true,
             returnPolicy: '',
             details: '',
-            thumbnail: '',
-            sizes: [{ size: '' }],
-            colors: [{ color: '', images: [], mainImage: null }],
-            stocks: [], // Initialize stocks array
             keyHighlights: [{ highlight: '' }]
         }
-    });
-
-    const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({
-        control,
-        name: 'sizes',
-    });
-
-    const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
-        control,
-        name: 'colors',
     });
 
     const { fields: stockFields, append: appendStock, remove: removeStock } = useFieldArray({
@@ -48,16 +34,39 @@ const ProductForm = () => {
         name: 'keyHighlights',
     });
 
+    const error = useSelector(state => state.product.error)
+    const success = useSelector(state => state.product.success)
+    const [customStock, setCustomStock] = useState({ yes: false, defaultStocks: 100 })
+    const categories = useSelector(state => state.product.categories)
+    const [colorImages, setColorImages] = useState(
+        {
+            thumbnail: null,
+            colors: [
+                {
+                    color: '',
+                    images: [],
+                    mainImage: null
+                }
+            ]
+        }
+    ) //{thumbnail,colors:[{color,images,mainImage}]}
+    const [sizes, setSizes] = useState(['']) // ['size']
+
     const onSubmit = async (data) => {
 
         console.log(data);
 
         const formData = new FormData()
 
-        const colorArray = data.colors.map((color) => color.color)
+        const colorArray = colorImages.colors.map(({ color }) => color)
+        let totalStocks = 0
+
+        data.stocks.forEach(({ stock }) => {
+            totalStocks += parseInt(stock)
+        });
 
         // adding images and mainImages with corresponding indices
-        data.colors.forEach(({ images, mainImage }, index) => {
+        colorImages.colors.forEach(({ images, mainImage }, index) => {
             for (let i = 0; i < images.length; i++) {
                 formData.append(`colors[${index}].images[${i}]`, images[i])
             }
@@ -65,19 +74,21 @@ const ProductForm = () => {
         }
         )
 
-        let keyHighlights = data.keyHighlights.map((highlightObj) => highlightObj.highlight)
-        let sizes = data.sizes.map((sizeObj) => sizeObj.size)
-
+        formData.append('thumbnail', colorImages.thumbnail[0])
         formData.append('colors', JSON.stringify(colorArray))
-        formData.append('keyHighlights', JSON.stringify(data.keyHighlights))
+        formData.append('keyHighlights', JSON.stringify(
+            data.keyHighlights.map(({ highlight }) => highlight))
+        )
         formData.append('stocks', JSON.stringify(data.stocks))
-        formData.append('sizes', JSON.stringify(data.sizes))
+        formData.append('sizes', JSON.stringify(sizes))
+        formData.append('totalStocks', totalStocks)
+        formData.append('discount', data.discount || 0)
 
         for (const key in data) {
             if (Object.hasOwnProperty.call(data, key)) {
                 const value = data[key];
 
-                if (key !== 'keyHighlights' && key !== "stocks" && key !== "colors" && key !== 'sizes')
+                if (key !== 'keyHighlights' && key !== "stocks" && key !== 'discount')
                     formData.append(`${key}`, value instanceof FileList ? value[0] : value)
             }
         }
@@ -86,58 +97,55 @@ const ProductForm = () => {
             console.log(key, value);
         }
 
-        dispatch(addNewProductAsync(formData))
+        // dispatch(addNewProductAsync(formData))
     }
 
-
-    const error = useSelector(state => state.product.error)
-    const success = useSelector(state => state.product.success)
-    const categories = useSelector(state => state.product.categories)
-
-    const sizes = watch('sizes')
-    const colors = watch('colors')
-
-    const [currentColor, setCurrentColor] = useState(colors.at(-1).color)
-    const [previews, setPreviews] = useState({})
-
-    const handleChange = (field, value, index) => {
-
-        if (colors.at(-1).color.length > 2)
-            setCurrentColor(colors.at(-1).color)
-
-        let newStocks = [];
-        sizes.forEach((size, ind1) => {
-            if (size.size) {
-                colors.forEach((color, ind2) => {
-                    if (color.color) {
-                        newStocks.push({ size: field === 'sizes' && index === ind1 ? value : size.size, color: field === 'colors' && index === ind2 ? value : color.color, stock: 100 });
-                    }
-                });
-            }
-        });
-        if (newStocks.length)
-            setValue('stocks', newStocks);
+    // remove a specific field to sizes or colors
+    const removeField = (field, index) => {
+        if (field === 'size') {
+            setSizes(sizes.filter((size, i) => i !== index))
+        }
+        else {
+            let newColorImages = { ...colorImages }
+            let colors = newColorImages.colors.filter((color, i) => i !== index)
+            setColorImages({ thumbnail: newColorImages.thumbnail, colors })
+        }
     }
 
-    const handleFileChange = (field, files, subField, index = 0) => {
+    // add a new field to sizes or colors
+    const addField = (field) => {
+        if (field === 'size') {
+            let newSizes = [...sizes]
+            newSizes.push('')
+            setSizes(newSizes)
+        }
+        else {
+            let newColorImages = { ...colorImages }
+            colorImages.colors.push({ color: '', images: [], mainImage: null })
+            setColorImages(newColorImages)
+        }
+    }
 
-        let newPreviews = { ...previews }
+    // if a files are added or changed then reflect the changes
+    const handleFileChange = (field, files, subField = '', index = 0) => {
+
+        let newColorImage = { ...colorImages }
 
         if (field === 'thumbnail') {
             console.log(field, files);
-            newPreviews[field] = files
+            newColorImage[field] = files
         }
         else {
             console.log(field, index, subField, files);
-            if (!newPreviews[field] || newPreviews[field].length <= index) {
-                (newPreviews[field] ??= []).push({ [subField]: files })
+            if (!newColorImage[field] || newColorImage[field].length <= index) {
+                (newColorImage[field] ??= []).push({ [subField]: files })
             }
             else
-                newPreviews[field][index][subField] = files
+                newColorImage[field][index][subField] = files
         }
-        console.log(newPreviews);
+        console.log(newColorImage);
 
-        setPreviews(newPreviews)
+        setColorImages(newColorImage)
     }
 
 
@@ -145,6 +153,25 @@ const ProductForm = () => {
         // dispatch(fetchCategoriesAsync())
     }
         , [])
+
+    // updating stocks as per the colors and sizes
+    useEffect(() => {
+
+        let newStocks = [];
+        sizes.forEach((size, ind1) => {
+            console.log(size);
+            if (size) {
+                colorImages.colors.forEach((color, ind2) => {
+                    if (color.color) {
+                        newStocks.push({ size: size, color: color.color, stock: customStock.defaultStocks });
+                    }
+                });
+            }
+        });
+
+        setValue('stocks', newStocks);
+    }, [colorImages.colors, sizes, customStock, setValue])
+
 
     if (error) {
         FailedMessage(error)
@@ -159,13 +186,8 @@ const ProductForm = () => {
     return (
         <div className='flex gap-2'>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-md w-[95%]">
-                {/* {error && <MessageDialog head={error} />}
-                {success && <MessageDialog head={success} message={success} buttonMessage='okay'
-                    className='bg-green-500' />} */}
-
                 {/* Product Name */}
                 <div className="flex flex-col space-y-2">
-                    {/* <label className="text-lg font-semibold" htmlFor='productName'>Product Name:</label> */}
                     <input type="text" className="border p-2 rounded placeholder:capitalize" id='productName' placeholder='product name' {...register('product_name', { required: true })} />
                     <FormError error={errors} field={'product_name'} />
                 </div>
@@ -176,12 +198,12 @@ const ProductForm = () => {
                         <FormError error={errors} field={'price'} />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <input type="number" {...register('totalStocks', { required: true })} placeholder='Total Stocks' className='border p-2 rounded' />
                         <FormError error={errors} field={'totalStocks'} />
-                    </div>
+                    </div> */}
                     <div>
-                        <input type="number" {...register('discount')} placeholder='Discount (in %)' className='border p-2 rounded' />
+                        <input type="number" {...register('discount', { min: 0 })} placeholder='Discount (in %)' className='border p-2 rounded' />
                     </div>
                     <div>
                         <select id="" {...register('category', { required: true })} className='border p-2 rounded'>
@@ -196,19 +218,18 @@ const ProductForm = () => {
 
                 {/* Description */}
                 <div className="flex flex-col space-y-2">
-                    {/* <label className="text-lg font-semibold" htmlFor='description'>Description:</label> */}
                     <Controller
                         name="description"
                         control={control}
                         render={({ field }) => <textarea rows={4} {...field} className="border p-2 rounded resize-none" id='description' placeholder='Description'></textarea>}
-                        rules={{ required: true }}
+                        rules={{ required: true, minLength: 10 }}
                     />
                     <FormError error={errors} field={'description'} />
                 </div>
 
                 {/* details */}
                 <div>
-                    <textarea rows={4} {...register('details', { required: true })} placeholder='Details' id="" className='border rounded p-2 w-full resize-none'></textarea>
+                    <textarea rows={4} {...register('details', { required: true, minLength: 10 })} placeholder='Details' id="" className='border rounded p-2 w-full resize-none'></textarea>
                 </div>
 
                 {/* keyHighlights */}
@@ -218,7 +239,7 @@ const ProductForm = () => {
                         highlightFields.map((highlight, index) => (
                             <div key={highlight.id} className='space-x-1'>
                                 <input {...register(`keyHighlights[${index}].highlight`, { required: true })} type="text" className='border rounded p-1 w-[90%]' placeholder='Highlight' />
-                                <button type='button' className='text-red-500' onClick={() => removeHighlights(index)}>Remove</button>
+                                {highlightFields.length > 1 && <button type='button' className='text-red-500' onClick={() => removeHighlights(index)}>Remove</button>}
                                 <FormError error={errors} field={'keyHighlights'} />
                             </div>
                         ))
@@ -229,9 +250,17 @@ const ProductForm = () => {
                 {/* thumbnail */}
                 <div className='border p-2 rounded flex gap-2'>
                     <label htmlFor="thumbnail" className='font-semibold'>Thumbnail: </label>
-                    <input id='thumbnail' type="file" {...register('thumbnail', { required: true })} onChange={(e) => handleFileChange("thumbnail", e.target.files)} />
-                    <FormError error={errors} field={'thumbnail'} />
-                    <ImageSection files={previews.thumbnail ? previews.thumbnail : null} />
+                    <input id='thumbnail' type="file" required
+                        onChange={(e) => {
+                            setColorImages((prevColorImages) => {
+                                const newObj = { ...prevColorImages }
+                                newObj.thumbnail = e.target.files
+                                return newObj
+                            }
+                            )
+                        }}
+                    />
+                    <ImageSection files={colorImages.thumbnail} />
                 </div>
 
                 {/* return policy */}
@@ -243,71 +272,68 @@ const ProductForm = () => {
                 {/* Sizes */}
                 <div className="border p-4 rounded-lg space-y-4">
                     <h2 className="text-lg font-semibold">Sizes:</h2>
-                    {sizeFields.map((field, index) => (
-                        <div key={field.id} className="flex space-x-2 mb-2">
-                            <Controller
-                                name={`sizes[${index}].size`}
-                                control={control}
-                                render={({ field }) => (
-                                    <input {...field} type="text" placeholder="Size" className="border p-2 rounded"
-                                        onChange={(e) => {
-                                            field.onChange(e)
-                                            handleChange('sizes', e.target.value, index)
-                                        }} />
-                                )}
-                                rules={{ required: true }}
-                            />
-                            <FormError error={errors} field={`sizes[${index}].size`} />
-                            <button type="button" onClick={() => {
-                                removeSize(index)
+                    {sizes.map((size, index) => (
+                        <div key={index} className="flex space-x-2 mb-2">
+                            <input type="text" placeholder="Size" className="border p-2 rounded" value={size} required
+                                onChange={(e) => {
+                                    setSizes((prevSizes) => {
+                                        let newSizes = [...prevSizes]
+                                        newSizes[index] = e.target.value
+                                        return newSizes
+                                    });
+                                }} />
+                            {/* <FormError field={'size'} /> */}
+                            {sizes.length > 1 && <button type="button" onClick={() => {
+                                removeField('size', index)
                                 removeStock(index)
-                            }} className="text-red-500">Remove</button>
+                            }} className="text-red-500">Remove</button>}
                         </div>
                     ))}
-                    <button type="button" onClick={() => appendSize({ size: '' })} className="bg-blue-500 text-white px-4 py-2 rounded">Add Size</button>
+                    <button type="button" onClick={() => addField('size')} className="bg-blue-500 text-white px-4 py-2 rounded">Add Size</button>
                 </div>
 
                 {/* Colors */}
                 <div className="border p-4 rounded-lg space-y-4">
                     <h2 className="text-lg font-semibold">Colors:</h2>
-                    {colorFields.map((field, index) => (
-                        <div key={field.id} className="border p-4 rounded-lg space-y-2">
+                    {colorImages.colors.map((color, index) => (
+                        <div key={index} className="border p-4 rounded-lg space-y-2">
                             <div className="flex space-x-2 items-center">
-                                <label htmlFor={field.id} className={`rounded-full size-5 border`} style={{ backgroundColor: colors[index].color || currentColor }}></label>
-                                <Controller
-                                    name={`colors[${index}].color`}
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input {...field} type="text" placeholder="Color" className="border p-2 rounded" id={field.id}
-                                            onChange={(e) => {
-                                                field.onChange(e)
-                                                handleChange('colors', e.target.value.toLowerCase(), index)
-                                            }} />
-                                    )}
-                                    rules={{ required: true }}
-                                />
-                                <FormError error={errors} field={`colors[${index}].color`} />
-                                <button type="button" onClick={() => {
-                                    removeColor(index)
+                                <label htmlFor={`colors[${index}].color`} className={`rounded-full size-5 border`} style={{ backgroundColor: color.color }}></label>
+                                <input type="text" placeholder="Color" className="border p-2 rounded" id={`colors[${index}].color`}
+                                    value={color.color}
+                                    required
+                                    onChange={(e) => {
+                                        setColorImages((prevColorImages) => {
+                                            const newColors = prevColorImages.colors.map((colorObj, colorIndex) =>
+                                                colorIndex === index ? { ...colorObj, color: e.target.value } : colorObj
+                                            );
+                                            return { ...prevColorImages, colors: newColors };
+                                        });
+                                    }} />
+                                {/* <FormError field={`color`} /> */}
+                                {colorImages.colors.length > 1 && <button type="button" onClick={() => {
+                                    removeField('colors', index)
                                     removeStock(index)
-                                }} className="text-red-500">Remove</button>
+                                }} className="text-red-500">Remove</button>}
                             </div>
                             <div className='flex gap-2'>
                                 <label htmlFor="images" className='capitalize font-semibold'>images: </label>
-                                <input id='images' type="file" multiple {...register(`colors[${index}].images`, { required: true })}
-                                    onChange={(e) => handleFileChange('colors', e.target.files, 'images', index)} />
-                                <ImageSection files={previews.colors ? previews.colors[index].images : null} />
+                                <input id='images' type="file" multiple required
+                                    onChange={(e) => handleFileChange('colors', e.target.files, 'images', index)}
+                                />
+                                <ImageSection files={colorImages.colors[index].images} />
                             </div>
                             <div className='flex gap-2'>
                                 <label htmlFor="mainImage" className='capitalize font-semibold'>MainImage: </label>
-                                <input id='mainImage' type="file" {...register(`colors[${index}].mainImage`, { required: true })}
-                                    onChange={(e) => handleFileChange('colors', e.target.files, 'mainImage', index)} />
-                                <ImageSection files={previews.colors ? previews.colors[index].mainImage : null} />
+                                <input id='mainImage' type="file" required
+                                    onChange={(e) => handleFileChange('colors', e.target.files, 'mainImage', index)}
+                                />
+                                <ImageSection files={colorImages.colors[index].mainImage} />
                             </div>
                         </div>
                     ))}
                     <button type="button" onClick={() => {
-                        appendColor({ color: '', images: [], mainImage: null })
+                        addField('colors')
                         setCurrentColor('')
                     }} className="bg-blue-500 text-white px-4 py-2 rounded">Add Color</button>
                 </div>
@@ -315,7 +341,11 @@ const ProductForm = () => {
                 {/* Stocks */}
                 <div className="border p-4 rounded-lg space-y-4">
                     <h2 className="text-lg font-semibold">Stocks:</h2>
-                    {stockFields.map((field, index) => (
+                    <div>
+                        <input type="checkbox" id='customStock' onChange={(e) => setCustomStock({ yes: e.target.checked, defaultStocks: customStock.defaultStocks })} checked={customStock.yes} />
+                        <label htmlFor="customStock" className='ml-1 text-sm'>Add Custom Stocks or </label><input type="number" value={customStock.defaultStocks} className='w-100 border rounded' placeholder={`by default ${customStock.defaultStocks}`} onChange={(e) => setCustomStock({ yes: false, defaultStocks: e.target.value })} />
+                    </div>
+                    {customStock.yes && stockFields.map((field, index) => (
                         <div key={field.id} className="flex space-x-2 mb-2">
 
                             <span>size:{field.size}</span>
@@ -336,7 +366,7 @@ const ProductForm = () => {
                 {/* isReturnable */}
                 <div>
                     <input type='checkbox' {...register('isReturnable')} defaultChecked={true} className='mr-1' id='isReturnable' />
-                    <label htmlFor='isReturnable'>Returnable</label>
+                    <label htmlFor='isReturnable' className='text-sm'>Returnable</label>
                 </div>
 
                 <input type="submit" className="bg-green-500 text-white px-4 py-2 rounded" />

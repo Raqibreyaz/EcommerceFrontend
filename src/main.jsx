@@ -68,7 +68,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/edit-product',
+        path: '/edit-product/:id',
         element: (
           <Authenticate authState={true} roles={['admin', 'seller']}>
             <EditProductPage />

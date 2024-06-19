@@ -115,8 +115,13 @@ const handleAsyncActions = (builder, asyncThunk) => {
             state.status = 'rejected'
 
             state.error = action.error.message;
-            if (action.type === 'product/fetchCategories/rejected')
-                console.log(action);
+            console.log(action);
+            if (action.type === 'product/fetchCategories/rejected') {
+                state.categories = []
+            }
+            if (action.type === 'product/fetchProducts/rejected') {
+                state.products = []
+            }
         });
 };
 
@@ -131,6 +136,7 @@ const productSlice = createSlice({
         categories: [],
         currentProduct: {
             product_name: '',
+            thumbnail: { url: '', public_id: '' },
             keyHighlights: [],
             sizes: [],
             colors: [],

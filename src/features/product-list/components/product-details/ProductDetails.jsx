@@ -261,11 +261,14 @@ export default function ProductDetails() {
                   <HeartIcon className='text-black size-10' />
                   Add To WishList
                 </button>
+                <Link to={`/edit-product/${providedProduct._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >
+                  <TrashIcon className='size-5 text-yellow-700' />
+                  edit Product
+                </Link>
                 <span className='mt-3 font-semibold mx-auto cursor-pointer flex' onClick={() => handleDelete()}>
                   <TrashIcon className='size-5 text-red-700' />
                   Delete Product
                 </span>
-
               </form>
             </div>
             <DescriptionDetailsAndHighlights product={product} />
