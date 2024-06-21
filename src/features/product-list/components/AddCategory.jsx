@@ -22,7 +22,7 @@ function AddCategory() {
     return (
         <form className='flex flex-col gap-2'>
             <label htmlFor="add-category" className='font-semibold'>Add a Category:</label>
-            <input type="text" {...register('newCategory',)} className='rounded p-2 focus:border-blue-500' />
+            <input type="text" {...register('newCategory',)} className='rounded p-2 focus:border-blue-500' id='add-category'/>
             <button type='button' disabled={isSubmitting} onClick={handleSubmit(onAddCategory)} className='bg-blue-500 py-1 rounded text-white'>Add Category</button>
         </form>
     )

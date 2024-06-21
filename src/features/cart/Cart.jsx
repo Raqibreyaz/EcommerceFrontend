@@ -20,20 +20,19 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
 
   let subTotal = 0
   let totalDiscount = 0
-  userCart.products.forEach(({ price, quantity, discount }) => {
+  console.log(userCart);
+  userCart.forEach(({ price, quantity, discount }) => {
     subTotal += (price * quantity)
     totalDiscount += price * discount * quantity / 100
   })
 
-  console.log(userCart.products);
-
-  let products = userCart.products.map((product) => (
+  let products = userCart.map((product) => (
     {
       id: product.product,
       name: product.product_name,
       href: `/product-details/${product.product}`,
       color: product.color,
-      price: `Rs. ${product.price * product.quantity}`,
+      price: product.price,
       quantity: product.quantity,
       imageSrc: product.image,
       imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
@@ -60,6 +59,8 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
 
     if (result.isConfirmed) {
       dispatch(removeProductFromCartAsync({ productId, size, color }))
+      userCart.filter((product) => product.product !== productId)
+      console.log(userCart);
     }
 
     if (btnText !== 'checkout')
@@ -103,15 +104,15 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
                           <a href={product.href}>{product.name}</a>
                         </h3>
                         <p className="ml-4">
-                          <span>{product.price}</span>
-                          <span className='block'>{product.price * (1 - product.discount / 100)}</span>
+                          <span className='block'>{product.price * product.quantity * (1 - product.discount / 100)}</span>
+                          <span className='line-through'>{product.price * product.quantity}</span>
                           {/* <span>{product.discount}</span> */}
                         </p>
                       </div>
                       <p className="mt-1 text-sm text-gray-500">{product.color}</p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
-                      <p className="text-gray-500 flex gap-2 items-center ">Qty
+                      <div className="text-gray-500 flex gap-2 items-center ">Qty
                         <p className='flex items-center gap-2 border rounded-3xl px-2'>
                           <select id="" defaultValue={product.quantity} onChange={(e) => handleQuantity(product.id, product.color, product.size, e.target.value)} className='px-2'>
                             {
@@ -121,7 +122,7 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
                             }
                           </select>
                         </p>
-                      </p>
+                      </div>
 
                       <div className="flex">
                         <button

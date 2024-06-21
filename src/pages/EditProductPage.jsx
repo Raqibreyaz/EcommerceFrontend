@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import FormError from '../components/FormError';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewProductAsync, fetchCategoriesAsync } from '../features/product-list/ProductSlice';
+import { editProductAsync, fetchCategoriesAsync, fetchProductDetailsAsync } from '../features/product-list/ProductSlice';
 import { FailedMessage, SuccessMessage } from '../components/MessageDialog';
 import AddCategory from '../features/product-list/components/AddCategory';
 import { ImageSection } from '../components/ImageSection'
+import { useParams } from 'react-router-dom';
 
 
 const ProductForm = () => {
@@ -13,7 +14,7 @@ const ProductForm = () => {
     const dispatch = useDispatch()
     const product = useSelector((state) => state.product.currentProduct)
 
-    console.log(product);
+    const productId = useParams().id
 
     const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
         defaultValues: {
@@ -44,73 +45,146 @@ const ProductForm = () => {
     const success = useSelector(state => state.product.success)
     const [customStock, setCustomStock] = useState({ yes: true, defaultStocks: 100 })
     const categories = useSelector(state => state.product.categories)
-    const [colorImages, setColorImages] = useState(
-        {
-            thumbnail: { url: product.thumbnail.url, id: product.thumbnail._id },
-            colors: product.colors.map(({ color, images: providedImages }) => {
-                console.log(providedImages)
-                return {
-                    color,
-                    images: providedImages.map(({ image: { url, _id: id }, is_main }) => (is_main ? '' : { url, id }
-                    )).filter((url) => !url ? false : true),
-                    mainImage: providedImages.map(({ image: { url, _id: id }, is_main }) => (is_main ? { url, id } : '')).filter((url) => url)[0]
-                }
-            })
-        }
-    ) //{thumbnail,colors:[{color,images,mainImage}]}
-    const [toBeDeleted, setToBeDeleted] = useState([]) //ids of images to be deleted 
 
-    console.log(colorImages);
+    console.log(categories);
+
+    const [oldColorImages, updateOldColorImages] = useState({
+        thumbnail: product.thumbnail,
+        newThumbnail: null,//{image:{url,public_id,_id},is_main,_id}
+        colors: product.colors.map(({ color, images, _id }) => (
+            {
+                color,
+                images: images.filter(({ is_main }) => !is_main).map((image) => ({
+                    url: image.image?.url,
+                    public_id: image.image?.public_id
+                })),
+                mainImage: images.filter(({ is_main }) => is_main).map((image) => (
+                    {
+                        url: image.image?.url,
+                        public_id: image.image?.public_id
+                    }
+                ))[0],
+                toBeDeleted: [ /*id*/], //public_id of all images which are to be deleted
+                toBeInserted: { images: [], mainImage: null },
+                _id //id of the color useful when color name is updated
+            }
+        ))
+    })
+
+    console.log(oldColorImages);
+
+    const [newColorImages, setNewColorImages] = useState([ /*{color:'',images:FileList,mainImage:FileList}*/]
+    )
 
     const [sizes, setSizes] = useState(product.sizes) // ['size']
 
-    const onSubmit = async (data) => {
 
-        console.log(data);
+
+    const onSubmit = async (data) => {
 
         const formData = new FormData()
 
-        // good
-        const colorArray = colorImages.colors.map(({ color }) => color)
+        let uniqueCheck = []
+
+        let oldColors = oldColorImages.colors.map(({ color, _id, toBeDeleted, images, mainImage }) => {
+            uniqueCheck.push(color)
+            return {
+                color,
+                images: images.map((imageObj) => (
+                    {
+                        image: {
+                            url: imageObj.url,
+                            public_id: imageObj.public_id
+                        },
+                        is_main: false
+                    }
+                )),
+                mainImage: {
+                    image: {
+                        url: mainImage.url,
+                        public_id: mainImage.public_id
+                    },
+                    is_main: true
+                },
+                toBeDeleted, //publicIds of images
+                colorId: _id
+            }
+        })
+
+        if (uniqueCheck.length !== (new Set(uniqueCheck)).size) {
+            FailedMessage('duplicate colors are not allowed')
+        }
+
+        // a separate array for newColors
+        let newColors = newColorImages.map(({ color }) => color)
+
+        uniqueCheck = [...uniqueCheck, ...newColors]
+
+        if (uniqueCheck.length !== (new Set(uniqueCheck)).size) {
+            FailedMessage('duplicate colors are not allowed')
+        }
+
+        if (sizes.length !== (new Set(sizes)).size)
+            FailedMessage('duplicate sizes are not allowed')
+
+        // since if new thumbnail exists then it will be a filelist
+        if (oldColorImages.newThumbnail)
+            formData.append('newThumbnail', oldColorImages.newThumbnail[0])
+
+        // take all the images and mainImage which are to be inserted for existing color
+        oldColorImages.colors.forEach((colorObj, index) => {
+
+            // since images will be a filelist 
+            for (let i = 0; i < colorObj.toBeInserted.images.length; i++) {
+                let file = colorObj.toBeInserted.images[i]
+                // the index defines the specific color index 
+                formData.append(`toBeInserted[${index}]`, file)
+            }
+
+            // when mainImage of that particular color is changed
+            if (colorObj.toBeInserted.mainImage) {
+                formData.append(`newMainImage[${index}]`, colorObj.toBeInserted.mainImage[0])
+            }
+        });
+
+        // handling newColors images
+        newColorImages.forEach(({ images, mainImage }, index) => {
+
+            // since images is a filelist
+            for (let i = 0; i < images.length; i++) {
+                const file = images[i];
+                // indexTh color of newColors ith image of images has a file
+                formData.append(`newColors[${index}]`, file)
+            }
+            // since it is a filelist
+            formData.append(`newColors[${index}].mainImage`, mainImage[0])
+        })
+
+        const keyHighlights = data.keyHighlights.map(({ highlight }) => highlight)
+
         let totalStocks = 0
 
-        // good
         data.stocks.forEach(({ stock }) => {
             totalStocks += parseInt(stock)
         });
 
-        // adding images and mainImages with corresponding indices
-        colorImages.colors.forEach(({ images, mainImage }, index) => {
+        data.totalStocks = totalStocks
+        data.productId = product._id
 
-            if (images instanceof FileList) {
-                for (let i = 0; i < images.length; i++) {
-                    formData.append(`colors[${index}].images[${i}]`, images[i])
-                }
-            }
-
-            if (mainImage instanceof FileList)
-                formData.append(`colors[${index}].mainImage`, mainImage[0])
-        }
-        )
-
-        if (colorImages.thumbnail instanceof FileList)
-            formData.append('thumbnail', colorImages.thumbnail[0])
-
-        formData.append('colors', JSON.stringify(colorArray))
-        formData.append('keyHighlights', JSON.stringify(
-            data.keyHighlights.map(({ highlight }) => highlight))
-        )
+        // handled json
         formData.append('stocks', JSON.stringify(data.stocks))
+        formData.append('keyHighlights', JSON.stringify(keyHighlights))
+        formData.append('oldColors', JSON.stringify(oldColors))
         formData.append('sizes', JSON.stringify(sizes))
-        formData.append('totalStocks', totalStocks)
-        formData.append('discount', data.discount || 0)
+        formData.append('newColors', JSON.stringify(newColors))
 
         for (const key in data) {
             if (Object.hasOwnProperty.call(data, key)) {
                 const value = data[key];
 
-                if (key !== 'keyHighlights' && key !== "stocks" && key !== 'discount')
-                    formData.append(`${key}`, value instanceof FileList ? value[0] : value)
+                if (key !== 'keyHighlights' && key !== 'stocks') {
+                    formData.append(key, value)
+                }
             }
         }
 
@@ -118,103 +192,179 @@ const ProductForm = () => {
             console.log(key, value);
         }
 
-        // dispatch(addNewProductAsync(formData))
+        dispatch(editProductAsync(formData))
     }
 
-    // remove a specific field to sizes or colors
-    const removeField = (field, index) => {
-        if (field === 'size') {
-            setSizes(sizes.filter((size, i) => i !== index))
-        }
-        else {
-            let newColorImages = { ...colorImages }
-            let colors = newColorImages.colors.filter((color, i) => i !== index)
-            setColorImages({ thumbnail: newColorImages.thumbnail, colors })
-        }
-    }
+    const updateStocks = (newSizes = '', oldColors = '', newColors = '') => {
 
-    // add a new field to sizes or colors
-    const addField = (field) => {
-        if (field === 'size') {
-            let newSizes = [...sizes]
-            newSizes.push('')
-            setSizes(newSizes)
-        }
-        else {
-            let newColorImages = { ...colorImages }
-            colorImages.colors.push({ color: '', images: [], mainImage: null })
-            setColorImages(newColorImages)
-        }
-    }
+        if (!newSizes)
+            newSizes = sizes
+        if (!oldColors)
+            oldColors = oldColorImages.colors
+        if (!newColors)
+            newColors = newColorImages
 
-    // if a files are added or changed then reflect the changes
-    const handleFileChange = (field, files, subField = '', index = 0) => {
-
-        let newColorImage = { ...colorImages }
-
-        if (field === 'thumbnail') {
-            console.log(field, files);
-            newColorImage[field] = files
-        }
-        else {
-            console.log(field, index, subField, files);
-            // add files to the corresponding subField (images,mainImage) [{}]
-            if (!newColorImage[field] || newColorImage[field].length <= index) {
-                (newColorImage[field] ??= []).push({ [subField]: files })
-            }
-            // adding or updating a subfield like images or mainImage
-            else {
-                // when we have to add the filelist in images
-                if (subField === 'images' && newColorImage[field][index].images) {
-                    newColorImage[field][index].images.push(files)
-                }
-                // else every other field requires operation discarding old one and add new
-                else
-                    newColorImage[field][index][subField] = files
-            }
-        }
-        console.log(newColorImage);
-
-        setColorImages(newColorImage)
-    }
-
-
-    useEffect(() => {
-        // dispatch(fetchCategoriesAsync())
-    }
-        , [])
-
-    // updating stocks as per the colors and sizes
-    useEffect(() => {
-
-        let newStocks = [];
-        sizes.forEach((size, ind1) => {
+        let newStocks = []
+        newSizes.forEach((size) => {
             if (size) {
-                colorImages.colors.forEach((color, ind2) => {
-                    if (color.color) {
-                        newStocks.push({ size: size, color: color.color, stock: customStock.defaultStocks });
-                    }
+                oldColors.forEach(({ color }) => {
+                    console.log(color);
+                    if (color)
+                        newStocks.push({ size, color, stock: customStock.defaultStocks })
+                });
+                newColors.forEach(({ color }) => {
+                    console.log(color);
+                    if (color)
+                        newStocks.push({ size, color, stock: customStock.defaultStocks })
                 });
             }
         });
+        setValue('stocks', newStocks)
+    }
 
-        setValue('stocks', newStocks);
-    }, [colorImages.colors, sizes, customStock, setValue])
+    // just give the index and will remove the color or size
+    const removeField = (field, index) => {
 
-    useEffect(() => {
-        console.log('to be deleted ', toBeDeleted);
-    }, [toBeDeleted, setToBeDeleted])
+        console.log('going to remove ', index, 'from', field);
 
+        // for removing a color from old colors
+        if (field === 'oldColors') {
+            updateOldColorImages((prevOldColorImages) => {
+                // removing that particular color
+                const newColors = prevOldColorImages.colors.filter((colorObj, colorIndex) => colorIndex !== index
+                );
+                updateStocks(sizes, newColors, newColorImages)
+                // finally return the updated version
+                return { ...prevOldColorImages, colors: newColors };
+            })
+        }
+
+        // removing a size
+        else if (field === 'size') {
+            // setSizes(sizes.filter((size, i) => i !== index))
+            setSizes((prevSizes) => {
+                // remove the 
+                let newSizes = prevSizes.filter((_, i) => i !== index)
+                updateStocks(newSizes, oldColorImages.colors, newColorImages)
+                return newSizes
+            }
+            )
+        }
+        // 
+        else {
+            // setNewColorImages(newColorImages.filter((color, i) => (i !== index)))
+            setNewColorImages((prevNewColorImages) => {
+                let colorImages = prevNewColorImages.filter((_, i) => i !== index)
+                updateStocks(sizes, oldColorImages.colors, colorImages)
+                return colorImages
+            }
+            )
+        }
+    }
+
+    // just give field name and it will add a new entry
+    // not for old images
+    const addField = (field) => {
+
+        console.log('adding new entry to ', field);
+
+        if (field === 'size') {
+            // setSizes([...sizes,''])
+            setSizes((prevSizes) => {
+                let newSizes = [...prevSizes, '']
+                console.log(newSizes);
+                updateStocks(newSizes, oldColorImages.colors, newColorImages)
+                return newSizes
+            }
+            )
+        }
+        else {
+            let colorImages = [...newColorImages]
+            colorImages.push({ id: Date.now(), color: '', images: [], mainImage: null })
+            console.log('added new entry ', colorImages);
+            updateStocks(sizes, oldColorImages.colors, colorImages)
+            setNewColorImages(colorImages)
+        }
+    }
+
+    // 
+    const handleFileChange = (field, files, subField, index = 0) => {
+
+        // field--> oldColors, newColors
+        // subField--> images, mainImage
+
+        //oldColors:{thumbnail,colors}
+
+        for (const file of files) {
+            if(!file.type.includes('image/'))
+               return FailedMessage('Only Images Are Allowed')
+        }
+
+        console.log('adding files to ', field, subField);
+
+        if (field === 'oldColors') {
+
+            // 
+            if (subField === 'thumbnail') {
+                let obj = { ...oldColorImages, newThumbnail: files }
+                console.log(obj);
+                updateOldColorImages(obj)
+            }
+            // else if (subField === 'mainImage') {
+            //     updateOldColorImages((prevOldColorImages) => {
+            //         let colorImages = { ...prevOldColorImages }
+            //         colorImages[field][index].newMainImage = files
+            //         return colorImages
+            //     }
+            //     )
+            // }
+            // new image will  always be added to toBeInserted by specifying the field
+            // *index
+            else {
+                updateOldColorImages((prevOldColorImages) => {
+                    let newColors = prevOldColorImages.colors.map((color, i) => {
+                        if (i === index) {
+                            color.toBeInserted[subField] = files
+                        }
+                        return color
+                    })
+                    return { ...prevOldColorImages, colors: newColors }
+                }
+                )
+            }
+        }
+        // just have to add new files to that specific subfield
+        // *index
+        if (field === 'newColors') {
+            setNewColorImages(
+                (prevNewColorImages) => {
+                    let colorImages = [...prevNewColorImages]
+                    colorImages[index][subField] = files
+                    console.log('added files to ', field, subField, colorImages);
+                    return colorImages
+                }
+            )
+        }
+    }
 
     if (error) {
         FailedMessage(error)
         // .then((result) => (console.log(result)))
     }
-    if (success) {
+    if (success && !success.includes('categories')) {
         SuccessMessage(success)
         // .then((result) => (console.log(result)))
     }
 
+    useEffect(() => {
+        updateStocks()
+    }
+        , [customStock])
+
+    useEffect(() => {
+        dispatch(fetchProductDetailsAsync(productId))
+        dispatch(fetchCategoriesAsync())
+    }, [])
 
     return (
         <div className='flex gap-2'>
@@ -241,7 +391,7 @@ const ProductForm = () => {
                         <select id="category" {...register('category', { required: true })} className='border p-2 rounded'>
                             {
                                 categories.map((category) => (
-                                    <option value={category.name}>{category.name}</option>
+                                    <option key={category._id} value={category.name}>{category.name}</option>
                                 ))
                             }
                         </select>
@@ -284,17 +434,12 @@ const ProductForm = () => {
                 {/* thumbnail */}
                 <div className='border p-2 rounded flex gap-2'>
                     <label htmlFor="thumbnail" className='font-semibold'>Thumbnail: </label>
-                    <input id='thumbnail' type="file"
+                    <input id='thumbnail' type="file" accept='image/*'
                         onChange={(e) => {
-                            setColorImages((prevColorImages) => {
-                                const newObj = { ...prevColorImages }
-                                newObj.thumbnail = e.target.files
-                                return newObj
-                            }
-                            )
+                            handleFileChange('oldColors', e.target.files, 'thumbnail')
                         }}
                     />
-                    <ImageSection files={colorImages.thumbnail} setToBeDeleted={setToBeDeleted} />
+                    <ImageSection files={oldColorImages.newThumbnail || oldColorImages.thumbnail} />
                 </div>
 
                 {/* return policy */}
@@ -314,13 +459,13 @@ const ProductForm = () => {
                                     setSizes((prevSizes) => {
                                         let newSizes = [...prevSizes]
                                         newSizes[index] = e.target.value
+                                        updateStocks(newSizes)
                                         return newSizes
                                     });
                                 }} />
                             {/* <FormError field={'size'} /> */}
                             {sizes.length > 1 && <button type="button" onClick={() => {
                                 removeField('size', index)
-                                removeStock(index)
                             }} className="text-red-500">Remove</button>}
                         </div>
                     ))}
@@ -330,45 +475,103 @@ const ProductForm = () => {
                 {/* Colors */}
                 <div className="border p-4 rounded-lg space-y-4">
                     <h2 className="text-lg font-semibold">Colors:</h2>
-                    {colorImages.colors.map((color, index) => (
-                        <div key={index} className="border p-4 rounded-lg space-y-2">
+                    {oldColorImages.colors.map((color, index) => (
+                        <div key={color.id} className="border p-4 rounded-lg space-y-2">
+                            {/* color input */}
                             <div className="flex space-x-2 items-center">
-                                <label htmlFor={`colors[${index}].color`} className={`rounded-full size-5 border`} style={{ backgroundColor: color.color }}></label>
-                                <input type="text" placeholder="Color" className="border p-2 rounded" id={`colors[${index}].color`}
+                                <label htmlFor={`oldColors[${index}].color`} className={`rounded-full size-5 border`} style={{ backgroundColor: color.color }}></label>
+                                <input type="text" placeholder="Color" className="border p-2 rounded" id={`oldColors[${index}].color`}
                                     value={color.color}
                                     required
                                     onChange={(e) => {
-                                        setColorImages((prevColorImages) => {
-                                            const newColors = prevColorImages.colors.map((colorObj, colorIndex) =>
+                                        // when color name is to updated
+                                        updateOldColorImages((prevOldColorImages) => {
+                                            const newColors = prevOldColorImages.colors.map((colorObj, colorIndex) =>
+                                                // find the color and update
                                                 colorIndex === index ? { ...colorObj, color: e.target.value } : colorObj
                                             );
-                                            return { ...prevColorImages, colors: newColors };
+                                            updateStocks('', newColors)
+                                            // finally return the updated version
+                                            return { ...prevOldColorImages, colors: newColors };
                                         });
                                     }} />
-                                {/* <FormError field={`color`} /> */}
-                                {colorImages.colors.length > 1 && <button type="button" onClick={() => {
-                                    removeField('colors', index)
-                                    removeStock(index)
+                                {/* when the color is being deleted */}
+                                {oldColorImages.colors.length > 1 && <button type="button" onClick={() => {
+                                    // remove from old colors as it belongs to it
+                                    removeField('oldColors', index)
                                 }} className="text-red-500">Remove</button>}
                             </div>
+                            {/* images input */}
                             <div className='flex gap-2'>
                                 <label htmlFor="images" className='capitalize font-semibold'>images: </label>
-                                <input id='images' type="file" multiple
-                                    onChange={(e) => handleFileChange('colors', e.target.files, 'images', index)}
+                                <input id='images' type="file" multiple accept='image/*'
+                                    onChange={(e) => handleFileChange('oldColors', e.target.files, 'images', index)}
                                 />
-                                <ImageSection files={colorImages.colors[index].images} setToBeDeleted={setToBeDeleted} />
+                                {/* have to show ad update if there is to delete any image */}
+                                <ImageSection files={oldColorImages.colors[index].images} updateOldColorImages={updateOldColorImages} removeOption={true} index={index} />
+                                {/* here we just have to show the image only */}
+                                <ImageSection files={oldColorImages.colors[index].toBeInserted.images} />
                             </div>
+                            {/* main image inpuy */}
                             <div className='flex gap-2'>
                                 <label htmlFor="mainImage" className='capitalize font-semibold'>MainImage: </label>
-                                <input id='mainImage' type="file"
-                                    onChange={(e) => handleFileChange('colors', e.target.files, 'mainImage', index)}
+                                <input id='mainImage' type="file" accept='image/*'
+                                    onChange={(e) => handleFileChange('oldColors', e.target.files, 'mainImage', index)}
                                 />
-                                <ImageSection files={colorImages.colors[index].mainImage} setToBeDeleted={setToBeDeleted} />
+                                <ImageSection files={oldColorImages.colors[index].toBeInserted.mainImage || oldColorImages.colors[index].mainImage} removeOption={false} updateOldColorImages={updateOldColorImages} />
                             </div>
                         </div>
                     ))}
+                    {
+                        newColorImages.map(({ color, images, mainImage }, index) => (
+                            <div key={color.id} className="border p-4 rounded-lg space-y-2">
+                                {/* color input */}
+                                <div className="flex space-x-2 items-center">
+                                    <label htmlFor={`newColors[${index}].color`} className={`rounded-full size-5 border`} style={{ backgroundColor: color }}></label>
+                                    <input type="text" placeholder="Color" className="border p-2 rounded" id={`newColors[${index}].color`}
+                                        value={color}
+                                        required
+                                        onChange={(e) => {
+                                            setNewColorImages((prevNewColorImages) => {
+                                                let colorImages = [...prevNewColorImages]
+                                                colorImages[index].color = e.target.value
+                                                updateStocks('', '', colorImages)
+                                                return colorImages
+                                            }
+                                            )
+                                        }} />
+                                    {/* when the color is being deleted */}
+                                    <button type="button" onClick={() => {
+                                        // remove from new colors as it belongs to it
+                                        removeField('newColors', index)
+                                        // update stocks
+                                        // removeStock(index)
+                                    }} className="text-red-500">Remove</button>
+
+                                </div>
+                                {/* images input */}
+                                <div className='flex gap-2'>
+                                    <label htmlFor="images" className='capitalize font-semibold'>images: </label>
+                                    <input id='images' type="file" multiple required
+                                        onChange={(e) => handleFileChange('newColors', e.target.files, 'images', index)}
+                                    />
+                                    {/* have to show ad update if there is to delete any image */}
+                                    <ImageSection files={newColorImages[index].images} />
+                                </div>
+                                {/* main image input */}
+                                <div className='flex gap-2'>
+                                    <label htmlFor="mainImage" className='capitalize font-semibold'>MainImage: </label>
+                                    <input id='mainImage' type="file" required
+                                        onChange={(e) => handleFileChange('newColors', e.target.files, 'mainImage', index)}
+                                    />
+                                    <ImageSection files={newColorImages[index].mainImage} />
+                                </div>
+                            </div>
+                        ))
+                    }
+                    {/* add fields in new colors */}
                     <button type="button" onClick={() => {
-                        addField('colors')
+                        addField('newColors')
                     }} className="bg-blue-500 text-white px-4 py-2 rounded">Add Color</button>
                 </div>
 

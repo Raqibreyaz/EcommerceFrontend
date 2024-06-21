@@ -39,7 +39,7 @@ export default function ProductDetails() {
     ],
     colors: providedProduct.colors.map(({ color, images }) => ({
       name: color,
-      class: `bg-${color}-500`,
+      class: color,
       selectedClass: 'ring-gray-400',
       images
     })),
@@ -58,16 +58,7 @@ export default function ProductDetails() {
 
   console.log(userCart);
 
-  let isAddedToCart = false
-
-  if (userCart && userCart.products) {
-    for (const prdct of userCart.products) {
-      if (prdct.product === productId && selectedColor.color === prdct.color && selectedSize === prdct.size) {
-        isAddedToCart = true
-        break;
-      }
-    }
-  }
+  let [isAddedToCart, setIsAddedToCart] = useState(false)
 
   console.log('added to cart ', isAddedToCart);
 
@@ -81,6 +72,12 @@ export default function ProductDetails() {
     }
     console.log(data);
     dispatch(addProductToCartAsync(data))
+      .then(() => {
+        if (status === 'idle')
+          setIsAddedToCart(true)
+        dispatch(fetchUserCartAsync())
+      })
+
   }
 
   const handleDelete = async () => {
@@ -97,6 +94,25 @@ export default function ProductDetails() {
     dispatch(fetchUserCartAsync())
   }
     , [])
+
+  useEffect(() => {
+    console.log('selectedColor', selectedColor);
+    console.log('selectedSize', selectedSize);
+
+    let check = false;
+
+    for (const prdct of userCart) {
+      if (prdct.product === productId && selectedColor.color === prdct.color && selectedSize === prdct.size) {
+        check = true
+        break;
+      }
+    }
+
+    console.log('color available ',check);
+    console.log(userCart);
+
+    setIsAddedToCart(check)
+  }, [userCart])
 
   useEffect(() => {
     setSelectedColor(providedProduct.colors.length ? providedProduct.colors[0] : '')
@@ -171,8 +187,9 @@ export default function ProductDetails() {
                             aria-hidden="true"
                             className={classNames(
                               color.class,
-                              'h-8 w-8 rounded-full border border-black border-opacity-10'
+                              `h-8 w-8 ${selectedColor.color === color.name ? 'scale-75' : ''} rounded-full border border-black border-opacity-10`
                             )}
+                            style={{ backgroundColor: color.class }}
                           />
                         </Radio>
                       ))}

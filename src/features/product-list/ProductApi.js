@@ -30,6 +30,17 @@ const addNewProduct = async (productData) => {
   return response
 }
 
+const editProduct = async (data) => {
+  const response = await axios.put('http://localhost:4000/api/v1/products/edit-product', data, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  })
+  return response
+}
+
+
 const deleteProduct = async (id) => {
   return await axios.delete(`http://localhost:4000/api/v1/products/delete-product/${id}`)
 }
@@ -52,6 +63,7 @@ export {
   fetchProductDetails,
   addNewProduct,
   deleteProduct,
-  addNewCategory
+  addNewCategory,
+  editProduct
 }
 

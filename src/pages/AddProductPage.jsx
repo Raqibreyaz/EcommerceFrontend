@@ -97,7 +97,7 @@ const ProductForm = () => {
             console.log(key, value);
         }
 
-        // dispatch(addNewProductAsync(formData))
+        dispatch(addNewProductAsync(formData))
     }
 
     // remove a specific field to sizes or colors

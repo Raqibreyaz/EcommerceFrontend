@@ -13,10 +13,10 @@ function Authenticate({ children, authState = true, role, roles = [] }) {
 
     const dispatch = useDispatch()
 
-    // useEffect(() => {
-    //     dispatch(fetchUserAsync())
-    // }
-    //     , [])
+    useEffect(() => {
+        dispatch(fetchUserAsync())
+    }
+        , [])
 
     // function which tells if user is authorized
     function authorized() {

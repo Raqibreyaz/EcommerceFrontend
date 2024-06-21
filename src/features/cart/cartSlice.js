@@ -3,7 +3,7 @@ import { fetchUserCart, addProductToCart, removeProductFromCart } from "./cartAp
 import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
 
 const initialState = {
-    userCart: { products: [] },
+    userCart: [],
     status: 'idle',
     error: null,
     success: ''
@@ -50,12 +50,10 @@ const handleAsyncActions = (builder, asyncThunk) => {
 
             state.success = action.message
             state.status = 'idle'
-            state.userCart = action.payload.userCart.products ? action.payload.userCart : { products: [] }
-            if (action.type === 'cart/addProductToCart/fulfilled') {
-                console.log(action.payload);
-            }
+
             if (action.type === 'cart/fetchUserCart/fulfilled') {
                 console.log(action.payload);
+                state.userCart = action.payload.userCart
             }
         }
         )

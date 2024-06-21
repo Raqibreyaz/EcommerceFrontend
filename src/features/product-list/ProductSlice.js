@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory } from './ProductApi';
+import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct } from './ProductApi';
 import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
 
 // fetches product as well as in case of filter
@@ -39,6 +39,15 @@ export const addNewProductAsync = createAsyncThunk('product/addNewProduct', asyn
         throw new Error(error.response.data.message)
     }
     return result.data
+}
+)
+
+export const editProductAsync = createAsyncThunk('product/editProduct', async (data) => {
+    const [error, result] = await catchAsyncError(editProduct, data)
+    if (error) {
+        throw new Error(error.response.data.message)
+    }
+    return result
 }
 )
 
@@ -82,12 +91,11 @@ const handleAsyncActions = (builder, asyncThunk) => {
         .addCase(asyncThunk.pending, (state) => {
             state.status = 'loading';
             state.error = null
+            state.success = ''
         })
         .addCase(asyncThunk.fulfilled, (state, action) => {
 
             state.status = 'idle'
-
-            state.error = null
             state.success = action.payload.message
 
             console.log(action, addNewProductAsync.fulfilled);
@@ -102,7 +110,7 @@ const handleAsyncActions = (builder, asyncThunk) => {
                 state.overallTotal = action.payload.overallTotal;
                 state.totalPages = action.payload.totalPages;
             }
-            if (action.type === 'product/fetchProductDetails/fulfilled') {
+            if (action.type === 'product/fetchProductDetails/fulfilled' || action.type === 'product/editProduct/fulfilled') {
                 state.currentProduct = action.payload.product;
             }
             if (action.type === 'product/fetchCategories/fulfilled') {
@@ -113,15 +121,8 @@ const handleAsyncActions = (builder, asyncThunk) => {
         .addCase(asyncThunk.rejected, (state, action) => {
 
             state.status = 'rejected'
-
             state.error = action.error.message;
             console.log(action);
-            if (action.type === 'product/fetchCategories/rejected') {
-                state.categories = []
-            }
-            if (action.type === 'product/fetchProducts/rejected') {
-                state.products = []
-            }
         });
 };
 
