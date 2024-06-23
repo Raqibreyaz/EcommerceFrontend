@@ -46,8 +46,6 @@ const ProductForm = () => {
     const [customStock, setCustomStock] = useState({ yes: true, defaultStocks: 100 })
     const categories = useSelector(state => state.product.categories)
 
-    console.log(categories);
-
     const [oldColorImages, updateOldColorImages] = useState({
         thumbnail: product.thumbnail,
         newThumbnail: null,//{image:{url,public_id,_id},is_main,_id}
@@ -70,8 +68,6 @@ const ProductForm = () => {
             }
         ))
     })
-
-    console.log(oldColorImages);
 
     const [newColorImages, setNewColorImages] = useState([ /*{color:'',images:FileList,mainImage:FileList}*/]
     )
@@ -193,7 +189,7 @@ const ProductForm = () => {
             console.log(key, value);
         }
 
-        // dispatch(editProductAsync(formData))
+        dispatch(editProductAsync(formData))
     }
 
     const updateStocks = (newSizes = '', oldColors = '', newColors = '') => {
@@ -206,15 +202,23 @@ const ProductForm = () => {
             newColors = newColorImages
 
         let newStocks = []
+
+        const givePreviousStock = (size, color) => {
+            return stockFields.filter(({ size: stockSize, color: stockColor }) => (
+                stockSize === size && stockColor === color
+            ))[0].stock
+        }
+
+
         newSizes.forEach((size) => {
             if (size) {
                 oldColors.forEach(({ color }) => {
-                    console.log(color);
+                    // console.log(color);
                     if (color)
-                        newStocks.push({ size, color, stock: customStock.defaultStocks })
+                        newStocks.push({ size, color, stock: customStock.yes ? givePreviousStock(size, color) : customStock.defaultStocks })
                 });
                 newColors.forEach(({ color }) => {
-                    console.log(color);
+                    // console.log(color);
                     if (color)
                         newStocks.push({ size, color, stock: customStock.defaultStocks })
                 });
@@ -226,7 +230,7 @@ const ProductForm = () => {
     // just give the index and will remove the color or size
     const removeField = (field, index) => {
 
-        console.log('going to remove ', index, 'from', field);
+        // console.log('going to remove ', index, 'from', field);
 
         // for removing a color from old colors
         if (field === 'oldColors') {
@@ -267,13 +271,13 @@ const ProductForm = () => {
     // not for old images
     const addField = (field) => {
 
-        console.log('adding new entry to ', field);
+        // console.log('adding new entry to ', field);
 
         if (field === 'size') {
             // setSizes([...sizes,''])
             setSizes((prevSizes) => {
                 let newSizes = [...prevSizes, '']
-                console.log(newSizes);
+                // console.log(newSizes);
                 updateStocks(newSizes, oldColorImages.colors, newColorImages)
                 return newSizes
             }
@@ -282,7 +286,7 @@ const ProductForm = () => {
         else {
             let colorImages = [...newColorImages]
             colorImages.push({ id: Date.now(), color: '', images: [], mainImage: null })
-            console.log('added new entry ', colorImages);
+            // console.log('added new entry ', colorImages);
             updateStocks(sizes, oldColorImages.colors, colorImages)
             setNewColorImages(colorImages)
         }
@@ -301,14 +305,14 @@ const ProductForm = () => {
                 return FailedMessage('Only Images Are Allowed')
         }
 
-        console.log('adding files to ', field, subField);
+        // console.log('adding files to ', field, subField);
 
         if (field === 'oldColors') {
 
             // 
             if (subField === 'thumbnail') {
                 let obj = { ...oldColorImages, newThumbnail: files }
-                console.log(obj);
+                // console.log(obj);
                 updateOldColorImages(obj)
             }
             // else if (subField === 'mainImage') {
@@ -341,7 +345,7 @@ const ProductForm = () => {
                 (prevNewColorImages) => {
                     let colorImages = [...prevNewColorImages]
                     colorImages[index][subField] = files
-                    console.log('added files to ', field, subField, colorImages);
+                    // console.log('added files to ', field, subField, colorImages);
                     return colorImages
                 }
             )
