@@ -27,6 +27,8 @@ export default function ProductDetails() {
 
   const providedProduct = useSelector(state => state.product.currentProduct)
 
+  console.log(providedProduct);
+
   const status = useSelector(state => state.product.status)
 
   const product = {
@@ -56,11 +58,12 @@ export default function ProductDetails() {
 
   const userCart = useSelector(state => state.cart.userCart)
 
-  console.log(userCart);
+  // console.log(userCart);
 
   let [isAddedToCart, setIsAddedToCart] = useState(false)
 
   console.log('added to cart ', isAddedToCart);
+
 
   const AddToCart = (x) => {
     x.preventDefault()
@@ -101,6 +104,9 @@ export default function ProductDetails() {
 
     let check = false;
 
+    console.log('color available ', check);
+    console.log(userCart);
+
     for (const prdct of userCart) {
       if (prdct.product === productId && selectedColor.color === prdct.color && selectedSize === prdct.size) {
         check = true
@@ -108,11 +114,8 @@ export default function ProductDetails() {
       }
     }
 
-    console.log('color available ',check);
-    console.log(userCart);
-
     setIsAddedToCart(check)
-  }, [userCart])
+  }, [userCart, selectedColor, selectedSize])
 
   useEffect(() => {
     setSelectedColor(providedProduct.colors.length ? providedProduct.colors[0] : '')

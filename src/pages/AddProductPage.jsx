@@ -68,7 +68,7 @@ const ProductForm = () => {
         // adding images and mainImages with corresponding indices
         colorImages.colors.forEach(({ images, mainImage }, index) => {
             for (let i = 0; i < images.length; i++) {
-                formData.append(`colors[${index}].images[${i}]`, images[i])
+                formData.append(`colors[${index}].images`, images[i])
             }
             formData.append(`colors[${index}].mainImage`, mainImage[0])
         }

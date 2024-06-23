@@ -1,15 +1,13 @@
 import React, { useState, Fragment, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, TransitionChild } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, StarIcon, EllipsisVerticalIcon } from '@heroicons/react/20/solid'
+import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
+import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, StarIcon, EllipsisVerticalIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { fetchCategoriesAsync, fetchProductsAsync } from '../ProductSlice'
-import Filter from './Filter'
 import { Link, useNavigate } from 'react-router-dom'
 import { fetchUserAsync } from '../../user/userSlice'
 import { FailedMessage } from '../../../components/MessageDialog'
-import DropDown from '../../../components/DropDown'
+import { Filter, MobileFilter } from './Filter'
 
 function ProductList() {
 
@@ -25,6 +23,8 @@ function ProductList() {
     return classes.filter(Boolean).join(' ')
   }
 
+  const [filter, setFilter] = useState({})
+
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -32,6 +32,18 @@ function ProductList() {
     dispatch(fetchProductsAsync({}))
   }, [])
 
+  function handleChange(e, field, value) {
+
+    setFilter((prevFilter) => {
+      if (field === 'price'){
+        
+      }
+    })
+
+    console.log('checked ', e.target.checked);
+    console.log('field ', field);
+    console.log('value', value.split(','));
+  }
 
   const handleSort = (field, order) => {
     const newSort = { sort: field, order }
@@ -44,7 +56,7 @@ function ProductList() {
   return (
     <div className="bg-white overflow-hidden">
       <div>
-        <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} productOwners={productOwners} />
+        <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} productOwners={productOwners} handleChange={handleChange} />
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sticky top-0">
           <div className="flex items-baseline justify-between border-b border-gray-200 pb-6  ">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900">All Products</h1>
@@ -115,7 +127,7 @@ function ProductList() {
               {/* Filters */}
               <div className='sticky top-[20px]'>
                 <form className="hidden lg:block h-screen">
-                  <Filter productOwners={productOwners} />
+                  <Filter productOwners={productOwners} handleChange={handleChange} />
                 </form>
               </div>
               {/* Product grid */}
@@ -126,59 +138,6 @@ function ProductList() {
         </main>
       </div>
     </div>
-  )
-}
-
-function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners }) {
-
-  return (
-    < Transition show={mobileFiltersOpen} as={Fragment}>
-      <Dialog className="relative z-40 lg:hidden" onClose={setMobileFiltersOpen}>
-        <TransitionChild
-          as={Fragment}
-          enter="transition-opacity ease-linear duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-300"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
-        </TransitionChild>
-
-        <div className="fixed inset-0 z-40 flex">
-          <TransitionChild
-            as={Fragment}
-            enter="transition ease-in-out duration-300 transform"
-            enterFrom="translate-x-full"
-            enterTo="translate-x-0"
-            leave="transition ease-in-out duration-300 transform"
-            leaveFrom="translate-x-0"
-            leaveTo="translate-x-full"
-          >
-            <DialogPanel className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl">
-              <div className="flex items-center justify-between px-4">
-                <h2 className="text-lg font-medium text-gray-900">Filters</h2>
-                <button
-                  type="button"
-                  className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                  onClick={() => setMobileFiltersOpen(false)}
-                >
-                  <span className="sr-only">Close menu</span>
-                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
-              </div>
-
-              {/* Filters */}
-              <form className="mt-4 border-t border-gray-200 sticky top-0">
-                <h3 className="sr-only">Categories</h3>
-                <Filter px='px-4' productOwners={productOwners} />
-              </form>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
-      </Dialog>
-    </Transition >
   )
 }
 
@@ -361,5 +320,6 @@ function Pagination() {
     </div>
   )
 }
+
 
 export default ProductList

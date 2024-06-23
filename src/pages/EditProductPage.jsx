@@ -107,7 +107,7 @@ const ProductForm = () => {
                     is_main: true
                 },
                 toBeDeleted, //publicIds of images
-                colorId: _id
+                colorId: _id,
             }
         })
 
@@ -128,8 +128,9 @@ const ProductForm = () => {
             FailedMessage('duplicate sizes are not allowed')
 
         // since if new thumbnail exists then it will be a filelist
-        if (oldColorImages.newThumbnail)
+        if (oldColorImages.newThumbnail) {
             formData.append('newThumbnail', oldColorImages.newThumbnail[0])
+        }
 
         // take all the images and mainImage which are to be inserted for existing color
         oldColorImages.colors.forEach((colorObj, index) => {
@@ -192,7 +193,7 @@ const ProductForm = () => {
             console.log(key, value);
         }
 
-        dispatch(editProductAsync(formData))
+        // dispatch(editProductAsync(formData))
     }
 
     const updateStocks = (newSizes = '', oldColors = '', newColors = '') => {
@@ -296,8 +297,8 @@ const ProductForm = () => {
         //oldColors:{thumbnail,colors}
 
         for (const file of files) {
-            if(!file.type.includes('image/'))
-               return FailedMessage('Only Images Are Allowed')
+            if (!file.type.includes('image/'))
+                return FailedMessage('Only Images Are Allowed')
         }
 
         console.log('adding files to ', field, subField);
@@ -496,7 +497,7 @@ const ProductForm = () => {
                                         });
                                     }} />
                                 {/* when the color is being deleted */}
-                                {oldColorImages.colors.length > 1 && <button type="button" onClick={() => {
+                                {(oldColorImages.colors.length > 1 || (oldColorImages.colors.length + newColorImages.length) > 1) && <button type="button" onClick={() => {
                                     // remove from old colors as it belongs to it
                                     removeField('oldColors', index)
                                 }} className="text-red-500">Remove</button>}

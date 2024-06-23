@@ -104,6 +104,7 @@ const handleAsyncActions = (builder, asyncThunk) => {
                 console.log('fulfill message');
             }
             if (action.type === 'product/fetchProducts/fulfilled') {
+                console.log(action.payload);
                 state.status = 'idle';
                 state.products = action.payload.products;
                 state.filteredTotal = action.payload.filteredTotal;

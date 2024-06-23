@@ -2,7 +2,7 @@ import axios from "axios";
 
 const fetchProducts = async (filter) => {
   console.log(filter);
-  const response = await axios.get(`http://localhost:4000/api/v1/products/get-products${''}`)
+  const response = await axios.get(`http://localhost:4000/api/v1/products/get-products?category=sarees,kurti&&sort[rating]=-1&&sort[price]=-1`)
   return response;
 }
 

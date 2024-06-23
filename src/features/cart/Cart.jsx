@@ -44,14 +44,10 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
   const dispatch = useDispatch()
 
   const handleQuantity = (productId, color, size, quantity) => {
+
     console.log(quantity);
-    let data = {
-      productId,
-      color,
-      size,
-      quantity
-    }
-    dispatch(addProductToCartAsync(data))
+
+     dispatch(addProductToCartAsync({ productId, color, size, quantity }))
   }
 
   const handleRemove = async (productId, size, color) => {
@@ -89,11 +85,11 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
             <ul role="list" className="-my-6 divide-y divide-gray-200">
               {products.map((product) => (
                 <li key={product.id} className="flex py-6">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                  <div className="size-36 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
                       src={product.imageSrc}
                       alt={product.imageAlt}
-                      className="h-full w-full object-center object-cover"
+                      className="h-full w-full "
                     />
                   </div>
 
@@ -104,17 +100,21 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
                           <a href={product.href}>{product.name}</a>
                         </h3>
                         <p className="ml-4">
-                          <span className='block'>{product.price * product.quantity * (1 - product.discount / 100)}</span>
+                          <span className='block'>{Math.round(product.price * product.quantity * (1 - product.discount / 100))}</span>
                           <span className='line-through'>{product.price * product.quantity}</span>
                           {/* <span>{product.discount}</span> */}
                         </p>
                       </div>
                       <p className="mt-1 text-sm text-gray-500">{product.color}</p>
+                      <p className="mt-1 text-sm text-gray-500 inline">{product.size}</p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <div className="text-gray-500 flex gap-2 items-center ">Qty
                         <p className='flex items-center gap-2 border rounded-3xl px-2'>
-                          <select id="" defaultValue={product.quantity} onChange={(e) => handleQuantity(product.id, product.color, product.size, e.target.value)} className='px-2'>
+                          <select id="" defaultValue={product.quantity} onChange={(e) => {
+                            handleQuantity(product.id, product.color, product.size, e.target.value)
+
+                          }} className='px-2'>
                             {
                               [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
                                 <option value={count} className='bg-gray-500 text-white'>{count}</option>
