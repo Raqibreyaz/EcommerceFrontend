@@ -18,6 +18,35 @@ const signUpUser = async (data) => {
   return response
 }
 
+const editUserProfile = async (data) => {
+
+  const response = await axios.put(`http://localhost:4000/api/v1/users/edit-profile`, data, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  return response
+}
+
+const changeUserAvatar = async (data) => {
+  const response = await axios.patch('http://localhost:4000/api/v1/users/edit-profile/avatar', data, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  })
+}
+
+const addNewAddress = async (data) => {
+  const response = await axios.patch('http://localhost:4000/api/v1/users/edit-profile/address', { address: data }, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+}
+
 const loginUser = async (data) => {
   const response = await axios.post('http://localhost:4000/api/v1/users/login', data, {
     withCredentials: true,
@@ -40,5 +69,8 @@ export {
   fetchUser,
   loginUser,
   logoutUser,
-  signUpUser
+  signUpUser,
+  editUserProfile,
+  changeUserAvatar,
+  addNewAddress
 }

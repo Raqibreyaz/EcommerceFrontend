@@ -3,11 +3,14 @@ import Cart from '../features/cart/Cart'
 import { useSelector } from 'react-redux'
 import { useState } from 'react';
 import AddressForm from '../components/AddressForm'
+import { useForm, Controller } from 'react-hook-form';
 
 export default function Checkout() {
 
     const user = useSelector(state => state.user.userData)
     console.log(user);
+
+    const userCart = useSelector(state => state.user.userCart)
 
     const people = user.addresses.map(({ state, city, pincode, house_no }) => (
         {
@@ -15,11 +18,12 @@ export default function Checkout() {
             street: house_no,
             pinCode: pincode,
             city,
-            state
+            state,
+            id: Date.now()
         }
     ))
 
-    const [addressAdder, setAddressAdder] = useState(false)
+    const [addressAdder, setAddressAdder] = useState(true)
 
     // [
     //     {
@@ -30,6 +34,13 @@ export default function Checkout() {
     //         city: 'new york'
     //     },
     // ]
+
+    const onSubmit = (data) => {
+
+    }
+
+
+    const { handleSubmit, control, setValue, } = useForm()
 
     return (
         <div className='my-10'>
@@ -49,7 +60,7 @@ export default function Checkout() {
                         <p className='font-thin text-gray-500'>choose from existing addresses</p>
                         <ul role="list" className="divide-y divide-gray-100">
                             {people.map((person) => (
-                                <li key={person.email} className="flex justify-between gap-x-6 py-5">
+                                <li key={person.id} className="flex justify-between gap-x-6 py-5">
                                     <div className="flex min-w-0 gap-x-4 items-start">
                                         <input type="radio" name='address' />
                                         <div className="min-w-0 flex-auto">

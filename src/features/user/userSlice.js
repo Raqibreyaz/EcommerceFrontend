@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
-import { loginUser, fetchUser, logoutUser, signUpUser } from "./userApi.js";
+import { loginUser, fetchUser, logoutUser, signUpUser, editUserProfile, addNewAddress, changeUserAvatar } from "./userApi.js";
 
 const initialState = {
     userData: null,
@@ -24,6 +24,33 @@ const signUpUserAsync = createAsyncThunk('user/signup', async (data) => {
         throw new Error(error.response.data.message)
     return result.data
 })
+
+const editUserProfileAsync = createAsyncThunk('user/edit-profile', async (data) => {
+
+    const [error, result] = await catchAsyncError(editUserProfile, data)
+
+    if (error)
+        throw new Error(error.response.data.message)
+
+    return result.data
+}
+)
+
+const changeUserAvatarAsync = createAsyncThunk('user/change-avatar', async (data) => {
+    const [error, result] = await catchAsyncError(changeUserAvatar, data)
+    if (error)
+        throw new Error(error.response.data.message)
+    return result.data
+}
+)
+
+const addNewAddressAsync = createAsyncThunk('user/add-new-address', async (data) => {
+    const [error, result] = await catchAsyncError(addNewAddress, data)
+    if (error)
+        throw new Error(error.response.data.message)
+    return result.data
+}
+)
 
 const fetchUserAsync = createAsyncThunk("user/fetchUser", async () => {
     const [error, result] = await catchAsyncError(fetchUser)
@@ -57,6 +84,7 @@ const handleAsyncActions = (builder, asyncThunk) => {
             if (action.type === 'user/fetchUser/fulfilled') {
                 state.userData = action.payload.user
                 state.isAuthenticated = true
+                console.log(state.userData);
             }
             if (action.type === 'user/signup/fulfilled') {
             }
@@ -91,7 +119,10 @@ export {
     fetchUserAsync,
     loginUserAsync,
     signUpUserAsync,
-    logoutUserAsync
+    logoutUserAsync,
+    editUserProfileAsync,
+    addNewAddressAsync,
+    changeUserAvatarAsync
 }
 
 export default userSlice.reducer;

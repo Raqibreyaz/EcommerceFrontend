@@ -87,7 +87,7 @@ console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
           <div className="flow-root">
             <ul role="list" className="-my-6 divide-y divide-gray-200">
               {products.map((product) => (
-                <li key={product.id} className="flex py-6">
+                <li key={product.name} className="flex py-6">
                   <div className="size-36 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
                       src={product.imageSrc}
@@ -114,13 +114,13 @@ console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <div className="text-gray-500 flex gap-2 items-center ">Qty
                         <p className='flex items-center gap-2 border rounded-3xl px-2'>
-                          <select id="" defaultValue={product.quantity} onChange={(e) => {
+                          <select defaultValue={product.quantity} onChange={(e) => {
                             handleQuantity(product.id, product.color, product.size, e.target.value)
 
                           }} className='px-2'>
                             {
                               [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
-                                <option value={count} className='bg-gray-500 text-white'>{count}</option>
+                                <option value={count} key={count} className='bg-gray-500 text-white'>{count}</option>
                               ))
                             }
                           </select>
