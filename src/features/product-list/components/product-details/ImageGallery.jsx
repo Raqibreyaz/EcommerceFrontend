@@ -1,10 +1,11 @@
 import React from 'react'
 
 function ImageGallery({ selectedColor }) {
+    console.log('selected color images ', selectedColor);
     return (
         <div>
             {
-                selectedColor && <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
+                selectedColor && selectedColor.images && selectedColor.images.length && <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
                     <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
                         <img
                             src={selectedColor.images[0]?.image?.url}

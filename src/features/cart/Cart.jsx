@@ -8,6 +8,7 @@ import Loader from '../../components/Loader'
 import { TrashIcon } from '@heroicons/react/20/solid'
 import { SuccessMessage, FailedMessage } from '../../components/MessageDialog'
 import { showConfirmation } from '../../components/ConfirmDialog'
+import ColorNamer from 'color-namer'
 
 
 export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
@@ -40,6 +41,8 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
       discount: product.discount
     }
   ))
+
+console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
 
   const dispatch = useDispatch()
 
@@ -105,7 +108,7 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
                           {/* <span>{product.discount}</span> */}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">{product.color}</p>
+                      <p className="mt-1 text-sm text-gray-500">{ColorNamer(product.color).ntc[0].name}</p>
                       <p className="mt-1 text-sm text-gray-500 inline">{product.size}</p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">

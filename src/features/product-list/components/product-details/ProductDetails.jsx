@@ -40,7 +40,7 @@ export default function ProductDetails() {
       { id: 2, name: 'Clothing', href: '#' },
     ],
     colors: providedProduct.colors.map(({ color, images }) => ({
-      name: color,
+      color,
       class: color,
       selectedClass: 'ring-gray-400',
       images
@@ -64,9 +64,10 @@ export default function ProductDetails() {
 
   console.log('added to cart ', isAddedToCart);
 
-
+  // takes the selected color and size and then request to add the product to cart
   const AddToCart = (x) => {
     x.preventDefault()
+    console.log(selectedColor, selectedSize);
     let data = {
       productId,
       color: selectedColor.color,
@@ -83,6 +84,7 @@ export default function ProductDetails() {
 
   }
 
+  // works on deleting the product
   const handleDelete = async () => {
     let result = await showConfirmation('Delete Product', 'Do You Really Want To Delete the Product')
     if (result.isConfirmed)
@@ -91,20 +93,21 @@ export default function ProductDetails() {
       SuccessMessage('something went wrong')
   }
 
-
+  // when the component mounts then fetch the details of the product and the cart if the user is logged in
   useEffect(() => {
     dispatch(fetchProductDetailsAsync(productId))
     dispatch(fetchUserCartAsync())
   }
     , [])
 
+  // fires when a color or size is selected 
+  // just checks whether the selected color and size is in the cart
   useEffect(() => {
     console.log('selectedColor', selectedColor);
     console.log('selectedSize', selectedSize);
 
     let check = false;
 
-    console.log('color available ', check);
     console.log(userCart);
 
     for (const prdct of userCart) {
@@ -113,6 +116,7 @@ export default function ProductDetails() {
         break;
       }
     }
+    console.log('color available ', check);
 
     setIsAddedToCart(check)
   }, [userCart, selectedColor, selectedSize])
@@ -174,9 +178,9 @@ export default function ProductDetails() {
                     <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center space-x-3">
                       {product.colors.map((color) => (
                         <Radio
-                          key={color.name}
+                          key={color.color}
                           value={color}
-                          aria-label={color.name}
+                          aria-label={color.color}
                           className={({ focus, checked }) =>
                             classNames(
                               color.selectedClass,

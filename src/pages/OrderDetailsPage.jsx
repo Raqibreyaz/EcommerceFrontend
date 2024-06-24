@@ -41,7 +41,7 @@ const OrderCard = ({ order }) => {
                 <p className="text-lg font-semibold">{item.name}</p>
                 <p className="text-lg font-semibold">${item.price}</p>
               </div>
-              <p className="text-gray-500 mb-4">{item.description}</p>
+              {/* <p className="text-gray-500 mb-4">{item.description}</p> */}
               <p className={`flex items-center font-semibold ${statusColors[order.status.toLowerCase()]}`}>
                 <span className="mr-2">✔</span>
                 Delivered on {item.deliveryDate}
@@ -78,6 +78,9 @@ const OrdersPage = () => {
           image: 'https://m.media-amazon.com/images/I/71kZfQA-Y7L._AC_UY218_.jpg',
           name: 'Micro Backpack',
           price: '70.00',
+          quantity:3,
+          size:'xl',
+          color:'red',
           description: 'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
           deliveryDate: 'July 12, 2021'
         },
