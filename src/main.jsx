@@ -111,7 +111,7 @@ const router = createBrowserRouter([
         path: '/messages',
         element: (
           <Authenticate authState={true} role={'admin'}>
-            <OrderDetailsPage />
+            <MessageList />
           </Authenticate>
         )
       },
@@ -126,7 +126,7 @@ const router = createBrowserRouter([
       {
         path: '*',
         element: (
-            <NotFoundPage />
+          <NotFoundPage />
         )
       },
     ]

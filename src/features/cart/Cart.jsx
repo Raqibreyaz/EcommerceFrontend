@@ -9,15 +9,16 @@ import { TrashIcon } from '@heroicons/react/20/solid'
 import { SuccessMessage, FailedMessage } from '../../components/MessageDialog'
 import { showConfirmation } from '../../components/ConfirmDialog'
 import ColorNamer from 'color-namer'
+import {CartItem} from './components/CartItem'
+import {AmountSection} from './components/AmountSection' 
 
 
-export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
+export default function Cart({ inCheckout = false }) {
 
   const userCart = useSelector(state => state.cart.userCart)
   const status = useSelector(state => state.cart.status)
   const success = useSelector(state => state.cart.success)
   const error = useSelector(state => state.cart.error)
-  const Navigate = useNavigate()
 
   let subTotal = 0
   let totalDiscount = 0
@@ -42,29 +43,27 @@ export default function Cart({ btnText = 'checkout', btnLink = '/checkout' }) {
     }
   ))
 
-console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
-
   const dispatch = useDispatch()
 
-  const handleQuantity = (productId, color, size, quantity) => {
+  // const handleQuantity = (productId, color, size, quantity) => {
 
-    console.log(quantity);
+  //   console.log(quantity);
 
-     dispatch(addProductToCartAsync({ productId, color, size, quantity }))
-  }
+  //   dispatch(addProductToCartAsync({ productId, color, size, quantity }))
+  // }
 
-  const handleRemove = async (productId, size, color) => {
-    let result = await showConfirmation('Remove From Cart', 'Do You Really Want To Remove This Item', 'Remove')
+  // const handleRemove = async (productId, size, color) => {
+  //   let result = await showConfirmation('Remove From Cart', 'Do You Really Want To Remove This Item', 'Remove')
 
-    if (result.isConfirmed) {
-      dispatch(removeProductFromCartAsync({ productId, size, color }))
-      userCart.filter((product) => product.product !== productId)
-      console.log(userCart);
-    }
+  //   if (result.isConfirmed) {
+  //     dispatch(removeProductFromCartAsync({ productId, size, color }))
+  //     userCart.filter((product) => product.product !== productId)
+  //     console.log(userCart);
+  //   }
 
-    if (btnText !== 'checkout')
-      Navigate('/')
-  }
+  //   if (btnText !== 'checkout')
+  //     Navigate('/')
+  // }
 
   if (success) {
     console.log('success', success);
@@ -83,67 +82,73 @@ console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
     status === 'loading' ? <Loader /> :
       (products.length > 0 ? <div>
         <div className="mt-8">
-          <h1 className='text-3xl font-bold mb-2'>{btnText === 'checkout' ? "Cart" : 'Your Items'}</h1>
+          <h1 className='text-3xl font-bold mb-2'>{!inCheckout ? "Cart" : 'Your Items'}</h1>
           <div className="flow-root">
             <ul role="list" className="-my-6 divide-y divide-gray-200">
-              {products.map((product) => (
-                <li key={product.name} className="flex py-6">
-                  <div className="size-36 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                    <img
-                      src={product.imageSrc}
-                      alt={product.imageAlt}
-                      className="h-full w-full "
-                    />
-                  </div>
+              {/* {products.map((product) => (
+                // <li key={product.name} className="flex py-6">
+                //   <div className="size-36 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                //     <img
+                //       src={product.imageSrc}
+                //       alt={product.imageAlt}
+                //       className="h-full w-full "
+                //     />
+                //   </div>
 
-                  <div className="ml-4 flex flex-1 flex-col">
-                    <div>
-                      <div className="flex justify-between text-base font-medium text-gray-900">
-                        <h3>
-                          <a href={product.href}>{product.name}</a>
-                        </h3>
-                        <p className="ml-4">
-                          <span className='block'>{Math.round(product.price * product.quantity * (1 - product.discount / 100))}</span>
-                          <span className='line-through'>{product.price * product.quantity}</span>
-                          {/* <span>{product.discount}</span> */}
-                        </p>
-                      </div>
-                      <p className="mt-1 text-sm text-gray-500">{ColorNamer(product.color).ntc[0].name}</p>
-                      <p className="mt-1 text-sm text-gray-500 inline">{product.size}</p>
-                    </div>
-                    <div className="flex flex-1 items-end justify-between text-sm">
-                      <div className="text-gray-500 flex gap-2 items-center ">Qty
-                        <p className='flex items-center gap-2 border rounded-3xl px-2'>
-                          <select defaultValue={product.quantity} onChange={(e) => {
-                            handleQuantity(product.id, product.color, product.size, e.target.value)
+                //   <div className="ml-4 flex flex-1 flex-col">
+                //     <div>
+                //       <div className="flex justify-between text-base font-medium text-gray-900">
+                //         <h3>
+                //           <a href={product.href}>{product.name}</a>
+                //         </h3>
+                //         <p className="ml-4">
+                //           <span className='block'>{Math.round(product.price * product.quantity * (1 - product.discount / 100))}</span>
+                //           <span className='line-through'>{product.price * product.quantity}</span>
+                //         </p>
+                //       </div>
+                //       <p className="mt-1 text-sm text-gray-500">{ColorNamer(product.color).ntc[0].name}</p>
+                //       <p className="mt-1 text-sm text-gray-500 inline">{product.size}</p>
+                //     </div>
+                //     <div className="flex flex-1 items-end justify-between text-sm">
+                //       <div className="text-gray-500 flex gap-2 items-center ">Qty
+                //         <p className='flex items-center gap-2 border rounded-3xl px-2'>
+                //           <select defaultValue={product.quantity} onChange={(e) => {
+                //             handleQuantity(product.id, product.color, product.size, e.target.value)
 
-                          }} className='px-2'>
-                            {
-                              [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
-                                <option value={count} key={count} className='bg-gray-500 text-white'>{count}</option>
-                              ))
-                            }
-                          </select>
-                        </p>
-                      </div>
+                //           }} className='px-2'>
+                //             {
+                //               [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
+                //                 <option value={count} key={count} className='bg-gray-500 text-white'>{count}</option>
+                //               ))
+                //             }
+                //           </select>
+                //         </p>
+                //       </div>
 
-                      <div className="flex">
-                        <button
-                          type="button"
-                          className="font-medium text-red-500 hover:text-red-600 flex"
-                          onClick={() => handleRemove(product.id, product.size, product.color)}
-                        >
-                          <TrashIcon className='size-5' />Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
+                //       <div className="flex">
+                //         <button
+                //           type="button"
+                //           className="font-medium text-red-500 hover:text-red-600 flex"
+                //           onClick={() => handleRemove(product.id, product.size, product.color)}
+                //         >
+                //           <TrashIcon className='size-5' />Remove
+                //         </button>
+                //       </div>
+                //     </div>
+                //   </div>
+                // </li>
+              ))} */}
+              {
+                userCart.map((product) => (
+                  <CartItem product={product}
+                   key={product.product+product.size+product.color} 
+                   />
+                ))
+              }
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+        {/* <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
           <div className="flex justify-between text-base font-medium text-gray-900">
             <p>Subtotal</p>
             <p>{subTotal}</p>
@@ -158,12 +163,12 @@ console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
           </div>
           <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
           <div className="mt-6">
-            <Link
+            <button
               to={btnLink}
               className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
             >
               {btnText}
-            </Link>
+            </button>
           </div>
           {btnText === 'checkout' && < div className="mt-6 flex justify-center text-center text-sm text-gray-500">
             <p>
@@ -178,7 +183,8 @@ console.log('color names ',ColorNamer("#9A2A2A").ntc[0].name);
               </button>
             </p>
           </div>}
-        </div>
+        </div> */}
+        <AmountSection totalDiscount={totalDiscount} subTotal={subTotal} inCheckout={inCheckout} />
       </div > : <h1 className='text-3xl capitalize text-center'>your cart is empty</h1>)
   )
 }

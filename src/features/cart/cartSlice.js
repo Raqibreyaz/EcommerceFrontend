@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUserCart, addProductToCart, removeProductFromCart } from "./cartApi.js";
-import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
+import { catchAsyncError, wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
 
 const initialState = {
     userCart: [],
@@ -9,33 +9,14 @@ const initialState = {
     success: ''
 };
 
-const fetchUserCartAsync = createAsyncThunk("cart/fetchUserCart", async () => {
-    const [error, result] = await catchAsyncError(fetchUserCart)
+// fethces the users cart 
+const fetchUserCartAsync = wrapper("cart/fetchUserCart", fetchUserCart)
 
-    if (error)
-        throw new Error(error.response.data.message)
+// adds a product to the users cart using the product id ,color,size,quantity
+const addProductToCartAsync = wrapper('cart/addProductToCart', addProductToCart)
 
-    return result.data;
-})
-
-const addProductToCartAsync = createAsyncThunk('cart/addProductToCart', async (cartProduct) => {
-    const [error, result] = await catchAsyncError(addProductToCart, cartProduct)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    return result.data
-}
-)
-
-const removeProductFromCartAsync = createAsyncThunk('cart/removeProductFromCart', async (cartProduct) => {
-    const [error, result] = await catchAsyncError(removeProductFromCart, cartProduct)
-
-    if (error)
-        throw new Error(error.response.data.message)
-    return result.data
-}
-)
+// removes  a product from the users cart using the product id,color,size
+const removeProductFromCartAsync = wrapper('cart/removeProductFromCart', removeProductFromCart)
 
 const handleAsyncActions = (builder, asyncThunk) => {
 

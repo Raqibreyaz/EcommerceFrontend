@@ -1,90 +1,27 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {  createSlice } from '@reduxjs/toolkit';
 import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct } from './ProductApi';
-import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
+import {  wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
 
-// fetches product as well as in case of filter
-export const fetchProductsAsync = createAsyncThunk(
-    'product/fetchProducts',
-    async (filter = '') => {
+// fetches product from backend side can use filters
+export const fetchProductsAsync = wrapper('product/fetchProducts', fetchProducts)
 
-        const [error, response] = await catchAsyncError(fetchProducts, filter)
+// fetche the product details from the backend using the id
+export const fetchProductDetailsAsync = wrapper('product/fetchProductDetails', fetchProductDetails)
 
-        if (error)
-            throw new Error(error.response.data.message)
+// adds a new category to the database taking the name of it
+export const addNewProductAsync = wrapper('product/addNewProduct', addNewProduct)
 
-        console.log(response.data);
-        // the value we return becomes the fulfilled action payload
-        return response.data
-    }
-);
-
-// fetches all the details of that particular product including reviews 
-export const fetchProductDetailsAsync = createAsyncThunk('product/fetchProductDetails', async (id) => {
-    const [error, response] = await catchAsyncError(fetchProductDetails, id)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    console.log(response.data);
-    return response.data
-}
-)
-
-// adds a new product to the database
-export const addNewProductAsync = createAsyncThunk('product/addNewProduct', async (productData) => {
-
-    let [error, result] = await catchAsyncError(addNewProduct, productData)
-
-    if (error) {
-        throw new Error(error.response.data.message)
-    }
-    return result.data
-}
-)
-
-export const editProductAsync = createAsyncThunk('product/editProduct', async (data) => {
-    const [error, result] = await catchAsyncError(editProduct, data)
-    if (error) {
-        throw new Error(error.response.data.message)
-    }
-    return result
-}
-)
+// edit the product by provided params
+export const editProductAsync = wrapper('product/editProduct', editProduct)
 
 // deletes the product from the database
-export const deleteProductAsync = createAsyncThunk('product/deleteProduct', async (id) => {
-    const [error, result] = catchAsyncError(deleteProduct, id)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    return result.data
-}
-)
+export const deleteProductAsync = wrapper('product/deleteProduct', deleteProduct)
 
 // fetches all the categories of products
-export const fetchCategoriesAsync = createAsyncThunk('product/fetchCategories', async () => {
-
-    const [error, result] = await catchAsyncError(fetchCategories)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    return result.data
-}
-)
+export const fetchCategoriesAsync = wrapper('product/fetchCategories', fetchCategories)
 
 // adds a new category
-export const addNewCategoryAsync = createAsyncThunk('product/addNewCategory', async (category) => {
-
-    const [error, result] = catchAsyncError(addNewCategory, category)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    return result.data
-}
-)
+export const addNewCategoryAsync = wrapper('product/addNewCategory', addNewCategory)
 
 const handleAsyncActions = (builder, asyncThunk) => {
     builder

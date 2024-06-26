@@ -36,6 +36,7 @@ const changeUserAvatar = async (data) => {
       "Content-Type": "multipart/form-data"
     }
   })
+  return response
 }
 
 const addNewAddress = async (data) => {
@@ -45,6 +46,7 @@ const addNewAddress = async (data) => {
       "Content-Type": "application/json"
     }
   })
+  return response;
 }
 
 const loginUser = async (data) => {

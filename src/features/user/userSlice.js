@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { catchAsyncError } from '../../catchAsyncError/catchAsyncError.js'
+import { catchAsyncError, wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
 import { loginUser, fetchUser, logoutUser, signUpUser, editUserProfile, addNewAddress, changeUserAvatar } from "./userApi.js";
 
 const initialState = {
@@ -10,31 +10,11 @@ const initialState = {
     success: ''
 };
 
-const loginUserAsync = createAsyncThunk('user/login', async (data) => {
-    const [error, result] = await catchAsyncError(loginUser, data)
-    if (error) {
-        throw new Error(error.response.data.message)
-    }
-    return result.data
-})
+const loginUserAsync = wrapper('user/login', loginUser)
 
-const signUpUserAsync = createAsyncThunk('user/signup', async (data) => {
-    const [error, result] = await catchAsyncError(signUpUser, data)
-    if (error)
-        throw new Error(error.response.data.message)
-    return result.data
-})
+const signUpUserAsync = wrapper('user/signup', signUpUser)
 
-const editUserProfileAsync = createAsyncThunk('user/edit-profile', async (data) => {
-
-    const [error, result] = await catchAsyncError(editUserProfile, data)
-
-    if (error)
-        throw new Error(error.response.data.message)
-
-    return result.data
-}
-)
+const editUserProfileAsync = wrapper('user/signup', editUserProfile)
 
 const changeUserAvatarAsync = createAsyncThunk('user/change-avatar', async (data) => {
     const [error, result] = await catchAsyncError(changeUserAvatar, data)
@@ -52,13 +32,15 @@ const addNewAddressAsync = createAsyncThunk('user/add-new-address', async (data)
 }
 )
 
-const fetchUserAsync = createAsyncThunk("user/fetchUser", async () => {
-    const [error, result] = await catchAsyncError(fetchUser)
-    if (error)
-        throw new Error(error.response.data.message)
+const fetchUserAsync = wrapper("user/fetchUser", fetchUser)
 
-    return result.data
-});
+// const fetchUserAsync = createAsyncThunk("user/fetchUser", async () => {
+//     const [error, result] = await catchAsyncError(fetchUser)
+//     if (error)
+//         throw new Error(error.response.data.message)
+
+//     return result.data
+// });
 
 const logoutUserAsync = createAsyncThunk('user/logout', async () => {
     const [error, result] = await catchAsyncError(logoutUser)

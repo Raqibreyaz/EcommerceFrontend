@@ -1,5 +1,5 @@
 import HomePage from './Home.jsx'
-import CheckoutPage from './Checkout.jsx'
+import CheckoutPage from './CheckoutPage.jsx'
 import OrderDetailsPage from './OrderDetailsPage.jsx'
 import OrdersPage from './OrdersPage.jsx'
 import WishlistPage from './WishlistPage.jsx'
