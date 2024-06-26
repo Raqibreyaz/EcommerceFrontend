@@ -33,7 +33,6 @@ const handleAsyncActions = (builder, asyncThunk) => {
             state.status = 'idle'
 
             if (action.type === 'cart/fetchUserCart/fulfilled') {
-                console.log(action.payload);
                 state.userCart = action.payload.userCart
             }
         }

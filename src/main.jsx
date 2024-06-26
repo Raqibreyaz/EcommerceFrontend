@@ -92,7 +92,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/order-details',
+        path: '/order-details/:id',
         element: (
           <Authenticate authState={true}>
             <OrderDetailsPage />

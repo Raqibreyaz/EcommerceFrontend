@@ -22,7 +22,6 @@ export default function Cart({ inCheckout = false }) {
 
   let subTotal = 0
   let totalDiscount = 0
-  console.log(userCart);
   userCart.forEach(({ price, quantity, discount }) => {
     subTotal += (price * quantity)
     totalDiscount += price * discount * quantity / 100
@@ -45,28 +44,7 @@ export default function Cart({ inCheckout = false }) {
 
   const dispatch = useDispatch()
 
-  // const handleQuantity = (productId, color, size, quantity) => {
-
-  //   console.log(quantity);
-
-  //   dispatch(addProductToCartAsync({ productId, color, size, quantity }))
-  // }
-
-  // const handleRemove = async (productId, size, color) => {
-  //   let result = await showConfirmation('Remove From Cart', 'Do You Really Want To Remove This Item', 'Remove')
-
-  //   if (result.isConfirmed) {
-  //     dispatch(removeProductFromCartAsync({ productId, size, color }))
-  //     userCart.filter((product) => product.product !== productId)
-  //     console.log(userCart);
-  //   }
-
-  //   if (btnText !== 'checkout')
-  //     Navigate('/')
-  // }
-
   if (success) {
-    console.log('success', success);
     SuccessMessage(success)
   }
   if (error)

@@ -5,8 +5,6 @@ import { fetchUserAsync } from '../features/user/userSlice.js';
 
 function Authenticate({ children, authState = true, role, roles = [] }) {
 
-    console.log(roles);
-
     const isAuthenticated = useSelector(state => state.user.isAuthenticated)
 
     const user = useSelector(state => state.user.userData)

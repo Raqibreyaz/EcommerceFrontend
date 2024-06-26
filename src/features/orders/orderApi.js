@@ -10,6 +10,23 @@ const createOrder = async (data) => {
     return response
 }
 
+const fetchOrders = async () => {
+    const response = await axios.get('http://localhost:4000/api/v1/users/orders/get-orders', {
+        withCredentials: true
+    })
+    return response
+}
+
+const fetchAllOrders = async () => {
+    const response = await axios.get('http://localhost:4000/api/v1/users/orders/get-orders/all', {
+        withCredentials: true
+    })
+    return response
+}
+
+
 export {
-    createOrder
+    createOrder,
+    fetchOrders,
+    fetchAllOrders
 }

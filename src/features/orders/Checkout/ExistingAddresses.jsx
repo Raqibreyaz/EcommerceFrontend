@@ -2,7 +2,7 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 import FormError from '../../../components/FormError'
 
-function ExistingAddresses({ addresses, control }) {
+function ExistingAddresses({ addresses, control, user }) {
 
     addresses = addresses.map(({ state, city, pincode, house_no }) => (
         {

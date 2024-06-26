@@ -22,8 +22,6 @@ export function CartItem({ product }) {
 
   const handleQuantity = (productId, color, size, quantity) => {
 
-    console.log(quantity);
-
     dispatch(addProductToCartAsync({ productId, color, size, quantity }))
   }
 

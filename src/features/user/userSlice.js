@@ -34,14 +34,6 @@ const addNewAddressAsync = createAsyncThunk('user/add-new-address', async (data)
 
 const fetchUserAsync = wrapper("user/fetchUser", fetchUser)
 
-// const fetchUserAsync = createAsyncThunk("user/fetchUser", async () => {
-//     const [error, result] = await catchAsyncError(fetchUser)
-//     if (error)
-//         throw new Error(error.response.data.message)
-
-//     return result.data
-// });
-
 const logoutUserAsync = createAsyncThunk('user/logout', async () => {
     const [error, result] = await catchAsyncError(logoutUser)
     if (error)
@@ -66,7 +58,6 @@ const handleAsyncActions = (builder, asyncThunk) => {
             if (action.type === 'user/fetchUser/fulfilled') {
                 state.userData = action.payload.user
                 state.isAuthenticated = true
-                console.log(state.userData);
             }
             if (action.type === 'user/signup/fulfilled') {
             }

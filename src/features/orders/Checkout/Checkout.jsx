@@ -9,6 +9,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { useEffect } from 'react';
 import { fetchUserCartAsync } from '../../cart/cartSlice';
 import { createOrderAsync } from '../orderSlice';
+import { FailedMessage, SuccessMessage } from '../../../components/MessageDialog';
+import { clearError,clearSuccess } from '../orderSlice';
 
 export default function Checkout() {
 
@@ -17,6 +19,9 @@ export default function Checkout() {
 
     let userCart = useSelector(state => state.cart.userCart)
     console.log(userCart);
+
+    const error = useSelector(state => state.order.error)
+    const success = useSelector(state => state.order.success)
 
     const dispatch = useDispatch()
 
@@ -43,12 +48,22 @@ export default function Checkout() {
 
         console.log(data);
 
-        // dispatch(createOrderAsync(data))
+        dispatch(createOrderAsync(data))
     }
 
     const methods = useForm()
 
     const { handleSubmit, control } = methods
+
+    if (error) {
+        FailedMessage(error)
+            .then(() => dispatch(clearError()))
+    }
+
+    if (success) {
+        SuccessMessage(success)
+            .then(()=>dispatch(clearSuccess()))
+    }
 
     useEffect(() => {
         dispatch(fetchUserCartAsync())
@@ -61,7 +76,7 @@ export default function Checkout() {
                 <form onSubmit={handleSubmit(onSubmit)} className='bg-white p-5 border-b ' >
                     <div className="">
                         <AddressForm />
-                        <ExistingAddresses addresses={user.addresses} control={control} />
+                        <ExistingAddresses addresses={user.addresses} user={user} control={control} />
                         <PaymentMethods control={control} />
                     </div>
                     <div><Cart inCheckout={true} /></div>
