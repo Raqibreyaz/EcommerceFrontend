@@ -1,8 +1,8 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
-import { addNewAddressAsync } from '../features/user/userSlice.js'
-import { FailedMessage } from '../components/MessageDialog.jsx'
+import { addNewAddressAsync } from '../../user/userSlice.js'
+import { FailedMessage } from '../../../components/MessageDialog.jsx'
 
 function AddressForm() {
 

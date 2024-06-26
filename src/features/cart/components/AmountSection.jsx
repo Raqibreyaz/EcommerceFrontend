@@ -19,12 +19,12 @@ export function AmountSection({ subTotal, totalDiscount, inCheckout }) {
             </div>
             {!inCheckout && <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>}
             {
-                !inCheckout && <button
-                    type='submit'
+                !inCheckout && <Link
+                    to='/checkout'
                     className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 capitalize mt-6"
                 >
-                    confirm order
-                </button>
+                    checkout
+                </Link>
             }
             {!inCheckout && < div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                 <p>

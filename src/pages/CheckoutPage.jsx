@@ -1,5 +1,5 @@
 import React from 'react'
-import Checkout from '../Checkout/Checkout'
+import Checkout from '../features/orders/Checkout/Checkout.jsx'
 
 function CheckoutPage() {
     return (
