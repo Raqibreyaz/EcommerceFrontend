@@ -1,13 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
-import { createOrder, fetchAllOrders, fetchOrders } from './orderApi.js';
+import { createOrder, fetchAllOrders, fetchOrderDetails, fetchOrders } from './orderApi.js';
 import { clearErrorAndSuccess } from '../../Constants.js';
 
 const createOrderAsync = wrapper('order/create-order', createOrder)
 
 const fetchOrdersAsync = wrapper('order/get-orders', fetchOrders)
 
-const fetchAllOrdersAsync = wrapper('order/get-orders', fetchAllOrders)
+const fetchAllOrdersAsync = wrapper('order/get-orders/all', fetchAllOrders)
+
+const fetchOrderDetailsAsync = wrapper('order/get-order-details', fetchOrderDetails)
 
 const handleAsyncActions = (builder, asyncThunk) => {
 
@@ -21,8 +23,13 @@ const handleAsyncActions = (builder, asyncThunk) => {
         .addCase(asyncThunk.fulfilled, (state, action) => {
             state.success = action.payload.message
             state.status = 'idle'
-            console.log(action.payload);
-            state.orders = action.payload.orders
+
+            if (action.type === 'order/get-orders/fulfilled') {
+                state.orders = action.payload.orders
+            }
+            if (action.type === 'order/get-order-details/fulfilled') {
+                state.fetchedOrder = action.payload.orderDetails
+            }
         }
         )
         .addCase(asyncThunk.rejected, (state, action) => {
@@ -37,6 +44,7 @@ const handleAsyncActions = (builder, asyncThunk) => {
 const orderSlice = createSlice({
     initialState: {
         orders: [],
+        fetchedOrder: {},
         status: 'idle',
         error: null,
         success: ''
@@ -48,13 +56,15 @@ const orderSlice = createSlice({
     extraReducers: (builder) => {
         handleAsyncActions(builder, createOrderAsync)
         handleAsyncActions(builder, fetchOrdersAsync)
+        handleAsyncActions(builder, fetchOrderDetailsAsync)
     }
 })
 
 export {
     createOrderAsync,
     fetchAllOrdersAsync,
-    fetchOrdersAsync
+    fetchOrdersAsync,
+    fetchOrderDetailsAsync
 }
 
 export const { clearError, clearSuccess } = orderSlice.actions
