@@ -1,4 +1,4 @@
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/20/solid";
 
 function ProductGrid({ products }) {
@@ -9,6 +9,7 @@ function ProductGrid({ products }) {
         <div className="lg:col-span-3 overflow-auto">
             <div className="bg-white">
                 <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8 ">
+                    {!products.length && <h1 className="absolute translate-x-[-30%] capitalize left-1/2 text-4xl">no products found</h1>}
                     {products.map((product) => (
                         <Link key={product._id} className="group relative border rounded p-2 duration-700" to={`/product-details/${product._id}`} >
                             <div

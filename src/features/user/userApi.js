@@ -1,71 +1,83 @@
-import axios from "axios"
+import { makeRequest } from "../../utils/Generics.js"
 
 const fetchUser = async () => {
-
-  const response = await axios.get('http://localhost:4000/api/v1/users/fetch-user', {
-    withCredentials: true
+  return await makeRequest({
+    method: 'get',
+    url: '/users/fetch-user',
+    withCredentials: true,
   })
-  return response
 }
 
 const signUpUser = async (data) => {
-  const response = await axios.post('http://localhost:4000/api/v1/users/register', data, {
+  return await makeRequest({
+    method: 'put',
+    data,
+    url: '/users/register',
     withCredentials: true,
     headers: {
-      "Content-Type": "multipart/form-data"
+      "Content-Type": "application/json"
     }
   })
-  return response
 }
 
 const editUserProfile = async (data) => {
-
-  const response = await axios.put(`http://localhost:4000/api/v1/users/edit-profile`, data, {
+  return await makeRequest({
+    method: 'put',
+    data,
+    url: '/users/edit-profile',
     withCredentials: true,
     headers: {
       "Content-Type": "application/json"
     }
   })
-  return response
 }
 
 const changeUserAvatar = async (data) => {
-  const response = await axios.patch('http://localhost:4000/api/v1/users/edit-profile/avatar', data, {
+  return await makeRequest({
+    method: "patch",
+    url: '/users/edit-profile/avatar',
     withCredentials: true,
+    data,
     headers: {
       "Content-Type": "multipart/form-data"
     }
   })
-  return response
 }
 
 const addNewAddress = async (data) => {
-  const response = await axios.patch('http://localhost:4000/api/v1/users/edit-profile/address', { address: data }, {
+  return await makeRequest({
+    method: 'patch',
+    url: '/users/edit-profile/address',
+    data: { address: data },
     withCredentials: true,
     headers: {
       "Content-Type": "application/json"
     }
   })
-  return response;
 }
 
 const loginUser = async (data) => {
-  const response = await axios.post('http://localhost:4000/api/v1/users/login', data, {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "application/json"
-    }
+  return await makeRequest({
+    method: 'post',
+    withCredentials: false,
+    url: '/users/login',
+    data,
+    headers: { "Content-Type": "application/json" }
   })
-  return response
 }
 
 const logoutUser = async () => {
-  const response = await axios.get('http://localhost:4000/api/v1/users/logout', {
+  return await makeRequest({
+    method: 'get',
+    url: '/users/logout',
     withCredentials: true
   })
-  return response;
 }
 
+
+const fetchProductOwners = async () => {
+  return await makeRequest({ method: 'get', url: '/users/get-product-owners', withCredentials: false })
+}
 
 export {
   fetchUser,
@@ -74,5 +86,6 @@ export {
   signUpUser,
   editUserProfile,
   changeUserAvatar,
-  addNewAddress
+  addNewAddress,
+  fetchProductOwners
 }

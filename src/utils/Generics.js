@@ -11,13 +11,13 @@ export const clearErrorAndSuccess = {
     }
 }
 
-export const makeRequest = async (method, url, data = {}, withCredentials = true, headers = {}) => {
+export const makeRequest = async ({ method, url, data = {}, withCredentials = true, headers = {} }) => {
 
     const reqObj = { method, url: `http://localhost:4000/api/v1${url}`, withCredentials }
 
-    if (Object.keys(data))
+    if (Object.keys(data).length)
         reqObj.data = data
-    if (Object.keys(headers))
+    if (Object.keys(headers).length)
         reqObj.headers = headers
 
     return await axios(reqObj);

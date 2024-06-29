@@ -1,11 +1,12 @@
 import React, { useEffect, useState, Fragment } from 'react'
 import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
-import { fetchCategoriesAsync } from '../ProductSlice';
+import { fetchCategoriesAsync } from '../ProductSlice.js';
+import { fetchProductOwnersAsync } from '../../user/userSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { XMarkIcon } from '@heroicons/react/20/solid'
 
-function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners, handleChange }) {
+function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, handleChange }) {
 
     return (
         < Transition show={mobileFiltersOpen} as={Fragment}>
@@ -48,7 +49,7 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners, 
                             {/* Filters */}
                             <form className="mt-4 border-t border-gray-200 sticky top-0">
                                 <h3 className="sr-only">Categories</h3>
-                                <Filter px='px-4' productOwners={productOwners} handleChange={handleChange} />
+                                <Filter px='px-4' handleChange={handleChange} />
                             </form>
                         </DialogPanel>
                     </TransitionChild>
@@ -58,17 +59,18 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners, 
     )
 }
 
-function Filter({ productOwners, px = '', handleChange }) {
+function Filter({ px = '', handleChange }) {
 
     const dispatch = useDispatch()
 
+    const categories = useSelector(state => state.product.categories)
+    const productOwners = useSelector(state => state.user.productOwners)
+
     useEffect(() => {
-        console.log('going to take categories');
         dispatch(fetchCategoriesAsync())
+        dispatch(fetchProductOwnersAsync())
     }
         , [])
-
-    let categories = useSelector(state => state.product.categories)
 
     return (
         <div>
@@ -77,6 +79,7 @@ function Filter({ productOwners, px = '', handleChange }) {
                     {
                         id: 'category',
                         name: 'category',
+                        type: 'checkbox',
                         options: categories.map(category => (
                             {
                                 value: category.name,
@@ -88,6 +91,7 @@ function Filter({ productOwners, px = '', handleChange }) {
                     {
                         id: "pricing",
                         name: "price",
+                        type: 'radio',
                         options: [
                             { name: "100 to 1k", value: '100,1000' },
                             { name: "1k to 5k", value: '1000,5000' },
@@ -100,6 +104,7 @@ function Filter({ productOwners, px = '', handleChange }) {
                     {
                         id: "discount",
                         name: "discount",
+                        type: 'radio',
                         options: [
                             { name: "at least 10%", value: 10 },
                             { name: "at least 20%", value: 20 },
@@ -112,8 +117,9 @@ function Filter({ productOwners, px = '', handleChange }) {
                     {
                         id: "product owners",
                         name: "product_owners",
+                        type: 'checkbox',
                         options: productOwners.map((brand) => (
-                            { value: brand.toLowerCase(), label: brand, checked: false }
+                            { value: brand.fullname.toLowerCase(), label: brand.fullname, checked: false }
                         ))
                     },
                 ].map((section) => (
@@ -139,11 +145,12 @@ function Filter({ productOwners, px = '', handleChange }) {
                                                 <input
                                                     id={`filter-${section.id}-${optionIdx}`}
                                                     name={`${section.id}`}
-                                                    // defaultChecked={option.checked}
                                                     defaultValue={option.value}
-                                                    type={(option.name === 'price' || option.name === 'discount') ? 'radio' : 'checkbox'}
+                                                    type={section.type}
                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                    onChange={(e) => handleChange(e, section.name, option.value)}
+                                                    onChange={(e) => {
+                                                        handleChange(e, section.name, option.value)
+                                                    }}
                                                 />
                                                 <label
                                                     htmlFor={`filter-${section.id}-${optionIdx}`}

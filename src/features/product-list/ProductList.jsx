@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Menu, MenuItem, MenuItems, MenuButton, Transition } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { fetchProductsAsync } from './ProductSlice'
-import { fetchUserAsync } from '../user/userSlice'
+import { fetchProductOwnersAsync, fetchUserAsync } from '../user/userSlice'
 import { FailedMessage, ProductGrid, Pagination } from '../../components/index.js'
 import { Filter, MobileFilter } from './components/Filter'
 
@@ -13,9 +13,9 @@ function ProductList() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const sortOptions = [
-    { name: 'Best Rating', sort: 'rating', order: 'desc' },
-    { name: 'Price: Low to High', sort: 'price', order: 'asc' },
-    { name: 'Price: High to Low', sort: 'price', order: 'desc' },
+    { name: 'Best Rating', sort: 'rating', order: '-1' },
+    { name: 'Price: Low to High', sort: 'price', order: '1' },
+    { name: 'Price: High to Low', sort: 'price', order: '-1' },
   ]
 
   function classNames(...classes) {
@@ -23,13 +23,10 @@ function ProductList() {
   }
 
   const [filter, setFilter] = useState({})
+  const products = useSelector(state => state.product.products);
+  const productOwners = useSelector(state => state.user.productOwners)
 
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    dispatch(fetchUserAsync())
-    dispatch(fetchProductsAsync({}))
-  }, [])
 
   function handleChange(e, field, value) {
 
@@ -68,9 +65,55 @@ function ProductList() {
   }
 
   useEffect(() => {
-    console.log(filter);
+
+    let queryString = '';
+
+    // Helper function to append a parameter to the query string
+    const appendParam = (key, value) => {
+      if (value !== undefined && value !== '') {
+        queryString += queryString ? `&&${key}=${value}` : `${key}=${value}`;
+      }
+    };
+
+    // Process discount
+    appendParam('discount', filter.discount);
+
+    // Process product_owners
+    if (filter.product_owners && filter.product_owners.length > 0 && filter.product_owners[0] !== '') {
+      appendParam('product_owners', filter.product_owners.join(','));
+    }
+
+    // Process category
+    if (filter.category && filter.category.length > 0 && filter.category[0] !== '') {
+      appendParam('category', filter.category.join(','));
+    }
+
+    // Process price
+    if (filter.price && filter.price.length) {
+      const [min, max] = filter.price;
+      appendParam('min_price', min);
+      if (max)
+        appendParam('max_price', max);
+    }
+
+    // Process sort
+    if (filter.sort && filter.sort.length > 0) {
+      filter.sort.forEach(sortObj => {
+        if (sortObj.field && sortObj.order) {
+          appendParam(`sort[${sortObj.field}]`, sortObj.order);
+        }
+      });
+    }
+
+    console.log(queryString); // Output: discount=10&&product_owners=owner1,owner2&&category=smartphone,laptop&&min_price=10&&max_price=100&&sort[price]=1&&sort[rating]=-1
+
+    dispatch(fetchProductsAsync(queryString))
   }
     , [filter])
+
+  useEffect(() => {
+    dispatch(fetchUserAsync())
+  }, [])
 
   const handleSort = (field, order) => {
 
@@ -78,8 +121,19 @@ function ProductList() {
 
       let newFilter = { ...prevFilter }
 
+      // remove 
       if (newFilter.sort) {
-        let index = newFilter.sort.findIndex(s => s.field === field)
+        // when the field to sort already exists then remove it
+        let index = newFilter.sort.findIndex(s => {
+          if (s.field === field) {
+            // when given field order not matches then add given field
+            if (s.order !== order)
+              newFilter.sort.push({ field, order })
+            return true
+          }
+          return false
+        })
+        // when the field exists then remove it
         if (index !== -1)
           newFilter.sort.splice(index, 1)
         else
@@ -87,18 +141,15 @@ function ProductList() {
       }
       else
         (newFilter.sort ??= []).push({ field, order })
+
       return newFilter
     }
     )
   }
 
-  const products = useSelector(state => state.product.products);
-
-  const productOwners = [...new Set(products.map(product => product.owner.fullname))]
-
   return (
     <div className="bg-white overflow-hidden">
-      <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} productOwners={productOwners} handleChange={handleChange} />
+      <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} handleChange={handleChange} />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sticky top-0">
         <div className="flex items-baseline justify-between border-b border-gray-200 pb-6  ">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">All Products</h1>
@@ -168,7 +219,7 @@ function ProductList() {
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
             {/* Filters */}
             <div className='sticky top-[20px] hidden lg:block h-screen'>
-              <Filter productOwners={productOwners} handleChange={handleChange} />
+              <Filter  handleChange={handleChange} />
             </div>
             {/* Product grid */}
             <ProductGrid products={products} />

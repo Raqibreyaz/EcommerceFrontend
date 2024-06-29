@@ -1,16 +1,8 @@
 import axios from "axios";
 import { makeRequest } from '../../utils/Generics.js'
 
-// const fetchProducts = async (filter) => {
-//   console.log(filter);
-//   const response = await axios.get(`http://localhost:4000/api/v1/products/get-products?category=sarees,kurti&&sort[rating]=-1&&sort[price]=-1`)
-//   return response;
-// }
-
-// {id,data} | data
-
 const fetchProducts = async (filter) => {
-  return await makeRequest('get', '/products/get-products')
+  return await makeRequest({ method: 'get', url: `/products/get-products?${filter}`, withCredentials: false })
 }
 
 
@@ -72,6 +64,6 @@ export {
   addNewProduct,
   deleteProduct,
   addNewCategory,
-  editProduct
+  editProduct,
 }
 

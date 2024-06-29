@@ -24,6 +24,8 @@ export const fetchCategoriesAsync = wrapper('product/fetchCategories', fetchCate
 // adds a new category
 export const addNewCategoryAsync = wrapper('product/addNewCategory', addNewCategory)
 
+
+
 const handleAsyncActions = (builder, asyncThunk) => {
     builder
         .addCase(asyncThunk.pending, (state) => {
@@ -84,7 +86,6 @@ const productSlice = createSlice({
             description: '',
             reviews: []
         },
-        productOwners: [],
         status: 'idle',
         success: '',
         error: null
