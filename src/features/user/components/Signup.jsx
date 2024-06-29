@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import FormError from '../../../components/FormError'
-import { signUpUserAsync } from '../userSlice'
+import { FormError, FailedMessage, SuccessMessage } from '../../../components/index.js'
+import { signUpUserAsync, clearError, clearSuccess } from '../userSlice'
 import { useDispatch, useSelector } from 'react-redux'
-// import MessageDialog from '../../../components/MessageDialog'
+import { clearErrorAndSuccess } from '../../../utils/Generics.js'
 
-// fullNAME  email phone avatar password address
 
 function Signup() {
 
@@ -44,9 +43,20 @@ function Signup() {
     formData.append('address', JSON.stringify(address))
 
     dispatch(signUpUserAsync(formData))
+  }
 
-    if (success)
-      Navigate('/')
+  if (success) {
+    SuccessMessage(success)
+      .then(() => {
+        dispatch(clearSuccess())
+        Navigate('/')
+      })
+  }
+  if (error) {
+    FailedMessage(error)
+      .then(() => {
+        dispatch(clearSuccess())
+      })
   }
 
   const handlePreview = (e) => {
@@ -56,8 +66,6 @@ function Signup() {
 
   return (
     <>
-      {/* {error && <MessageDialog head={error} />}
-      {success && <MessageDialog head={success} buttonMessage='okay' className='bg-green-500' />} */}
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

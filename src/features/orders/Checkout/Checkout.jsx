@@ -1,7 +1,5 @@
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import Cart from '../../cart/Cart'
 import { useDispatch, useSelector } from 'react-redux'
-import { useState } from 'react';
 import AddressForm from './AddressForm'
 import PaymentMethods from './PaymentMethods';
 import ExistingAddresses from './ExistingAddresses';

@@ -14,6 +14,7 @@ export default function Navbar() {
   const userNavigation = [
     { name: 'Your Profile', to: '/profile' },
     { name: 'My Orders', to: '/orders' },
+    { name: 'My Wishlist', to: '/wishlist' },
   ]
 
   const user = useSelector(state => state.user.userData)

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUserCart, addProductToCart, removeProductFromCart } from "./cartApi.js";
-import { catchAsyncError, wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
+import { catchAsyncError, wrapper } from '../../utils/catchErrorAndWrapper.js'
+import { clearErrorAndSuccess } from '../../utils/Generics.js'
 
 const initialState = {
     userCart: [],
@@ -49,7 +50,9 @@ const handleAsyncActions = (builder, asyncThunk) => {
 const cartSlice = createSlice({
     initialState,
     name: "cart",
-    reducers: {},
+    reducers: {
+        ...clearErrorAndSuccess
+    },
     extraReducers: (builder) => {
         handleAsyncActions(builder, fetchUserCartAsync)
         handleAsyncActions(builder, addProductToCartAsync)
@@ -62,5 +65,7 @@ export {
     addProductToCartAsync,
     removeProductFromCartAsync
 }
+
+export const { clearError, clearSuccess } = cartSlice.actions
 
 export default cartSlice.reducer;

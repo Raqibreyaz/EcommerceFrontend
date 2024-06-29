@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { catchAsyncError, wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
+import { catchAsyncError, wrapper } from '../../utils/catchErrorAndWrapper.js'
 import { loginUser, fetchUser, logoutUser, signUpUser, editUserProfile, addNewAddress, changeUserAvatar } from "./userApi.js";
+import { clearErrorAndSuccess } from "../../utils/Generics.js";
 
 const initialState = {
     userData: null,
@@ -73,12 +74,7 @@ const userSlice = createSlice({
     initialState,
     name: "user",
     reducers: {
-        clearError(state) {
-            state.error = ''
-        },
-        clearSuccess(state) {
-            state.success = ''
-        }
+        ...clearErrorAndSuccess
     },
     extraReducers: (builder) => {
         handleAsyncActions(builder, loginUserAsync)
@@ -87,6 +83,8 @@ const userSlice = createSlice({
         handleAsyncActions(builder, logoutUserAsync)
     }
 })
+
+export const { clearError, clearSuccess } = userSlice.actions
 
 export {
     fetchUserAsync,

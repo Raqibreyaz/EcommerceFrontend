@@ -4,7 +4,6 @@ import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { fetchCategoriesAsync } from '../ProductSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { XMarkIcon } from '@heroicons/react/20/solid'
-import axios from 'axios';
 
 function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, productOwners, handleChange }) {
 
@@ -112,7 +111,7 @@ function Filter({ productOwners, px = '', handleChange }) {
                     },
                     {
                         id: "product owners",
-                        name: "product owners",
+                        name: "product_owners",
                         options: productOwners.map((brand) => (
                             { value: brand.toLowerCase(), label: brand, checked: false }
                         ))

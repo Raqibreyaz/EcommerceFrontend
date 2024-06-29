@@ -1,10 +1,9 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import FormError from '../../../components/FormError'
-import { loginUserAsync } from '../userSlice'
+import { FormError, FailedMessage, SuccessMessage } from '../../../components/index.js'
+import { loginUserAsync, clearError, clearSuccess } from '../userSlice'
 import { useDispatch, useSelector } from 'react-redux'
-// import MessageDialog from '../../../components/MessageDialog'
 
 function Login() {
 
@@ -13,14 +12,25 @@ function Login() {
   const dispatch = useDispatch()
   const error = useSelector(state => state.user.error)
   const success = useSelector(state => state.user.success)
-
   const Navigate = useNavigate()
+
+  if (error) {
+    FailedMessage(error)
+      .then(() => dispatch(clearError()))
+  }
+
+  if (success) {
+
+    SuccessMessage(success)
+      .then(() => {
+        dispatch(clearSuccess())
+        Navigate('/')
+      })
+  }
 
   const onSubmit = (data) => {
     console.log(data);
     dispatch(loginUserAsync(data))
-    if (success)
-      Navigate('/')
   }
 
   return (

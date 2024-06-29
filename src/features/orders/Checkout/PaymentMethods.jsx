@@ -1,6 +1,6 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
-import FormError from '../../../components/FormError'
+import {FormError} from '../../../components/index.js'
 
 function PaymentMethods({ control }) {
     return (

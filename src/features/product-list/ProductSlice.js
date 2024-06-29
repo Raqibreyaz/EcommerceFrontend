@@ -1,6 +1,7 @@
-import {  createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct } from './ProductApi';
-import {  wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
+import { wrapper } from '../../utils/catchErrorAndWrapper.js'
+import { clearErrorAndSuccess } from '../../utils/Generics.js'
 
 // fetches product from backend side can use filters
 export const fetchProductsAsync = wrapper('product/fetchProducts', fetchProducts)
@@ -57,7 +58,6 @@ const handleAsyncActions = (builder, asyncThunk) => {
 
         })
         .addCase(asyncThunk.rejected, (state, action) => {
-
             state.status = 'rejected'
             state.error = action.error.message;
             console.log(action);
@@ -89,14 +89,20 @@ const productSlice = createSlice({
         success: '',
         error: null
     },
-    reducers: {},
+    reducers: {
+        ...clearErrorAndSuccess
+    },
     extraReducers: (builder) => {
         handleAsyncActions(builder, fetchProductsAsync)
         handleAsyncActions(builder, fetchProductDetailsAsync)
-        handleAsyncActions(builder, fetchCategoriesAsync)
         handleAsyncActions(builder, addNewProductAsync)
+        handleAsyncActions(builder, editProductAsync)
+        handleAsyncActions(builder, fetchCategoriesAsync)
+        handleAsyncActions(builder, addNewCategoryAsync)
     },
 });
+
+export const { clearError, clearSuccess } = productSlice.actions
 
 // Export the async thunk and reducer
 export default productSlice.reducer;

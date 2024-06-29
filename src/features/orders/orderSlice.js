@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { wrapper } from '../../catchErrorAndWrapper/catchErrorAndWrapper.js'
+import { wrapper } from '../../utils/catchErrorAndWrapper.js'
 import { createOrder, fetchAllOrders, fetchOrderDetails, fetchOrders } from './orderApi.js';
-import { clearErrorAndSuccess } from '../../Constants.js';
+import { clearErrorAndSuccess } from '../../utils/Generics.js';
 
 const createOrderAsync = wrapper('order/create-order', createOrder)
 
