@@ -3,16 +3,19 @@ import { useSelector, useDispatch } from 'react-redux'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
 import { fetchUserAsync } from '../features/user/userSlice.js';
 
-function Authenticate({ children, authState = true, role, roles = [] }) {
+function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
     const isAuthenticated = useSelector(state => state.user.isAuthenticated)
 
     const user = useSelector(state => state.user.userData)
 
+    console.log(user);
+
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(fetchUserAsync())
+        if (!user || !Object.keys(user).length)
+            dispatch(fetchUserAsync())
     }
         , [])
 
@@ -26,6 +29,10 @@ function Authenticate({ children, authState = true, role, roles = [] }) {
 
         // else for every case user will be unauthorized
         return false;
+    }
+
+    if (allowed) {
+        return <div>{children}</div>
     }
 
     if (!isAuthenticated && authState !== isAuthenticated)

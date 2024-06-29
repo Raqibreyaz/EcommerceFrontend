@@ -47,9 +47,9 @@ const handleAsyncActions = (builder, asyncThunk) => {
                 console.log(action.payload);
                 state.status = 'idle';
                 state.products = action.payload.products;
-                state.filteredTotal = action.payload.filteredTotal;
-                state.overallTotal = action.payload.overallTotal;
-                state.totalPages = action.payload.totalPages;
+                state.filteredTotal = parseInt(action.payload.filteredTotal);
+                state.overallTotal = parseInt(action.payload.overallTotal);
+                state.totalPages = parseInt(action.payload.totalPages);
             }
             if (action.type === 'product/fetchProductDetails/fulfilled' || action.type === 'product/editProduct/fulfilled') {
                 state.currentProduct = action.payload.product;

@@ -22,22 +22,22 @@ function ProductList() {
     return classes.filter(Boolean).join(' ')
   }
 
-  const [filter, setFilter] = useState({})
+  const limit = 10
+  const [filter, setFilter] = useState({ limit })
   const products = useSelector(state => state.product.products);
-  const productOwners = useSelector(state => state.user.productOwners)
 
   const dispatch = useDispatch()
 
   function handleChange(e, field, value) {
 
-    console.log(value);
-
     setFilter((prevFilter) => {
 
       let newFilter = { ...prevFilter }
 
+      if (field === 'page')
+        newFilter.page = value
       // when checked
-      if (e.target.checked) {
+      else if (e.target.checked) {
         if (field === 'price') {
           newFilter[field] = value.split(',')
         }
@@ -76,7 +76,14 @@ function ProductList() {
     };
 
     // Process discount
-    appendParam('discount', filter.discount);
+    if (filter.discount)
+      appendParam('discount', filter.discount);
+
+    if (filter.limit)
+      appendParam('limit', filter.limit)
+
+    if (filter.page)
+      appendParam('page', filter.page)
 
     // Process product_owners
     if (filter.product_owners && filter.product_owners.length > 0 && filter.product_owners[0] !== '') {
@@ -110,10 +117,6 @@ function ProductList() {
     dispatch(fetchProductsAsync(queryString))
   }
     , [filter])
-
-  useEffect(() => {
-    dispatch(fetchUserAsync())
-  }, [])
 
   const handleSort = (field, order) => {
 
@@ -219,13 +222,13 @@ function ProductList() {
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
             {/* Filters */}
             <div className='sticky top-[20px] hidden lg:block h-screen'>
-              <Filter  handleChange={handleChange} />
+              <Filter handleChange={handleChange} />
             </div>
             {/* Product grid */}
             <ProductGrid products={products} />
           </div>
         </section>
-        <Pagination />
+        <Pagination limit={limit} handleChange={handleChange} />
       </main>
     </div>
   )

@@ -37,8 +37,8 @@ const handleAsyncActions = (builder, asyncThunk) => {
         })
         .addCase(asyncThunk.fulfilled, (state, action) => {
             state.status = 'idle';
-            state.success = action.payload.message
-            console.log(action);
+            if (!action.type.includes('fetchUser') && !action.type.includes('product-owners'))
+                state.success = action.payload.message
 
             if (action.type === 'user/fetchUser/fulfilled') {
                 state.userData = action.payload.user
@@ -46,12 +46,12 @@ const handleAsyncActions = (builder, asyncThunk) => {
             }
             if (action.type === 'user/product-owners/fulfilled') {
                 state.productOwners = action.payload.productOwners
-                console.log(action.payload);
             }
         })
         .addCase(asyncThunk.rejected, (state, action) => {
             state.status = 'failed';
-            state.error = action.error.message;
+            if (!action.type.includes('fetchUser') && !action.type.includes('product-owners'))
+                state.error = action.error.message;
         });
 };
 

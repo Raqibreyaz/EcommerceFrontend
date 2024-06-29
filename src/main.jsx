@@ -20,12 +20,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: (<HomePage />)
+        element: (
+          <Authenticate allowed={true}>
+            <HomePage />
+          </Authenticate>
+        )
       },
       {
         path: '/product-details/:id',
         element: (
-          <ProductDetailPage />)
+          <Authenticate allowed={true}>
+            <ProductDetailPage />
+          </Authenticate>
+        )
       },
       {
         path: '/cart',
