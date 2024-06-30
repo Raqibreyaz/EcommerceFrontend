@@ -38,8 +38,6 @@ const handleAsyncActions = (builder, asyncThunk) => {
             state.status = 'idle'
             state.success = action.payload.message
 
-            console.log(action, addNewProductAsync.fulfilled);
-
             if (action.type === 'product/addNewProduct/fulfilled') {
                 console.log('fulfill message');
             }
@@ -60,9 +58,8 @@ const handleAsyncActions = (builder, asyncThunk) => {
 
         })
         .addCase(asyncThunk.rejected, (state, action) => {
-            state.status = 'rejected'
+            state.status = 'failed'
             state.error = action.error.message;
-            console.log(action);
         });
 };
 
@@ -77,7 +74,6 @@ const productSlice = createSlice({
         categories: [],
         currentProduct: {
             product_name: '',
-            thumbnail: { url: '', public_id: '' },
             keyHighlights: [],
             sizes: [],
             colors: [],

@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { StarIcon, HeartIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteProductAsync, fetchProductDetailsAsync } from '../features/product-list/ProductSlice'
-import { addProductToCartAsync, fetchUserCartAsync } from '../features/cart/cartSlice'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
 import ImageGallery from './ImageGallery'
 import ProductDetailsNav from './ProductDetailsNav'
@@ -12,7 +10,12 @@ import ReviewComponent from './Reviews'
 import { showConfirmation } from '../components/ConfirmDialog'
 import { SuccessMessage, FailedMessage } from '../components/MessageDialog'
 import Loader from '../components/Loader'
+import { useProduct } from './custom-hooks/useProduct.js'
+import { useWishlist } from './custom-hooks/useWishlist.js'
+import { useCart } from './custom-hooks/useCart.js'
+import { removeProductFromWishlist } from '../features/wishlist/wishlistApi.js'
 
+// reviews:[{oneWord,review,rating,user:{fullname,avatar,address}}]
 const reviews = { href: '#', average: 4, totalCount: 117 }
 
 function classNames(...classes) {
@@ -22,123 +25,84 @@ function classNames(...classes) {
 export default function ProductDetails() {
 
   const productId = useParams().id
-
   const dispatch = useDispatch()
+  const Navigate = useNavigate()
 
-  const providedProduct = useSelector(state => state.product.currentProduct)
 
-  console.log(providedProduct);
+  const { userCart, cartStatus, cartError, cartSuccess, clearCartError, clearCartSuccess, AddToCart, IsAddedToCart, refreshCart } = useCart()
 
-  const status = useSelector(state => state.product.status)
+  const { wishlistData, clearWishlistError, clearWishlistSuccess, wishlistStatus, wishlistError, wishlistSuccess, refreshWishlist, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
 
-  const product = {
-    name: providedProduct.product_name,
-    price: 'Rs. ' + providedProduct.price,
-    href: '/',
-    breadcrumbs: [
-      { id: 1, name: 'Women', href: '#' },
-      { id: 2, name: 'Clothing', href: '#' },
-    ],
-    colors: providedProduct.colors.map(({ color, images }) => ({
-      color,
-      class: color,
-      selectedClass: 'ring-gray-400',
-      images
-    })),
-    sizes: providedProduct.sizes.map(size => (
-      { name: size, inStock: true })
-    ),
-    description: providedProduct.description,
-    highlights: providedProduct.keyHighlights,
-    details: providedProduct.details,
-  }
+  const { product, productStatus } = useProduct(productId)
+  const { user, isAuthenticated } = useSelector(state => state.user)
 
-  const [selectedColor, setSelectedColor] = useState('')
+
   const [selectedSize, setSelectedSize] = useState('')
+  const [selectedColor, setSelectedColor] = useState('')
+  const [isProductInCart, setIsProductInCart] = useState(false)
+  const isProductInWishlist = IsAddedToWishlist(productId)
 
-  const userCart = useSelector(state => state.cart.userCart)
+  const handleAddToCart = (e) => {
+    e.preventDefault()
 
-  // console.log(userCart);
+    if (!isAuthenticated)
+      Navigate('/login')
 
-  let [isAddedToCart, setIsAddedToCart] = useState(false)
-
-  console.log('added to cart ', isAddedToCart);
-
-  // takes the selected color and size and then request to add the product to cart
-  const AddToCart = (x) => {
-    x.preventDefault()
-    console.log(selectedColor, selectedSize);
-    let data = {
-      productId,
-      color: selectedColor.color,
-      size: selectedSize,
-      quantity: 1
-    }
-    console.log(data);
-    dispatch(addProductToCartAsync(data))
+    AddToCart(productId, selectedColor.color, selectedSize)
       .then(() => {
-        if (status === 'idle')
-          setIsAddedToCart(true)
-        dispatch(fetchUserCartAsync())
+        setIsProductInCart(true)
+        refreshCart()
       })
-
   }
 
-  // works on deleting the product
-  const handleDelete = async () => {
-    let result = await showConfirmation('Delete Product', 'Do You Really Want To Delete the Product')
-    if (result.isConfirmed)
-      SuccessMessage('product deleted successfully')
-    if (result.isDenied)
-      SuccessMessage('something went wrong')
-  }
-
-  // when the component mounts then fetch the details of the product and the cart if the user is logged in
-  useEffect(() => {
-    dispatch(fetchProductDetailsAsync(productId))
-    dispatch(fetchUserCartAsync())
-  }
-    , [])
-
-  // fires when a color or size is selected 
-  // just checks whether the selected color and size is in the cart
-  useEffect(() => {
-    console.log('selectedColor', selectedColor);
-    console.log('selectedSize', selectedSize);
-
-    let check = false;
-
-    console.log(userCart);
-
-    for (const prdct of userCart) {
-      if (prdct.product === productId && selectedColor.color === prdct.color && selectedSize === prdct.size) {
-        check = true
-        break;
-      }
+  const handleWishlistProduct = () => {
+    if (isProductInWishlist) {
+      RemoveFromWishlist(productId, selectedColor.color, selectedSize)
     }
-    console.log('color available ', check);
+    else {
+      AddToWishlist(productId, selectedColor.color, selectedSize)
+    }
+  }
 
-    setIsAddedToCart(check)
+  if (cartError) {
+    FailedMessage(cartError)
+      .then(() => clearCartError())
+  }
+  if (cartSuccess) {
+    SuccessMessage(cartSuccess)
+      .then(() => clearCartSuccess())
+  }
+  if (wishlistError) {
+    FailedMessage(wishlistError)
+      .then(() => clearWishlistError())
+  }
+  if (wishlistSuccess) {
+    SuccessMessage(wishlistSuccess)
+      .then(() => clearWishlistSuccess())
+  }
+
+  // on size or color change check if it is added to cart
+  useEffect(() => {
+    setIsProductInCart(IsAddedToCart(productId, selectedColor.color, selectedSize))
   }, [userCart, selectedColor, selectedSize])
 
   useEffect(() => {
-    setSelectedColor(providedProduct.colors.length ? providedProduct.colors[0] : '')
-    setSelectedSize(providedProduct.sizes.length ? providedProduct.sizes[0] : '')
-  }, [providedProduct]);
+    setSelectedColor(product.colors.length ? product.colors[0] : '')
+    setSelectedSize(product.sizes.length ? product.sizes[0] : '')
+  }, [product]);
 
   return (
-    status === 'loading' ? <Loader /> :
-      <div className="bg-white">
+    (cartStatus === 'loading' || productStatus === 'loading' || wishlistStatus === 'loading') ? <Loader /> :
+      (<div className="bg-white">
 
         <div className="pt-6">
-          <ProductDetailsNav product={product} />
+          <ProductDetailsNav name={product.product_name} />
           {/* Image gallery */}
           <ImageGallery selectedColor={selectedColor} />
-
           {/* Product info */}
           <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
             <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.product_name}</h1>
             </div>
 
             {/* Options */}
@@ -155,7 +119,7 @@ export default function ProductDetails() {
                       <StarIcon
                         key={rating}
                         className={classNames(
-                          reviews.average > rating ? 'text-gray-900' : 'text-gray-200',
+                          reviews.rating > rating ? 'text-gray-900' : 'text-gray-200',
                           'h-5 w-5 flex-shrink-0'
                         )}
                         aria-hidden="true"
@@ -163,13 +127,13 @@ export default function ProductDetails() {
                     ))}
                   </div>
                   <p className="sr-only">{reviews.average} out of 5 stars</p>
-                  <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                  <Link href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
                     {reviews.totalCount} reviews
-                  </a>
+                  </Link>
                 </div>
               </div>
 
-              <form onSubmit={AddToCart} className="mt-10">
+              <form onSubmit={handleAddToCart} className="mt-10">
                 {/* Colors */}
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">Color</h3>
@@ -179,11 +143,12 @@ export default function ProductDetails() {
                       {product.colors.map((color) => (
                         <Radio
                           key={color.color}
+                          // color is an object containing color with images
                           value={color}
                           aria-label={color.color}
                           className={({ focus, checked }) =>
                             classNames(
-                              color.selectedClass,
+                              'ring-gray-400',
                               focus && checked ? 'ring ring-offset-1' : '',
                               !focus && checked ? 'ring-2' : '',
                               'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'
@@ -193,10 +158,10 @@ export default function ProductDetails() {
                           <span
                             aria-hidden="true"
                             className={classNames(
-                              color.class,
-                              `h-8 w-8 ${selectedColor.color === color.name ? 'scale-75' : ''} rounded-full border border-black border-opacity-10`
+                              color.color,
+                              `h-8 w-8 rounded-full border border-black border-opacity-10`
                             )}
-                            style={{ backgroundColor: color.class }}
+                            style={{ backgroundColor: color.color }}
                           />
                         </Radio>
                       ))}
@@ -208,9 +173,9 @@ export default function ProductDetails() {
                 <div className="mt-10">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                    <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    <Link href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                       Size guide
-                    </a>
+                    </Link>
                   </div>
 
                   <fieldset aria-label="Choose a size" className="mt-4">
@@ -219,25 +184,22 @@ export default function ProductDetails() {
                       onChange={setSelectedSize}
                       className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                     >
-                      {product.sizes.map((size) => (
-                        <Radio
-                          key={size.name}
-                          value={size.name}
-                          disabled={!size.inStock}
-                          className={({ focus }) =>
-                            classNames(
-                              size.inStock
-                                ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
-                                : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                              focus ? 'ring-2 ring-indigo-500' : '',
-                              'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
-                            )
-                          }
-                        >
-                          {({ checked, focus }) => (
-                            <>
-                              <span>{size.name}</span>
-                              {size.inStock ? (
+                      {
+                        product.sizes.map((size) => (
+                          <Radio
+                            key={size}
+                            value={size}
+                            className={({ focus }) =>
+                              classNames(
+                                'cursor-pointer bg-white text-gray-900 shadow-sm',
+                                focus ? 'ring-2 ring-indigo-500' : '',
+                                'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
+                              )
+                            }
+                          >
+                            {({ checked, focus }) => (
+                              <>
+                                <span>{size}</span>
                                 <span
                                   className={classNames(
                                     checked ? 'border-indigo-500' : 'border-transparent',
@@ -246,50 +208,42 @@ export default function ProductDetails() {
                                   )}
                                   aria-hidden="true"
                                 />
-                              ) : (
-                                <span
-                                  aria-hidden="true"
-                                  className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
-                                >
-                                  <svg
-                                    className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
-                                    viewBox="0 0 100 100"
-                                    preserveAspectRatio="none"
-                                    stroke="currentColor"
-                                  >
-                                    <line x1={0} y1={100} x2={100} y2={0} vectorEffect="non-scaling-stroke" />
-                                  </svg>
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </Radio>
-                      ))}
+                              </>
+                            )}
+                          </Radio>
+                        ))
+                      }
                     </RadioGroup>
-                    {/* <Compo /> */}
                   </fieldset>
                 </div>
 
+                {/* add to cart or go to cart */}
                 {
-                  !isAddedToCart ? <button
+                  !isProductInCart ? <button
                     type="submit"
                     className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
                     Add to Cart
                   </button> : <Link to='/cart' className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Go To Cart</Link>
                 }
+
+                {/* wishlist add button */}
                 <button
                   type="button"
-                  className="mt-5 flex w-full items-center justify-center rounded-md border  px-8 py-3 text-base font-medium text-black hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className={`mt-5 flex w-full capitalize items-center justify-center rounded-md border  px-8 py-3 text-base font-medium ${isProductInWishlist ? 'text-red-500' : 'text-black'} hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                  onClick={() => handleWishlistProduct()}
                 >
-                  <HeartIcon className='text-black size-10' />
-                  Add To WishList
+                  <HeartIcon className={`${isProductInWishlist ? 'text-red-500' : 'text-black'} size-7`} />
+                  {isProductInWishlist ? 'remove from wishlist' : " Add To WishList"}
                 </button>
-                <Link to={`/edit-product/${providedProduct._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >
+
+                <Link to={`/edit-product/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >
                   <TrashIcon className='size-5 text-yellow-700' />
                   edit Product
                 </Link>
-                <span className='mt-3 font-semibold mx-auto cursor-pointer flex' onClick={() => handleDelete()}>
+                <span className='mt-3 font-semibold mx-auto cursor-pointer flex'
+                //  onClick={() => handleDelete()}
+                >
                   <TrashIcon className='size-5 text-red-700' />
                   Delete Product
                 </span>
@@ -298,10 +252,11 @@ export default function ProductDetails() {
             <DescriptionDetailsAndHighlights product={product} />
           </div>
           <div>
-            <ReviewComponent />
+            <ReviewComponent productReviews={product.reviews} />
           </div>
         </div>
       </div >
+      )
   )
 }
 

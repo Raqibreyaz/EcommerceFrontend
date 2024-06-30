@@ -59,7 +59,7 @@ const addNewAddress = async (data) => {
 const loginUser = async (data) => {
   return await makeRequest({
     method: 'post',
-    withCredentials: false,
+    withCredentials: true,
     url: '/users/login',
     data,
     headers: { "Content-Type": "application/json" }
@@ -76,7 +76,13 @@ const logoutUser = async () => {
 
 
 const fetchProductOwners = async () => {
-  return await makeRequest({ method: 'get', url: '/users/get-product-owners', withCredentials: false })
+  return await makeRequest(
+    {
+      method: 'get',
+      url: '/users/get-product-owners',
+      withCredentials: false
+    }
+  )
 }
 
 export {

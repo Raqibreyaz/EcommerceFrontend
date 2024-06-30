@@ -5,19 +5,22 @@ import { fetchUserAsync } from '../features/user/userSlice.js';
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
+    // getting current authentication state of user
     const isAuthenticated = useSelector(state => state.user.isAuthenticated)
 
+    // getting user info
     const user = useSelector(state => state.user.userData)
-
-    console.log(user);
 
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (!user || !Object.keys(user).length)
+        if (!user || !Object.keys(user).length) {
+            console.log('user state emtpty ', user);
             dispatch(fetchUserAsync())
+        }
     }
         , [])
+
 
     // function which tells if user is authorized
     function authorized() {
@@ -31,14 +34,21 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
         return false;
     }
 
+
+    // when the route is allowed then just allow user
     if (allowed) {
         return <div>{children}</div>
     }
 
-    if (!isAuthenticated && authState !== isAuthenticated)
+    // tells that the route is only accessible for authenticated user
+    else if (!isAuthenticated && authState !== isAuthenticated)
         return <LoginPage />
+
+    // handles cases for role specific routes 
     else if (authorized())
         return <div>{children}</div>
+
+    // shows an 404 page  to unauthorized users
     else
         return <NotFoundPage />
 }

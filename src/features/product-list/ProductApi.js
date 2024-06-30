@@ -2,58 +2,72 @@ import axios from "axios";
 import { makeRequest } from '../../utils/Generics.js'
 
 const fetchProducts = async (filter) => {
-  return await makeRequest({ method: 'get', url: `/products/get-products?${filter}`, withCredentials: false })
+  return await makeRequest(
+    {
+      method: 'get',
+      url: `/products/get-products?${filter}`,
+      withCredentials: false
+    }
+  )
 }
 
 
 const fetchCategories = async () => {
-  const response = await axios.get('http://localhost:4000/api/v1/products/category/get-categories')
-
-  return response
+  return await makeRequest({
+    method: "get",
+    url: '/products/category/get-categories',
+    withCredentials: false
+  })
 }
 
 const fetchProductDetails = async (id) => {
-
-  const response = await axios.get(`http://localhost:4000/api/v1/products/get-product/${id}`)
-  return response
-
+  return await makeRequest({
+    method: 'get',
+    url: `/products/get-product/${id}`,
+    withCredentials: false
+  })
 }
 
 const addNewProduct = async (productData) => {
-  const response = await axios.post('http://localhost:4000/api/v1/products/addnew', productData, {
+  return await makeRequest({
+    method: 'post',
+    data: productData,
+    url: '/products/addnew',
     withCredentials: true,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    headers: { 'Content-Type': 'multipart/form-data' }
   })
-  console.log(response);
-  return response
 }
 
 const editProduct = async (data) => {
-  const response = await axios.put('http://localhost:4000/api/v1/products/edit-product', data, {
+  return await makeRequest({
+    method: 'put',
+    url: '/products/edit-product',
     withCredentials: true,
-    headers: {
-      "Content-Type": "multipart/form-data"
-    }
+    headers: { "Content-Type": "multipart/form-data" }
   })
-  return response
 }
 
 
 const deleteProduct = async (id) => {
-  return await axios.delete(`http://localhost:4000/api/v1/products/delete-product/${id}`)
+  return await makeRequest(
+    {
+      method: 'delete',
+      url: `/products/delete-product/${id}`,
+      withCredentials: true,
+    }
+  )
 }
 
 const addNewCategory = async (category) => {
-  return await axios.post('http://localhost:4000/api/v1/products/category/add-category', {
-    name: category
-  }, {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "application/json"
+  return await makeRequest(
+    {
+      method: 'post',
+      url: '/products/category/add-category',
+      data: { name: category },
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" }
     }
-  })
+  )
 }
 
 

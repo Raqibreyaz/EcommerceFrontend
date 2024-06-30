@@ -23,14 +23,14 @@ const handleAsyncActions = (builder, asyncThunk) => {
 
     builder
         .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading',
-                state.error = null
+            state.status = 'loading'
+            state.error = null
             state.success = ''
         }
         )
         .addCase(asyncThunk.fulfilled, (state, action) => {
 
-            state.success = action.message
+            state.success = action.payload.message
             state.status = 'idle'
 
             if (action.type === 'cart/fetchUserCart/fulfilled') {

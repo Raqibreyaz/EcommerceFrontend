@@ -12,7 +12,7 @@ const initialReviews = [
   // Add more reviews as needed
 ];
 
-const ReviewComponent = () => {
+const ReviewComponent = ({productReviews}) => {
   const { register, handleSubmit, reset } = useForm();
   const [reviews, setReviews] = useState(initialReviews);
 
