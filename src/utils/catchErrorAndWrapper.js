@@ -18,3 +18,4 @@ export function wrapper(prefix, actionFunction) {
         return result.data
     })
 }
+

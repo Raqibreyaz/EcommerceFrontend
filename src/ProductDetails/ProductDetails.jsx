@@ -6,14 +6,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
 import ImageGallery from './ImageGallery'
 import ProductDetailsNav from './ProductDetailsNav'
-import ReviewComponent from './Reviews'
+import ReviewComponent from '../features/reviews/Reviews.jsx'
 import { showConfirmation } from '../components/ConfirmDialog'
 import { SuccessMessage, FailedMessage } from '../components/MessageDialog'
 import Loader from '../components/Loader'
-import { useProduct } from './custom-hooks/useProduct.js'
-import { useWishlist } from './custom-hooks/useWishlist.js'
-import { useCart } from './custom-hooks/useCart.js'
-import { removeProductFromWishlist } from '../features/wishlist/wishlistApi.js'
+import { useProduct } from '../custom-hooks/useProduct.js'
+import { useWishlist } from '../custom-hooks/useWishlist.js'
+import { useCart } from '../custom-hooks/useCart.js'
+import { useReviews } from '../custom-hooks/useReviews.js'
 
 // reviews:[{oneWord,review,rating,user:{fullname,avatar,address}}]
 const reviews = { href: '#', average: 4, totalCount: 117 }
@@ -28,68 +28,58 @@ export default function ProductDetails() {
   const dispatch = useDispatch()
   const Navigate = useNavigate()
 
-
-  const { userCart, cartStatus, cartError, cartSuccess, clearCartError, clearCartSuccess, AddToCart, IsAddedToCart, refreshCart } = useCart()
+  const { cartStatus, AddToCart, IsAddedToCart } = useCart()
 
   const { wishlistData, clearWishlistError, clearWishlistSuccess, wishlistStatus, wishlistError, wishlistSuccess, refreshWishlist, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
 
+  const { productReviews } = useReviews()
+
   const { product, productStatus } = useProduct(productId)
-  const { user, isAuthenticated } = useSelector(state => state.user)
 
+  const { isAuthenticated } = useSelector(state => state.user)
 
-  const [selectedSize, setSelectedSize] = useState('')
+  const [selectedSize, setSelectedSize] = useState({})
   const [selectedColor, setSelectedColor] = useState('')
-  const [isProductInCart, setIsProductInCart] = useState(false)
+  const isProductInCart = IsAddedToCart(productId, selectedColor.color, selectedSize)
   const isProductInWishlist = IsAddedToWishlist(productId)
 
   const handleAddToCart = (e) => {
-    e.preventDefault()
-
     if (!isAuthenticated)
       Navigate('/login')
 
     AddToCart(productId, selectedColor.color, selectedSize)
-      .then(() => {
-        setIsProductInCart(true)
-        refreshCart()
-      })
   }
 
   const handleWishlistProduct = () => {
+
+    if (!isAuthenticated)
+      Navigate('/login')
+
     if (isProductInWishlist) {
       RemoveFromWishlist(productId, selectedColor.color, selectedSize)
+        .then(() => refreshWishlist())
     }
     else {
       AddToWishlist(productId, selectedColor.color, selectedSize)
+        .then(() => refreshWishlist())
     }
   }
 
-  if (cartError) {
-    FailedMessage(cartError)
-      .then(() => clearCartError())
-  }
-  if (cartSuccess) {
-    SuccessMessage(cartSuccess)
-      .then(() => clearCartSuccess())
-  }
-  if (wishlistError) {
-    FailedMessage(wishlistError)
-      .then(() => clearWishlistError())
-  }
-  if (wishlistSuccess) {
-    SuccessMessage(wishlistSuccess)
-      .then(() => clearWishlistSuccess())
-  }
-
-  // on size or color change check if it is added to cart
-  useEffect(() => {
-    setIsProductInCart(IsAddedToCart(productId, selectedColor.color, selectedSize))
-  }, [userCart, selectedColor, selectedSize])
+  // if (wishlistError) {
+  //   FailedMessage(wishlistError)
+  //     .then(() => clearWishlistError())
+  // }
+  // if (wishlistSuccess) {
+  //   SuccessMessage(wishlistSuccess)
+  //     .then(() => clearWishlistSuccess())
+  // }
 
   useEffect(() => {
-    setSelectedColor(product.colors.length ? product.colors[0] : '')
+    setSelectedColor(product.colors.length ? product.colors[0] : {})
     setSelectedSize(product.sizes.length ? product.sizes[0] : '')
   }, [product]);
+
+  console.log('hi');
 
   return (
     (cartStatus === 'loading' || productStatus === 'loading' || wishlistStatus === 'loading') ? <Loader /> :
@@ -133,7 +123,7 @@ export default function ProductDetails() {
                 </div>
               </div>
 
-              <form onSubmit={handleAddToCart} className="mt-10">
+              <div className="mt-10">
                 {/* Colors */}
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">Color</h3>
@@ -220,7 +210,8 @@ export default function ProductDetails() {
                 {/* add to cart or go to cart */}
                 {
                   !isProductInCart ? <button
-                    type="submit"
+                    type="button"
+                    onClick={handleAddToCart}
                     className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
                     Add to Cart
@@ -247,12 +238,12 @@ export default function ProductDetails() {
                   <TrashIcon className='size-5 text-red-700' />
                   Delete Product
                 </span>
-              </form>
+              </div>
             </div>
             <DescriptionDetailsAndHighlights product={product} />
           </div>
           <div>
-            <ReviewComponent productReviews={product.reviews} />
+            <ReviewComponent productId={productId} />
           </div>
         </div>
       </div >

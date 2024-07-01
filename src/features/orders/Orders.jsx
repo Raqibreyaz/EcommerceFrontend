@@ -204,7 +204,6 @@ const Orders = () => {
     const dispatch = useDispatch()
 
     const orders = useSelector(state => state.order.orders)
-    console.log(orders);
 
     // Sample orders data within the component
     // const orders = [
@@ -234,7 +233,6 @@ const Orders = () => {
 
     useEffect(() => {
 
-        console.log('dispatching to fetch orders');
         dispatch(fetchOrdersAsync())
 
     }, [])

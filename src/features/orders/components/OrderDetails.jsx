@@ -53,8 +53,6 @@ const OrdersPage = () => {
 
     const fetchedOrder = useSelector(state => state.order.fetchedOrder)
 
-    console.log(fetchedOrder);
-
     useEffect(() => {
         dispatch(fetchOrderDetailsAsync(orderId))
     }, [])

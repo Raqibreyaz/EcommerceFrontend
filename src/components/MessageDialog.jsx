@@ -5,9 +5,9 @@ export const SuccessMessage = async (title) => {
     return swal.fire({
         position: "top",
         icon: "success",
-        text:title,
+        text: title,
         showConfirmButton: false,
-        timer: 3000
+        timer: 5000
     })
 }
 
@@ -16,9 +16,9 @@ export const FailedMessage = async (title) => {
     return swal.fire({
         position: "top",
         icon: "error",
-        text:title,
+        text: title,
         showConfirmButton: false,
-        timer:3000
+        timer: 5000,
     });
 }
 

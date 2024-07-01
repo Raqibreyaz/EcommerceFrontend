@@ -15,7 +15,6 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
 
     useEffect(() => {
         if (!user || !Object.keys(user).length) {
-            console.log('user state emtpty ', user);
             dispatch(fetchUserAsync())
         }
     }

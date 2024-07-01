@@ -30,12 +30,13 @@ const handleAsyncActions = (builder, asyncThunk) => {
         )
         .addCase(asyncThunk.fulfilled, (state, action) => {
 
-            state.success = action.payload.message
             state.status = 'idle'
 
             if (action.type === 'cart/fetchUserCart/fulfilled') {
                 state.userCart = action.payload.userCart
             }
+            else
+                state.success = action.payload.message
         }
         )
         .addCase(asyncThunk.rejected, (state, action) => {

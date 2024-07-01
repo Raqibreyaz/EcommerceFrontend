@@ -25,10 +25,11 @@ const handleAsyncActions = (builder, asyncThunk) => {
         })
         .addCase(asyncThunk.fulfilled, (state, action) => {
             state.status = 'idle';
-            state.success = action.payload.message
             if (action.type.includes('get-wishlist')) {
                 state.wishlistData = action.payload.wishlist
             }
+            else
+                state.success = action.payload.message
         })
         .addCase(asyncThunk.rejected, (state, action) => {
             state.status = 'failed';
@@ -51,7 +52,7 @@ const wishlistSlice = createSlice({
 
 export {
     addProductToWishlistAsync,
-    removeProductFromWishlist,
+    removeProductFromWishlistAsync,
     fetchWishlistAsync
 }
 

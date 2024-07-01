@@ -1,4 +1,3 @@
-import axios from "axios";
 import { makeRequest } from '../../utils/Generics.js'
 
 const fetchProducts = async (filter) => {
@@ -46,7 +45,6 @@ const editProduct = async (data) => {
     headers: { "Content-Type": "multipart/form-data" }
   })
 }
-
 
 const deleteProduct = async (id) => {
   return await makeRequest(

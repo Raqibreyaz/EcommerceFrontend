@@ -13,10 +13,8 @@ import { clearError,clearSuccess } from '../orderSlice';
 export default function Checkout() {
 
     const user = useSelector(state => state.user.userData)
-    console.log(user);
 
     let userCart = useSelector(state => state.cart.userCart)
-    console.log(userCart);
 
     const error = useSelector(state => state.order.error)
     const success = useSelector(state => state.order.success)
@@ -44,7 +42,6 @@ export default function Checkout() {
         delete data.deliveryAddress.name
         delete data.deliveryAddress.id
 
-        console.log(data);
 
         dispatch(createOrderAsync(data))
     }

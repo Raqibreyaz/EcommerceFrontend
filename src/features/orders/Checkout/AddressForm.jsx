@@ -13,7 +13,6 @@ function AddressForm() {
     const user = useSelector(state => state.user.userData)
 
     const onSubmit = (data) => {
-        console.log(data);
         for (const field in data) {
             if (Object.hasOwnProperty.call(data, field)) {
                 const value = data[field];

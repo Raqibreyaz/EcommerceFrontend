@@ -19,8 +19,6 @@ function Signup() {
 
   const onSubmit = (data) => {
 
-    console.log(data);
-
     const formData = new FormData()
 
     const address = {}
@@ -37,8 +35,6 @@ function Signup() {
           formData.append(key, element instanceof FileList ? element[0] : element)
       }
     }
-
-    console.log(address);
 
     formData.append('address', JSON.stringify(address))
 

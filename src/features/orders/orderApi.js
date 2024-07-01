@@ -25,7 +25,6 @@ const fetchAllOrders = async () => {
 }
 
 const fetchOrderDetails = async (id) => {
-    console.log('going to get orders');
     const response = await axios.get(`http://localhost:4000/api/v1/users/orders/get-order-details/${id}`, {
         withCredentials: true
     })

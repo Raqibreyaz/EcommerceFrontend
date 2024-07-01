@@ -29,7 +29,6 @@ function AddCategory() {
         if (!data.newCategory)
             return;
 
-        console.log(data);
         dispatch(addNewCategoryAsync(data.newCategory))
     }
 

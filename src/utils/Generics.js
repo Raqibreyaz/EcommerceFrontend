@@ -1,13 +1,11 @@
-import axios from "axios";
+import axios from "axios"
 
 export const clearErrorAndSuccess = {
     clearError: (state, action) => {
         state.error = null
-        console.log('error cleared');
     },
     clearSuccess: (state, action) => {
         state.success = ''
-        console.log('success cleared');
     }
 }
 
@@ -22,3 +20,4 @@ export const makeRequest = async ({ method, url, data = {}, withCredentials = tr
 
     return await axios(reqObj);
 }
+

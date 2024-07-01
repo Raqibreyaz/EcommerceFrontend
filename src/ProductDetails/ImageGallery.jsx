@@ -1,7 +1,6 @@
 import React from 'react'
 
 function ImageGallery({ selectedColor }) {
-    console.log('selected color images ', selectedColor);
     return (
         <div>
             {

@@ -29,7 +29,6 @@ function Login() {
   }
 
   const onSubmit = (data) => {
-    console.log(data);
     dispatch(loginUserAsync(data))
   }
 

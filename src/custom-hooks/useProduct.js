@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProductDetailsAsync, clearError, clearSuccess } from "../../features/product-list/ProductSlice";
+import { fetchProductDetailsAsync, clearError, clearSuccess } from "../features/product-list/ProductSlice";
 import { useEffect } from "react";
 
 export const useProduct = (id) => {
@@ -32,7 +32,9 @@ export const useProduct = (id) => {
         return false
     }
 
+    // ran only 2 times due to strict mode
     useEffect(() => {
+        // console.log('hi in product');
         dispatch(fetchProductDetailsAsync(id))
     }, [])
 

@@ -33,7 +33,6 @@ const handleAsyncActions = (builder, asyncThunk) => {
         }
         )
         .addCase(asyncThunk.rejected, (state, action) => {
-            console.log(action);
             state.error = action.error.message
             state.status = 'failed'
         }

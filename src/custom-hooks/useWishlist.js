@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchWishlistAsync, addProductToWishlistAsync, removeProductFromWishlist, clearError, clearSuccess } from "../../features/wishlist/wishlistSlice.js";
+import { fetchWishlistAsync, addProductToWishlistAsync, removeProductFromWishlistAsync, clearError, clearSuccess } from "../features/wishlist/wishlistSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useWishlist = () => {
@@ -8,22 +8,26 @@ export const useWishlist = () => {
 
     const dispatch = useDispatch()
 
-    const AddToWishlist = (productId, color, size) => {
+    const AddToWishlist = async (productId, color, size) => {
         console.log(color);
         console.log(size);
         console.log(productId);
+        return await dispatch(addProductToWishlistAsync({ id: productId, data: { color, size } })).unwrap()
     }
 
-    const RemoveFromWishlist = (productId, color, size) => {
+    const RemoveFromWishlist = async (productId, color, size) => {
         console.log(color);
         console.log(size);
         console.log(productId);
+        return await dispatch(removeProductFromWishlistAsync({ id: productId, data: { color, size } })).unwrap()
     }
 
     const IsAddedToWishlist = (productId) => {
-        for (const prdct of wishlistData) {
-            if (prdct.product === productId) {
-                return true
+        if (productId) {
+            for (const prdct of wishlistData) {
+                if (prdct.productId === productId) {
+                    return true
+                }
             }
         }
         return false
@@ -43,6 +47,7 @@ export const useWishlist = () => {
         setReload(!reload)
     }
 
+    // ran only 2 times due to strict mode
     useEffect(() => {
         dispatch(fetchWishlistAsync())
     }, [reload])

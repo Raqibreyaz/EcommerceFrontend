@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct } from './ProductApi';
+import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct} from './ProductApi';
 import { wrapper } from '../../utils/catchErrorAndWrapper.js'
 import { clearErrorAndSuccess } from '../../utils/Generics.js'
 
@@ -9,7 +9,7 @@ export const fetchProductsAsync = wrapper('product/fetchProducts', fetchProducts
 // fetche the product details from the backend using the id
 export const fetchProductDetailsAsync = wrapper('product/fetchProductDetails', fetchProductDetails)
 
-// adds a new category to the database taking the name of it
+// adds a new product to the database 
 export const addNewProductAsync = wrapper('product/addNewProduct', addNewProduct)
 
 // edit the product by provided params
@@ -36,20 +36,18 @@ const handleAsyncActions = (builder, asyncThunk) => {
         .addCase(asyncThunk.fulfilled, (state, action) => {
 
             state.status = 'idle'
-            state.success = action.payload.message
 
-            if (action.type === 'product/addNewProduct/fulfilled') {
-                console.log('fulfill message');
+            // success message will only be shown for non fetching requests
+            if (!action.type.includes('fetch')) {
+                state.success = action.payload.message
             }
             if (action.type === 'product/fetchProducts/fulfilled') {
-                console.log(action.payload);
-                state.status = 'idle';
                 state.products = action.payload.products;
                 state.filteredTotal = parseInt(action.payload.filteredTotal);
                 state.overallTotal = parseInt(action.payload.overallTotal);
                 state.totalPages = parseInt(action.payload.totalPages);
             }
-            if (action.type === 'product/fetchProductDetails/fulfilled' || action.type === 'product/editProduct/fulfilled') {
+            if (action.type === 'product/fetchProductDetails/fulfilled') {
                 state.currentProduct = action.payload.product;
             }
             if (action.type === 'product/fetchCategories/fulfilled') {
@@ -82,6 +80,7 @@ const productSlice = createSlice({
             description: '',
             reviews: []
         },
+        currentProductReviews: [],
         status: 'idle',
         success: '',
         error: null
@@ -96,6 +95,7 @@ const productSlice = createSlice({
         handleAsyncActions(builder, editProductAsync)
         handleAsyncActions(builder, fetchCategoriesAsync)
         handleAsyncActions(builder, addNewCategoryAsync)
+
     },
 });
 

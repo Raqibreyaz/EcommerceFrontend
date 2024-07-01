@@ -54,8 +54,6 @@ const ProductForm = () => {
 
     const onSubmit = async (data) => {
 
-        console.log(data);
-
         const formData = new FormData()
 
         const colorArray = colorImages.colors.map(({ color }) => color)
