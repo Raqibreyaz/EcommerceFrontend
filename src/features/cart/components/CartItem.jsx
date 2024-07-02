@@ -1,30 +1,10 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { TrashIcon } from '@heroicons/react/20/solid'
 import { showConfirmation } from '../../../components/ConfirmDialog'
 import { Link } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { removeProductFromCartAsync, addProductToCartAsync } from '../cartSlice.js'
 import ColorNamer from 'color-namer'
 
-export function CartItem({ product }) {
-
-  const dispatch = useDispatch()
-
-  const handleRemove = async (productId, size, color) => {
-    let result = await showConfirmation('Remove From Cart', 'Do You Really Want To Remove This Item', 'Remove')
-
-    if (result.isConfirmed) {
-      dispatch(removeProductFromCartAsync({ productId, size, color }))
-      // userCart.filter((product) => product.product !== productId)
-      // console.log(userCart);
-    }
-  }
-
-  const handleQuantity = (productId, color, size, quantity) => {
-
-    dispatch(addProductToCartAsync({ productId, color, size, quantity }))
-  }
-
+export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
   return (
     <div>
       {
@@ -55,8 +35,7 @@ export function CartItem({ product }) {
               <div className="text-gray-500 flex gap-2 items-center ">Qty
                 <p className='flex items-center gap-2 border rounded-3xl px-2'>
                   <select defaultValue={product.quantity} onChange={(e) => {
-                    handleQuantity(product.product, product.color, product.size, e.target.value)
-
+                    AddToCart(product.product, product.color, product.size, e.target.value)
                   }} className='px-2'>
                     {
                       [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
@@ -71,7 +50,11 @@ export function CartItem({ product }) {
                 <button
                   type="button"
                   className="font-medium text-red-500 hover:text-red-600 flex"
-                  onClick={() => handleRemove(product.product, product.size, product.color)}
+                  onClick={() => {
+                    showConfirmation('Remove Product', 'Do you Really Want to Remove The Product').then((result) => {
+                      if (result.isConfirmed) RemoveFromCart(product.product, product.color, product.size)
+                    })
+                  }}
                 >
                   <TrashIcon className='size-5' />Remove
                 </button>
@@ -80,8 +63,6 @@ export function CartItem({ product }) {
           </div>
         </li>
       }
-    </div>
+    </div >
   )
-}
-
-export default CartItem
+})

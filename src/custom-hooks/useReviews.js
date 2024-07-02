@@ -1,27 +1,25 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState, useMemo } from "react"
 import { createProductReviewAsync, fetchProductReviewsAsync, clearSuccess, clearError } from "../features/reviews/reviewSlice.js"
-import { useDispatch, useSelector } from "react-redux"
-import { FailedMessage, SuccessMessage } from "../components/MessageDialog"
+import { useSelector } from "react-redux"
 import { useMessageAndClear } from "./useMessageAndClear.js"
 
-export const useReviews = () => {
+export const useReviews = (productId) => {
 
-    const { productReviews, status: reviewStatus } = useSelector(state => state.review)
+    const { productReviews: reviews, status } = useSelector(state => state.review)
+
+    const productReviews = useMemo(() => reviews, [reviews]);
+    const reviewStatus = useMemo(() => status, [status])
+
+    const [reload, setReload] = useState(false)
+
+    const refreshReviews = useCallback(() => {
+        setReload(!reload)
+    }, [])
 
     const executeAndMessage = useMessageAndClear('review', clearError, clearSuccess)
 
-    // dispatch(createProductReviewAsync({ id: productId, data }))
-    //     .unwrap()
-    //     .then(() => {
-    //         SuccessMessage(reviewSuccess)
-    //         dispatch(clearSuccess())
-    //     })
-    //     .catch(() => {
-    //         FailedMessage(reviewError)
-    //         dispatch(clearError())
-    //     })
     const createReview = useCallback((productId, data) => {
-        executeAndMessage(createProductReviewAsync, { id: productId, data })
+        executeAndMessage(createProductReviewAsync, { id: productId, data }, refreshReviews)
     }, [])
 
 
@@ -29,10 +27,13 @@ export const useReviews = () => {
         console.log(productId, data);
     }, [])
 
+
+    // console.log('in useReviews ');
+
     useEffect(() => {
-        // dispatch(fetchProductReviewsAsync)
-        executeAndMessage(fetchProductReviewsAsync)
-    }, [])
+        executeAndMessage(fetchProductReviewsAsync, productId)
+        console.log('useReview useEffect');
+    }, [reload])
 
     return { reviewStatus, productReviews, createReview, editReview }
 }

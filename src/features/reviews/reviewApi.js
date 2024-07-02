@@ -24,11 +24,11 @@ const editProductReview = async (data) => {
     )
 }
 
-const fetchProductReviews = async () => {
+const fetchProductReviews = async (productId) => {
     return await makeRequest(
         {
             method: 'get',
-            url: '/products/review/get-reviews',
+            url: `/products/review/get-reviews/${productId}`,
             withCredentials: false,
         }
     )

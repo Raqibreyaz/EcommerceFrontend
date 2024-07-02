@@ -1,44 +1,14 @@
-import { Fragment, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchUserCartAsync, addProductToCartAsync, removeProductFromCartAsync, clearError, clearSuccess } from './cartSlice'
-import { Loader, showConfirmation, SuccessMessage, FailedMessage } from '../../components/index.js'
+import { Loader } from '../../components/index.js'
 import { CartItem } from './components/CartItem'
 import { AmountSection } from './components/AmountSection'
-
+import { useCart } from '../../custom-hooks/useCart.js'
 
 export default function Cart({ inCheckout = false }) {
 
-  const userCart = useSelector(state => state.cart.userCart)
-  const status = useSelector(state => state.cart.status)
-  const success = useSelector(state => state.cart.success)
-  const error = useSelector(state => state.cart.error)
-
-  let subTotal = 0
-  let totalDiscount = 0
-  userCart.forEach(({ price, quantity, discount }) => {
-    subTotal += (price * quantity)
-    totalDiscount += price * discount * quantity / 100
-  })
-
-  const dispatch = useDispatch()
-
-  if (success) {
-    SuccessMessage(success)
-      .then(() => dispatch(clearSuccess()))
-  }
-  if (error) {
-    FailedMessage(error)
-      .then(() => dispatch(clearError()))
-  }
-
-  useEffect(() => {
-    dispatch(fetchUserCartAsync())
-  }, [])
-
-  const [open, setOpen] = useState(true)
+  const { userCart, cartStatus, subTotal, totalDiscount, AddToCart, RemoveFromCart } = useCart()
 
   return (
-    status === 'loading' ? <Loader /> :
+    cartStatus === 'loading' ? <Loader /> :
       (userCart.length > 0 ? <div>
         <div className="mt-8">
           <h1 className='text-3xl font-bold mb-2'>{!inCheckout ? "Cart" : 'Your Items'}</h1>
@@ -46,7 +16,7 @@ export default function Cart({ inCheckout = false }) {
             <ul role="list" className="-my-6 divide-y divide-gray-200">
               {
                 userCart.map((product) => (
-                  <CartItem product={product}
+                  <CartItem product={product} AddToCart={AddToCart} RemoveFromCart={RemoveFromCart}
                     key={product.product + product.size + product.color}
                   />
                 ))

@@ -1,32 +1,39 @@
-import axios from "axios";
+import { makeRequest } from "../../utils/Generics";
 
 const fetchUserCart = async () => {
-    const response = await axios.get('http://localhost:4000/api/v1/users/cart/get-cart', {
-        withCredentials: true
-    })
-    return response;
+    return await makeRequest(
+        {
+            method: 'get',
+            url: '/users/cart/get-cart',
+            withCredentials: true,
+        }
+    )
 }
 
-const addProductToCart = async (product) => {
-    const response = await axios.put(`http://localhost:4000/api/v1/users/cart/add-product`, product, {
-        withCredentials: true,
-        headers: {
-            "Content-Type": "application/json"
+const addProductToCart = async (data) => {
+    return await makeRequest(
+        {
+            method: 'put',
+            url: `/users/cart/add-product/${data.id}`,
+            data: data.data,
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" }
         }
-    })
-    return response;
+
+    )
 }
 
-const removeProductFromCart = async (product) => {
-    const response = await axios.delete('http://localhost:4000/api/v1/users/cart/delete-product', {
-        data: product,
-        withCredentials: true,
-        headers: {
-            "Content-Type": "application/json"
+const removeProductFromCart = async (data) => {
+    return await makeRequest(
+        {
+            method: 'delete',
+            url: `/users/cart/delete-product/${data.id}`,
+            data: data.data,
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" }
         }
-    })
 
-    return response
+    )
 }
 
 export {

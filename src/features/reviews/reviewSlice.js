@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { wrapper } from '../../utils/catchErrorAndWrapper.js'
 import { clearErrorAndSuccess } from '../../utils/Generics.js'
 import { createProductReview, editProductReview, fetchProductReviews } from './reviewApi.js'
+import { act } from "react";
 
 // fetches the reviews of the current product
 export const fetchProductReviewsAsync = wrapper('product/getProductReviews', fetchProductReviews)
@@ -21,7 +22,12 @@ const handleAsyncActions = (builder, asyncThunk) => {
         })
         .addCase(asyncThunk.fulfilled, (state, action) => {
             state.status = 'idle'
-            state.success = action.payload.message
+
+            if (!action.type.includes('fetch'))
+                state.success = action.payload.message
+
+            if (action.type.includes('product/getProductReviews'))
+                state.productReviews = action.payload.reviews
         })
         .addCase(asyncThunk.rejected, (state, action) => {
             state.status = 'failed'

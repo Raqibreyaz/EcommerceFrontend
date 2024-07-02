@@ -1,19 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { StarIcon, HeartIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
-import { useDispatch, useSelector } from 'react-redux'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
 import ImageGallery from './ImageGallery'
 import ProductDetailsNav from './ProductDetailsNav'
 import ReviewComponent from '../features/reviews/Reviews.jsx'
-import { showConfirmation } from '../components/ConfirmDialog'
-import { SuccessMessage, FailedMessage } from '../components/MessageDialog'
 import Loader from '../components/Loader'
 import { useProduct } from '../custom-hooks/useProduct.js'
 import { useWishlist } from '../custom-hooks/useWishlist.js'
 import { useCart } from '../custom-hooks/useCart.js'
 import { useReviews } from '../custom-hooks/useReviews.js'
+import { useUser } from '../custom-hooks/useUser.js'
 
 // reviews:[{oneWord,review,rating,user:{fullname,avatar,address}}]
 const reviews = { href: '#', average: 4, totalCount: 117 }
@@ -25,54 +23,43 @@ function classNames(...classes) {
 export default function ProductDetails() {
 
   const productId = useParams().id
-  const dispatch = useDispatch()
   const Navigate = useNavigate()
 
   const { cartStatus, AddToCart, IsAddedToCart } = useCart()
-
-  const { wishlistData, clearWishlistError, clearWishlistSuccess, wishlistStatus, wishlistError, wishlistSuccess, refreshWishlist, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
-
-  const { productReviews } = useReviews()
-
+  const { wishlistStatus, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
+  const { productReviews } = useReviews(productId)
   const { product, productStatus } = useProduct(productId)
-
-  const { isAuthenticated } = useSelector(state => state.user)
+  const { isAuthenticated } = useUser()
 
   const [selectedSize, setSelectedSize] = useState({})
   const [selectedColor, setSelectedColor] = useState('')
   const isProductInCart = IsAddedToCart(productId, selectedColor.color, selectedSize)
   const isProductInWishlist = IsAddedToWishlist(productId)
 
-  const handleAddToCart = (e) => {
-    if (!isAuthenticated)
-      Navigate('/login')
+  const handleAddToCart = useCallback(
+    (e) => {
+      if (!isAuthenticated)
+        Navigate('/login')
+      AddToCart(productId, selectedColor.color, selectedSize)
+    },
+    [selectedColor, selectedSize]
+  )
 
-    AddToCart(productId, selectedColor.color, selectedSize)
-  }
+  const handleWishlistProduct = useCallback(
+    () => {
 
-  const handleWishlistProduct = () => {
+      if (!isAuthenticated)
+        Navigate('/login')
 
-    if (!isAuthenticated)
-      Navigate('/login')
-
-    if (isProductInWishlist) {
-      RemoveFromWishlist(productId, selectedColor.color, selectedSize)
-        .then(() => refreshWishlist())
-    }
-    else {
-      AddToWishlist(productId, selectedColor.color, selectedSize)
-        .then(() => refreshWishlist())
-    }
-  }
-
-  // if (wishlistError) {
-  //   FailedMessage(wishlistError)
-  //     .then(() => clearWishlistError())
-  // }
-  // if (wishlistSuccess) {
-  //   SuccessMessage(wishlistSuccess)
-  //     .then(() => clearWishlistSuccess())
-  // }
+      if (isProductInWishlist) {
+        RemoveFromWishlist(productId, selectedColor.color, selectedSize)
+      }
+      else {
+        AddToWishlist(productId, selectedColor.color, selectedSize)
+      }
+    },
+    [selectedColor, selectedSize]
+  )
 
   useEffect(() => {
     setSelectedColor(product.colors.length ? product.colors[0] : {})
@@ -243,7 +230,7 @@ export default function ProductDetails() {
             <DescriptionDetailsAndHighlights product={product} />
           </div>
           <div>
-            <ReviewComponent productId={productId} />
+            <ReviewComponent productReviews={productReviews} />
           </div>
         </div>
       </div >

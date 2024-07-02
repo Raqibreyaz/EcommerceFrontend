@@ -1,12 +1,14 @@
-import React, { useEffect, useState, Fragment } from 'react'
-import { Dialog, DialogPanel, Menu, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
+import React, { useEffect, Fragment, memo } from 'react'
+import { Dialog, DialogPanel, Menu, MenuItem, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
+import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
-import { fetchCategoriesAsync } from '../ProductSlice.js';
-import { fetchProductOwnersAsync } from '../../user/userSlice.js';
-import { useDispatch, useSelector } from 'react-redux';
 import { XMarkIcon } from '@heroicons/react/20/solid'
+import { useFilter } from '../../../custom-hooks/useFilter.js';
+import { useUser } from '../../../custom-hooks/useUser.js';
 
-function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, handleChange }) {
+const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
+
+    console.log('hi mobile');
 
     return (
         < Transition show={mobileFiltersOpen} as={Fragment}>
@@ -49,7 +51,7 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, handleChange })
                             {/* Filters */}
                             <form className="mt-4 border-t border-gray-200 sticky top-0">
                                 <h3 className="sr-only">Categories</h3>
-                                <Filter px='px-4' handleChange={handleChange} />
+                                <Filter px='px-4' />
                             </form>
                         </DialogPanel>
                     </TransitionChild>
@@ -57,21 +59,19 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, handleChange })
             </Dialog>
         </Transition >
     )
-}
+})
 
-function Filter({ px = '', handleChange }) {
+const Filter = memo(function ({ px = '' }) {
 
-    const dispatch = useDispatch()
-
-    const categories = useSelector(state => state.product.categories)
-    const productOwners = useSelector(state => state.user.productOwners)
+    const { categories, HandleFetchCategories, HandleFilterSelection } = useFilter()
+    const { productOwners, HandleProductOwners } = useUser()
 
     useEffect(() => {
-        dispatch(fetchCategoriesAsync())
-        dispatch(fetchProductOwnersAsync())
+        HandleProductOwners()
+        HandleFetchCategories()
     }
         , [])
-
+    console.log('hi filter');
     return (
         <div>
             {
@@ -149,7 +149,7 @@ function Filter({ px = '', handleChange }) {
                                                     type={section.type}
                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                     onChange={(e) => {
-                                                        handleChange(e, section.name, option.value)
+                                                        HandleFilterSelection(e.target.checked, section.name, option.value)
                                                     }}
                                                 />
                                                 <label
@@ -169,10 +169,87 @@ function Filter({ px = '', handleChange }) {
             }
         </div>
     )
-}
+})
 
+const SortMenu = memo(function ({ setMobileFiltersOpen }) {
+
+    const { HandleSortSelection } = useFilter()
+
+    console.log('hi sort');
+
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ')
+    }
+
+    const sortOptions = [
+        { name: 'Best Rating', sort: 'rating', order: '-1' },
+        { name: 'Price: Low to High', sort: 'price', order: '1' },
+        { name: 'Price: High to Low', sort: 'price', order: '-1' },
+    ]
+
+    return (
+        <div className="flex items-center">
+            {/* sort menu */}
+            <Menu as="div" className="relative inline-block text-left">
+                <div>
+                    <MenuButton className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Sort
+                        <ChevronDownIcon
+                            className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                            aria-hidden="true"
+                        />
+                    </MenuButton>
+                </div>
+                <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                >
+                    <MenuItems className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="py-1">
+                            {sortOptions.map((option) => (
+                                <MenuItem key={option.name}>
+                                    {({ active }) => (
+                                        <div
+                                            className={classNames(
+                                                option.current ? 'font-medium text-gray-900' : 'text-gray-500',
+                                                active ? 'bg-gray-100' : '',
+                                                'block px-4 py-2 text-sm'
+                                            )}
+                                            onClick={() => HandleSortSelection(option.sort, option.order)}
+                                        >
+                                            {option.name}
+                                        </div>
+                                    )}
+                                </MenuItem>
+                            ))}
+                        </div>
+                    </MenuItems>
+                </Transition>
+            </Menu>
+            <button type="button" className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7">
+                <span className="sr-only">View grid</span>
+                <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
+            </button>
+            {/* mobile filter toggler */}
+            <button
+                type="button"
+                className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
+                onClick={() => setMobileFiltersOpen(true)}
+            >
+                <span className="sr-only">Filters</span>
+                <FunnelIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+        </div>
+    )
+})
 
 export {
     MobileFilter,
-    Filter
+    Filter,
+    SortMenu
 }

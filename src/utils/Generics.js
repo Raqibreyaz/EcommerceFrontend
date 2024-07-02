@@ -18,6 +18,7 @@ export const makeRequest = async ({ method, url, data = {}, withCredentials = tr
     if (Object.keys(headers).length)
         reqObj.headers = headers
 
-    return await axios(reqObj);
+    const response = await axios(reqObj);
+    return response
 }
 

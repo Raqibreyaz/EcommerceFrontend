@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Link } from 'react-router-dom'
 
-export function AmountSection({ subTotal, totalDiscount, inCheckout }) {
+export const AmountSection = memo(function ({ subTotal, totalDiscount, inCheckout }) {
 
     return (
         <div className="border-t border-gray-200 py-6 sm:px-6 w-full">
@@ -40,6 +40,5 @@ export function AmountSection({ subTotal, totalDiscount, inCheckout }) {
             </div>}
         </div>
     )
-}
+})
 
-export default AmountSection

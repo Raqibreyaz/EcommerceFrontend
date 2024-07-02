@@ -1,18 +1,25 @@
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductDetailsAsync, clearError, clearSuccess } from "../features/product-list/ProductSlice";
-import { useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
+import { useMessageAndClear } from "./useMessageAndClear";
 
 export const useProduct = (id) => {
 
-    const { currentProduct: product, error: productError, success: productSuccess, status: productStatus } = useSelector(state => state.product)
+    const { currentProduct: product, status: productStatus } = useSelector(state => state.product)
+
+    const executeAndMessage = useMessageAndClear('product', clearError, clearSuccess)
+
     const dispatch = useDispatch()
 
-    const clearProductError = () => {
-        dispatch(clearError())
+    const CreateNewProduct = useCallback(() => {
+
     }
-    const clearProductSuccess = () => {
-        dispatch(clearSuccess())
+        , [])
+
+    const EditProduct = useCallback(() => {
+
     }
+        , [])
 
     // works on deleting the product
     const HandleDelete = async () => {
@@ -32,11 +39,13 @@ export const useProduct = (id) => {
         return false
     }
 
+    // console.log('in useProduct');
+
     // ran only 2 times due to strict mode
     useEffect(() => {
-        // console.log('hi in product');
-        dispatch(fetchProductDetailsAsync(id))
+        executeAndMessage(fetchProductDetailsAsync, id)
+        console.log('useProduct useEffect');
     }, [])
 
-    return { product, productError, productSuccess, productStatus, clearProductError, clearProductSuccess, HandleDelete, checkStocks }
+    return { product, productStatus, HandleDelete, checkStocks }
 }
