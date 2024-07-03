@@ -1,6 +1,6 @@
 import React from 'react'
 
-function DescriptionDetailsAndHighlights({product}) {
+const DescriptionDetailsAndHighlights = React.memo(function ({ product }) {
     return (
         <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
             {/* Description,keyHighlights and details */}
@@ -33,6 +33,6 @@ function DescriptionDetailsAndHighlights({product}) {
             </div>
         </div>
     )
-}
+})
 
 export default DescriptionDetailsAndHighlights

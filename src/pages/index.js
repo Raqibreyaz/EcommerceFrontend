@@ -13,6 +13,8 @@ import NotFoundPage from './NotFoundPage.jsx'
 import DashBoardPage from './DashBoardPage.jsx'
 import MessageList from './messsages.jsx'
 import UserProfilePage from './UserProfilePage.jsx'
+import EditProfilePage from './EditProfilePage.jsx'
+import EditAddressPage from './EditAddressPage.jsx'
 
 export {
     HomePage,
@@ -29,7 +31,9 @@ export {
     NotFoundPage,
     DashBoardPage,
     MessageList,
-    UserProfilePage
+    UserProfilePage,
+    EditProfilePage,
+    EditAddressPage
 }
 
 

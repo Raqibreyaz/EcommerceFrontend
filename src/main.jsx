@@ -8,7 +8,7 @@ import {
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
-import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage, NotFoundPage } from './pages/index.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage } from './pages/index.js'
 import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
@@ -127,6 +127,22 @@ const router = createBrowserRouter([
         element: (
           <Authenticate authState={true}>
             <UserProfilePage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/edit-profile',
+        element: (
+          <Authenticate authState={true}>
+            <EditProfilePage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/edit-profile/address',
+        element: (
+          <Authenticate authState={true}>
+            <EditAddressPage />
           </Authenticate>
         )
       },

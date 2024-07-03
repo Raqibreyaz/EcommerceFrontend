@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ImageGallery({ selectedColor }) {
+const ImageGallery = React.memo(function ({ selectedColor }) {
     return (
         <div>
             {
@@ -39,6 +39,6 @@ function ImageGallery({ selectedColor }) {
             }
         </div>
     )
-}
+})
 
 export default ImageGallery

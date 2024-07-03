@@ -37,4 +37,4 @@ function ProductDetailsNav({ name }) {
     )
 }
 
-export default ProductDetailsNav
+export default React.memo(ProductDetailsNav)

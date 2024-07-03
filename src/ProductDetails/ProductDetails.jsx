@@ -71,7 +71,6 @@ export default function ProductDetails() {
   return (
     (cartStatus === 'loading' || productStatus === 'loading' || wishlistStatus === 'loading') ? <Loader /> :
       (<div className="bg-white">
-
         <div className="pt-6">
           <ProductDetailsNav name={product.product_name} />
           {/* Image gallery */}
@@ -230,6 +229,7 @@ export default function ProductDetails() {
             <DescriptionDetailsAndHighlights product={product} />
           </div>
           <div>
+            {/* memoised */}
             <ReviewComponent productReviews={productReviews} />
           </div>
         </div>
