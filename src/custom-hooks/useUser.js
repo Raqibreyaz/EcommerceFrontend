@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 import { useSelector } from "react-redux"
-import { loginUserAsync, signUpUserAsync, clearError, clearSuccess, fetchProductOwnersAsync, fetchUserAsync } from "../features/user/userSlice"
+import { loginUserAsync, signUpUserAsync, clearError, clearSuccess, fetchProductOwnersAsync, fetchUserAsync, fetchProfileDetailsAsync, changeUserAvatarAsync } from "../features/user/userSlice"
 import { useMessageAndClear } from "./useMessageAndClear"
 import { useNavigate } from "react-router-dom"
 
@@ -8,7 +8,7 @@ export const useUser = () => {
 
     const executeAndMessage = useMessageAndClear('user', clearError, clearSuccess)
 
-    const { userData: user, status: userStatus, productOwners, isAuthenticated } = useSelector(state => state.user)
+    const { userData: user, status: userStatus, productOwners, isAuthenticated, userProfileDetails } = useSelector(state => state.user)
 
     const Navigate = useNavigate()
 
@@ -31,7 +31,6 @@ export const useUser = () => {
         },
         [],
     )
-
     const HandleProductOwners = useCallback(
         () => {
             executeAndMessage(fetchProductOwnersAsync)
@@ -44,6 +43,20 @@ export const useUser = () => {
         },
         [],
     )
+    const HandleFetchProfileDetails = useCallback(
+        (userId) => {
+            executeAndMessage(fetchProfileDetailsAsync, userId)
+        },
+        [],
+    )
 
-    return { productOwners, user, userStatus, isAuthenticated, HandleFetchUser, HandleProductOwners, HandleLogin, HandleSignup, HandleEditUser }
+    const HandleChangeUserAvatar = useCallback(
+        (data) => {
+            executeAndMessage(changeUserAvatarAsync, data)
+        },
+        [],
+    )
+
+
+    return { productOwners, user, userStatus, isAuthenticated, HandleFetchUser, HandleProductOwners, HandleLogin, HandleSignup, HandleEditUser, HandleFetchProfileDetails, HandleChangeUserAvatar, userProfileDetails }
 }

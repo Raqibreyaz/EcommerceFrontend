@@ -74,7 +74,6 @@ const logoutUser = async () => {
   })
 }
 
-
 const fetchProductOwners = async () => {
   return await makeRequest(
     {
@@ -85,6 +84,17 @@ const fetchProductOwners = async () => {
   )
 }
 
+const fetchProfileDetails = async (id) => {
+  return await makeRequest(
+    {
+      method: 'get',
+      url: `/users/get-profile-details/${id}`,
+      withCredentials: false,
+    }
+  )
+}
+
+
 export {
   fetchUser,
   loginUser,
@@ -93,5 +103,6 @@ export {
   editUserProfile,
   changeUserAvatar,
   addNewAddress,
-  fetchProductOwners
+  fetchProductOwners,
+  fetchProfileDetails
 }

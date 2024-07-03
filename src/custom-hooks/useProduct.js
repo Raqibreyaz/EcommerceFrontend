@@ -9,8 +9,6 @@ export const useProduct = (id) => {
 
     const executeAndMessage = useMessageAndClear('product', clearError, clearSuccess)
 
-    const dispatch = useDispatch()
-
     const CreateNewProduct = useCallback(() => {
 
     }

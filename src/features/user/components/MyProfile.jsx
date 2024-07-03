@@ -1,11 +1,21 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useCallback, useEffect } from 'react';
 import { useUser } from '../../../custom-hooks/useUser.js'
+import { useFilter } from '../../../custom-hooks/useFilter.js'
 import { Link, useNavigate } from 'react-router-dom';
 
-const UserProfileCompo = memo(({ user, address }) => {
+const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar }) => {
 
-    const [newAvatar, setNewAvatar] = useState('')
+    const [newAvatar, setNewAvatar] = useState({ path: '', file })
     const Navigate = useNavigate()
+
+    const onSubmit = useCallback(
+        () => {
+            const formData = new FormData()
+            formData.append('newAvatar', newAvatar.file)
+            HandleChangeUserAvatar(formData)
+        },
+        [],
+    )
 
     return (
         <div className="max-w-4xl  bg-white shadow-md rounded-lg overflow-hidden">
@@ -19,9 +29,14 @@ const UserProfileCompo = memo(({ user, address }) => {
                     />
                     <div className='absolute top-1/2 size-full'>
                         {newAvatar ?
-                            <button type='button' className='p-1 rounded-md bg-red-300 text-[12px] right-0 absolute top-[30%]' onClick={() => (x)}>Confirm Avatar</button> :
-                            <label htmlFor="avatar" className='right-0 absolute bottom-1/2 text-black bg-yellow-600'>edit</label>}
-                        <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar(URL.createObjectURL(e.target.files[0]))} />
+                            <button type='button' className='p-1 rounded-md bg-red-300 text-[12px] right-0 absolute top-[30%]'
+                                onClick={() => onSubmit()}>
+                                Confirm Avatar
+                            </button> :
+                            <label htmlFor="avatar" className='right-0 absolute bottom-1/2 text-black bg-yellow-600'>
+                                edit
+                            </label>}
+                        <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({ path: URL.createObjectURL(e.target.files[0]), file: e.target.files[0] })} />
                     </div>
                 </div>
                 <div className="md:ml-6 text-center md:text-left">
@@ -59,36 +74,44 @@ const UserProfileCompo = memo(({ user, address }) => {
                 </div>
             </div>
             {/* Product Cards */}
-            {/* <div className="p-6 bg-gray-100">
-        <h3 className="text-2xl font-bold mb-4">Products</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {user.products.map((product) => (
-            <div key={product.id} className="bg-white p-4 shadow rounded-lg">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h4 className="text-lg font-bold mb-2">{product.name}</h4>
-              <p className="text-gray-700">{product.description}</p>
+            <div className="p-6 bg-gray-100">
+                <h3 className="text-2xl font-bold mb-4">Products</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {products.map((product) => (
+                        <div key={product.id} className="bg-white p-4 shadow rounded-lg">
+                            <img
+                                src={product.thumbnail}
+                                alt={product.product_name}
+                                className="w-full h-48 object-cover rounded-lg mb-4"
+                            />
+                            <h4 className="text-lg font-bold mb-2">{product.product_name}</h4>
+                            <p className="text-gray-700">{product.description}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
-          ))}
-        </div>
-      </div> */}
         </div>
     );
 })
 
 const UserProfile = () => {
 
-    const { user } = useUser()
+    const { user, HandleChangeUserAvatar } = useUser()
+    const { products, HandleFilterSelection } = useFilter()
 
-console.log(user);
+    // fetch all products of that user
+    useEffect(() => {
+        HandleFilterSelection(true, 'product_owners', [user._id])
+    }
+        , [])
+
+    console.log(user);
+    console.log(products);
 
     return (
         <div className="min-h-screen bg-gray-100  p-4">
             {
-                <UserProfileCompo user={user} address={user?.addresses[0]} />
+                <UserProfileCompo user={user} address={user?.addresses[0]} products={products} HandleChangeUserAvatar={HandleChangeUserAvatar} />
             }
         </div>
     );

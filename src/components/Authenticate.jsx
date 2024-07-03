@@ -1,25 +1,14 @@
-import React, { useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React from 'react'
+import { useSelector } from 'react-redux'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
-import { fetchUserAsync } from '../features/user/userSlice.js';
+import { useUser } from '../custom-hooks/useUser.js'
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
-    // getting current authentication state of user
-    const isAuthenticated = useSelector(state => state.user.isAuthenticated)
-
     // getting user info
-    const user = useSelector(state => state.user.userData)
-
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        if (!user || !Object.keys(user).length) {
-            dispatch(fetchUserAsync())
-        }
-    }
-        , [])
-
+    const { user, HandleFetchUser, isAuthenticated } = useUser()
+    if (!user)
+        HandleFetchUser()
 
     // function which tells if user is authorized
     function authorized() {

@@ -119,7 +119,7 @@ const Filter = memo(function ({ px = '' }) {
                         name: "product_owners",
                         type: 'checkbox',
                         options: productOwners.map((brand) => (
-                            { value: brand.fullname.toLowerCase(), label: brand.fullname, checked: false }
+                            { value: brand._id, label: brand.fullname, checked: false }
                         ))
                     },
                 ].map((section) => (
