@@ -2,10 +2,15 @@ import React, { useState, memo, useCallback, useEffect } from 'react';
 import { useUser } from '../../../custom-hooks/useUser.js'
 import { useFilter } from '../../../custom-hooks/useFilter.js'
 import { Link, useNavigate } from 'react-router-dom';
+import { ProductGrid } from '../../../components/index.js'
 
 const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar }) => {
 
-    const [newAvatar, setNewAvatar] = useState({ path: '', file })
+    console.log(user);
+    console.log(products);
+
+    const [newAvatar, setNewAvatar] = useState({ path: '', file: null })
+
     const Navigate = useNavigate()
 
     const onSubmit = useCallback(
@@ -14,8 +19,12 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
             formData.append('newAvatar', newAvatar.file)
             HandleChangeUserAvatar(formData)
         },
-        [],
+        [newAvatar],
     )
+
+    useEffect(() => {
+        return () => { if (newAvatar.path) URL.revokeObjectURL(newAvatar.path) }
+    }, [])
 
     return (
         <div className="max-w-4xl  bg-white shadow-md rounded-lg overflow-hidden">
@@ -23,20 +32,23 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
             <div className="flex flex-col md:flex-row items-center p-6 bg-gradient-to-r from-blue-500 to-teal-500 text-white">
                 <div className='w-32 h-32 relative'>
                     <img
-                        src={newAvatar || user.avatar.url}
+                        src={newAvatar.path || user.avatar.url}
                         alt={user.fullname}
                         className="size-full rounded-full border-4 border-white mb-4 md:mb-0"
                     />
                     <div className='absolute top-1/2 size-full'>
-                        {newAvatar ?
+                        {newAvatar.path ?
                             <button type='button' className='p-1 rounded-md bg-red-300 text-[12px] right-0 absolute top-[30%]'
                                 onClick={() => onSubmit()}>
                                 Confirm Avatar
                             </button> :
-                            <label htmlFor="avatar" className='right-0 absolute bottom-1/2 text-black bg-yellow-600'>
+                            <label htmlFor="avatar" className='right-0 absolute bottom-1/2 bg-yellow-600 px-1 rounded-md '>
                                 edit
                             </label>}
-                        <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({ path: URL.createObjectURL(e.target.files[0]), file: e.target.files[0] })} />
+                        <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({
+                            path: URL.createObjectURL(e.target.files[0]),
+                            file: e.target.files[0]
+                        })} />
                     </div>
                 </div>
                 <div className="md:ml-6 text-center md:text-left">
@@ -76,11 +88,12 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
             {/* Product Cards */}
             <div className="p-6 bg-gray-100">
                 <h3 className="text-2xl font-bold mb-4">Products</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ProductGrid products={products} />
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {products.map((product) => (
                         <div key={product.id} className="bg-white p-4 shadow rounded-lg">
                             <img
-                                src={product.thumbnail}
+                                src={product.thumbnail.url}
                                 alt={product.product_name}
                                 className="w-full h-48 object-cover rounded-lg mb-4"
                             />
@@ -88,7 +101,7 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
                             <p className="text-gray-700">{product.description}</p>
                         </div>
                     ))}
-                </div>
+                </div> */}
             </div>
         </div>
     );
@@ -104,9 +117,6 @@ const UserProfile = () => {
         HandleFilterSelection(true, 'product_owners', [user._id])
     }
         , [])
-
-    console.log(user);
-    console.log(products);
 
     return (
         <div className="min-h-screen bg-gray-100  p-4">

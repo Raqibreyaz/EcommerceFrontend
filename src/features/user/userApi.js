@@ -33,13 +33,17 @@ const editUserProfile = async (data) => {
 }
 
 const changeUserAvatar = async (data) => {
+  for (const [key, value] of data.entries()) {
+    console.log(key, value);
+  }
   return await makeRequest({
     method: "patch",
     url: '/users/edit-profile/avatar',
     withCredentials: true,
     data,
     headers: {
-      "Content-Type": "multipart/form-data"
+      // "Content-Type": "multipart/form-data"
+      //will be handled automatically by browser
     }
   })
 }
@@ -94,6 +98,16 @@ const fetchProfileDetails = async (id) => {
   )
 }
 
+const removeAddress = async (addressId) => {
+  return await makeRequest(
+    {
+      method: 'delete',
+      withCredentials: true,
+      url: `/users/remove-address/${addressId}`,
+      withCredentials: true,
+    }
+  )
+}
 
 export {
   fetchUser,
@@ -104,5 +118,6 @@ export {
   changeUserAvatar,
   addNewAddress,
   fetchProductOwners,
-  fetchProfileDetails
+  fetchProfileDetails,
+  removeAddress
 }

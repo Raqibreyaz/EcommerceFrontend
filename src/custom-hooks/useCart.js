@@ -55,11 +55,9 @@ export const useCart = () => {
         [],
     )
 
-    console.log('in useCart ');
     // ran only 2 times due to strict mode
     useEffect(() => {
         executeAndMessage(fetchUserCartAsync)
-        console.log('useCart useEffect');
     }, [reload])
 
     return { AddToCart, IsAddedToCart, RemoveFromCart, cartStatus, userCart, totalDiscount, subTotal }

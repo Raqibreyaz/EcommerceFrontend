@@ -13,7 +13,7 @@ function ProductList() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   return (
-    <div className="bg-white overflow-hidden">
+    <div className="bg-white ">
       <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sticky top-0">
         <div className="flex items-baseline justify-between border-b border-gray-200 pb-6  ">

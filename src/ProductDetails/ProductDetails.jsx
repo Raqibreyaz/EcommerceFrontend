@@ -25,10 +25,13 @@ export default function ProductDetails() {
   const productId = useParams().id
   const Navigate = useNavigate()
 
+  // do not show error if not authenticated
   const { cartStatus, AddToCart, IsAddedToCart } = useCart()
+  // do not show error if not authenticated
   const { wishlistStatus, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
   const { productReviews } = useReviews(productId)
   const { product, productStatus } = useProduct(productId)
+  // do not show error if not authenticated
   const { isAuthenticated } = useUser()
 
   const [selectedSize, setSelectedSize] = useState({})

@@ -6,7 +6,7 @@ import { clearError, clearSuccess, fetchCategoriesAsync, fetchProductsAsync } fr
 // a hook which gives products as per filter or sort
 export const useFilter = () => {
 
-    const { products, totalPages, filteredTotal, categories } = useSelector(state => state.product)
+    const { products, totalPages, filteredTotal, categories, status: productStatus } = useSelector(state => state.product)
 
     const executeAndMessage = useMessageAndClear('product', clearError, clearSuccess)
 
@@ -146,5 +146,5 @@ export const useFilter = () => {
     }
         , [filter])
 
-    return { products, categories, HandleFetchCategories, filteredTotal, totalPages, HandleFilterSelection, HandleSortSelection }
+    return { products, categories, HandleFetchCategories, filteredTotal, totalPages, HandleFilterSelection, HandleSortSelection, productStatus }
 }

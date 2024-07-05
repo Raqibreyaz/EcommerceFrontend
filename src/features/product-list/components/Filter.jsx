@@ -8,8 +8,6 @@ import { useUser } from '../../../custom-hooks/useUser.js';
 
 const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
 
-    console.log('hi mobile');
-
     return (
         < Transition show={mobileFiltersOpen} as={Fragment}>
             <Dialog className="relative z-40 lg:hidden" onClose={setMobileFiltersOpen}>
@@ -71,7 +69,6 @@ const Filter = memo(function ({ px = '' }) {
         HandleFetchCategories()
     }
         , [])
-    console.log('hi filter');
     return (
         <div>
             {
@@ -174,8 +171,6 @@ const Filter = memo(function ({ px = '' }) {
 const SortMenu = memo(function ({ setMobileFiltersOpen }) {
 
     const { HandleSortSelection } = useFilter()
-
-    console.log('hi sort');
 
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { fetchUserCartAsync } from '../../cart/cartSlice';
 import { createOrderAsync } from '../orderSlice';
 import { FailedMessage, SuccessMessage } from '../../../components/MessageDialog';
-import { clearError,clearSuccess } from '../orderSlice';
+import { clearError, clearSuccess } from '../orderSlice';
 
 export default function Checkout() {
 
@@ -22,7 +22,7 @@ export default function Checkout() {
     const dispatch = useDispatch()
 
     const onSubmit = (data) => {
-        data.deliveryAddress = JSON.parse(data.deliveryAddress)
+        data.deliveryAddress = JSON.stringify(data.deliveryAddress)
         data.totalPrice = 0
         data.totalDiscount = 0
         data.totalAmount = 0
@@ -57,7 +57,7 @@ export default function Checkout() {
 
     if (success) {
         SuccessMessage(success)
-            .then(()=>dispatch(clearSuccess()))
+            .then(() => dispatch(clearSuccess()))
     }
 
     useEffect(() => {

@@ -1,8 +1,8 @@
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/20/solid";
+import { memo } from "react";
 
-function ProductGrid({ products }) {
-
+const ProductGrid = memo(function ({ products }) {
     return (
         <div className="lg:col-span-3 overflow-auto">
             <div className="bg-white">
@@ -15,8 +15,7 @@ function ProductGrid({ products }) {
             </div>
         </div >
     )
-
-}
+})
 
 function ProductCard({ product }) {
     return (

@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useCallback } from "react"
 import { FailedMessage, SuccessMessage } from "../components/MessageDialog";
 
-export const useMessageAndClear = (sliceName, clearError, clearSuccess) => {
+export const useMessageAndClear = (sliceName, clearError, clearSuccess, showError) => {
 
     const dispatch = useDispatch()
     const { error, success } = useSelector(state => state[sliceName])

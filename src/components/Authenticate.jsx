@@ -1,5 +1,4 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
 import { useUser } from '../custom-hooks/useUser.js'
 
@@ -7,8 +6,11 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
 
     // getting user info
     const { user, HandleFetchUser, isAuthenticated } = useUser()
-    if (!user)
-        HandleFetchUser()
+
+    React.useEffect(() => {
+        if (!user)
+            HandleFetchUser()
+    }, [])
 
     // function which tells if user is authorized
     function authorized() {
@@ -21,7 +23,6 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
         // else for every case user will be unauthorized
         return false;
     }
-
 
     // when the route is allowed then just allow user
     if (allowed) {

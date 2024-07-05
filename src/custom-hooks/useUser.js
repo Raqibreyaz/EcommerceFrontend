@@ -1,6 +1,8 @@
 import { useCallback } from "react"
 import { useSelector } from "react-redux"
-import { loginUserAsync, signUpUserAsync, clearError, clearSuccess, fetchProductOwnersAsync, fetchUserAsync, fetchProfileDetailsAsync, changeUserAvatarAsync } from "../features/user/userSlice"
+import {
+    loginUserAsync, signUpUserAsync, clearError, clearSuccess, fetchProductOwnersAsync, fetchUserAsync, fetchProfileDetailsAsync, changeUserAvatarAsync, removeAddressAsync, editUserProfileAsync
+} from "../features/user/userSlice"
 import { useMessageAndClear } from "./useMessageAndClear"
 import { useNavigate } from "react-router-dom"
 
@@ -11,6 +13,13 @@ export const useUser = () => {
     const { userData: user, status: userStatus, productOwners, isAuthenticated, userProfileDetails } = useSelector(state => state.user)
 
     const Navigate = useNavigate()
+
+    const HandleFetchUser = useCallback(
+        () => {
+            executeAndMessage(fetchUserAsync)          
+        },
+        [],
+    )
 
     const HandleLogin = useCallback(
         (data) => {
@@ -26,8 +35,8 @@ export const useUser = () => {
     )
     const HandleEditUser = useCallback(
         (data) => {
-            // executeAndMessage()
             console.log(data);
+            executeAndMessage(editUserProfileAsync, data, () => HandleFetchUser())
         },
         [],
     )
@@ -37,26 +46,29 @@ export const useUser = () => {
         },
         [],
     )
-    const HandleFetchUser = useCallback(
-        () => {
-            executeAndMessage(fetchUserAsync)
-        },
-        [],
-    )
+
     const HandleFetchProfileDetails = useCallback(
         (userId) => {
             executeAndMessage(fetchProfileDetailsAsync, userId)
         },
         [],
     )
+    const HandleRemoveAddress = useCallback(
+        (addressId) => {
+            executeAndMessage(removeAddressAsync, addressId, () => HandleFetchUser())
+        },
+        []
+    )
 
     const HandleChangeUserAvatar = useCallback(
         (data) => {
+            for (const [key, value] of data.entries()) {
+                console.log(key, value);
+            }
             executeAndMessage(changeUserAvatarAsync, data)
         },
         [],
     )
 
-
-    return { productOwners, user, userStatus, isAuthenticated, HandleFetchUser, HandleProductOwners, HandleLogin, HandleSignup, HandleEditUser, HandleFetchProfileDetails, HandleChangeUserAvatar, userProfileDetails }
+    return { productOwners, user, userStatus, isAuthenticated, HandleFetchUser, HandleProductOwners, HandleLogin, HandleSignup, HandleEditUser, HandleFetchProfileDetails, HandleChangeUserAvatar, HandleRemoveAddress, userProfileDetails }
 }
