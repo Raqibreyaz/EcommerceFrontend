@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import FormError from '../components/FormError';
 import { useDispatch, useSelector } from 'react-redux';
-import { editProductAsync, fetchCategoriesAsync, fetchProductDetailsAsync } from '../features/product-list/ProductSlice';
 import { FailedMessage, SuccessMessage } from '../components/MessageDialog';
 import AddCategory from '../features/product-list/components/AddCategory';
 import { ImageSection } from '../components/ImageSection'

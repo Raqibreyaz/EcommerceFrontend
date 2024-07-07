@@ -19,7 +19,7 @@ export default function Navbar() {
 
   const { data } = useFetchUserQuery()
 
-  const user = data.user
+  const user = data?.user
 
   const isAuthenticated = user ? true : false
 
@@ -45,12 +45,6 @@ export default function Navbar() {
     navigation.push({ name: 'signup', to: "/signup", current: true })
   }
 
-  const dispatch = useDispatch()
-
-  const handleLogout = () => {
-    dispatch(logoutUserAsync())
-    location.reload()
-  }
 
   return (
     <>

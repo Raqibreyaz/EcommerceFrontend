@@ -1,8 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormError, Loader } from '../../../components/index.js'
 import { useUser } from '../../../custom-hooks/useUser.js'
+import { useLoginUserMutation } from '../userSlice.js'
 
 function Login() {
 
@@ -10,6 +11,11 @@ function Login() {
   const { register, handleSubmit, formState: { isSubmitting } } = methods
 
   const { HandleLogin, userStatus } = useUser()
+
+  const Location = useLocation()
+  const Navigate = useNavigate()
+
+  // const methods = useLoginUserMutation
 
   return (
     userStatus === 'loading' ? <Loader /> : <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

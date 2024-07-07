@@ -1,9 +1,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { addNewCategoryAsync } from '../ProductSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { FailedMessage, SuccessMessage } from '../../../components/index.js'
-import { clearError, clearSuccess } from '../ProductSlice'
 
 
 function AddCategory() {
@@ -11,18 +9,6 @@ function AddCategory() {
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm()
 
     const dispatch = useDispatch()
-
-    const error = useSelector(state => state.product.error)
-    const success = useSelector(state => state.product.success)
-
-    if (error) {
-        FailedMessage(error)
-            .then(() => dispatch(clearError()))
-    }
-    if (success) {
-        SuccessMessage(success)
-            .then(() => dispatch(clearSuccess()))
-    }
 
     const onAddCategory = (data) => {
 

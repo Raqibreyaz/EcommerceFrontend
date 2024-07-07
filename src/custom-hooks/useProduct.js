@@ -1,49 +1,39 @@
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductDetailsAsync, clearError, clearSuccess } from "../features/product-list/ProductSlice";
 import { memo, useCallback, useEffect } from "react";
-import { useMessageAndClear } from "./useMessageAndClear";
+import { useFetchProductDetailsQuery } from "../features/product-list/ProductSlice";
+import { useAddProductToWishlistMutation, useIsProductInWishlistQuery, useRemoveProductFromWishlistMutation } from "../features/wishlist/wishlistSlice";
+import { useAddProductToCartMutation, useFetchUserCartQuery, useRemoveProductFromCartMutation } from "../features/cart/cartSlice";
+import { useFetchUserQuery } from "../features/user/userSlice";
 
+
+// product details
+// reviews
+// cart
+// wishlist
 export const useProduct = (id) => {
 
-    const { currentProduct: product, status: productStatus } = useSelector(state => state.product)
+    const { data: { product = {} } = {}, isLoading: isLoadingProduct } = useFetchProductDetailsQuery(id)
 
-    const executeAndMessage = useMessageAndClear('product', clearError, clearSuccess)
+    const { data: { isInWishlist = false } = {}, isLoading: isLoadingWishlist } = useIsProductInWishlistQuery(id)
 
-    const CreateNewProduct = useCallback(() => {
+    const { data: { userCart = [] } = {}, isLoading: isLoadingCart } = useFetchUserCartQuery()
 
-    }
-        , [])
+    const { data: { user = {} } = {}, isLoadingUser } = useFetchUserQuery()
 
-    const EditProduct = useCallback(() => {
+    const [AddToWishlist] = useAddProductToWishlistMutation()
+    const [AddToCart] = useAddProductToCartMutation()
+    const [RemoveFromWishlist] = useRemoveProductFromWishlistMutation()
 
-    }
-        , [])
-
-    // works on deleting the product
-    const HandleDelete = async () => {
-        let result = await showConfirmation('Delete Product', 'Do You Really Want To Delete the Product')
-        if (result.isConfirmed)
-            SuccessMessage('product deleted successfully')
-        if (result.isDenied)
-            SuccessMessage('something went wrong')
-    }
-
-    const checkStocks = (color, size) => {
-        for (const stockObj of product.stocks) {
-            if (stockObj.color === color && stockObj.size === size) {
-                return stockObj.stock > 0
+    // checks for if the product is added to cart
+    const IsAddedToCart = useCallback(function (productId, color, size) {
+        if (productId && color && size) {
+            for (const prdct of userCart) {
+                if (prdct.product === productId && color === prdct.color && size === prdct.size) {
+                    return true
+                }
             }
         }
         return false
-    }
-
-    // console.log('in useProduct');
-
-    // ran only 2 times due to strict mode
-    useEffect(() => {
-        executeAndMessage(fetchProductDetailsAsync, id)
-        console.log('useProduct useEffect');
     }, [])
 
-    return { product, productStatus, HandleDelete, checkStocks }
+    return { product, IsAddedToCart, AddToWishlist, AddToCart, RemoveFromWishlist, user, isInWishlist, isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist }
 }

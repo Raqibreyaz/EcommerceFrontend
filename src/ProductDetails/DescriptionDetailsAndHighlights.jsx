@@ -25,7 +25,7 @@ const DescriptionDetailsAndHighlights = React.memo(function ({ product }) {
 
                 <div className="mt-4">
                     <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                        {product.keyHighlights.map((highlight) => (
+                        {product.keyHighlights?.map((highlight) => (
                             <li key={highlight} className="text-gray-400">
                                 <span className="text-gray-600">{highlight}</span>
                             </li>

@@ -5,6 +5,7 @@ import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 import { useFilter } from '../../../custom-hooks/useFilter.js';
 import { useUser } from '../../../custom-hooks/useUser.js';
+import Loader from '../../../components/Loader.jsx'
 
 const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
 
@@ -61,18 +62,10 @@ const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen })
 
 const Filter = memo(function ({ px = '' }) {
 
-    const { categories, HandleFetchCategories, HandleFilterSelection } = useFilter()
-    const { productOwners, HandleProductOwners } = useUser()
+    const { categories, HandleFilterSelection, productOwners } = useFilter()
 
-    
-
-    useEffect(() => {
-        HandleProductOwners()
-        HandleFetchCategories()
-    }
-        , [])
     return (
-        <div>
+        < div >
             {
                 [
                     {
@@ -166,7 +159,7 @@ const Filter = memo(function ({ px = '' }) {
                     </Disclosure>
                 ))
             }
-        </div>
+        </div >
     )
 })
 

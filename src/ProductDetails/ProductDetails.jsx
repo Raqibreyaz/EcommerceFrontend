@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { StarIcon, HeartIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
@@ -12,6 +12,7 @@ import { useWishlist } from '../custom-hooks/useWishlist.js'
 import { useCart } from '../custom-hooks/useCart.js'
 import { useReviews } from '../custom-hooks/useReviews.js'
 import { useUser } from '../custom-hooks/useUser.js'
+import { catchAndShowMessage } from '../utils/catchAndShowMessage.js'
 
 // reviews:[{oneWord,review,rating,user:{fullname,avatar,address}}]
 const reviews = { href: '#', average: 4, totalCount: 117 }
@@ -25,25 +26,33 @@ export default function ProductDetails() {
   const productId = useParams().id
   const Navigate = useNavigate()
 
+  const {
+    product,
+    IsAddedToCart,
+    user,
+    RemoveFromWishlist,
+    AddToCart,
+    AddToWishlist,
+    isInWishlist,
+    isLoadingCart,
+    isLoadingProduct,
+    isLoadingUser,
+    isLoadingWishlist } = useProduct(productId)
+
+
   // do not show error if not authenticated
-  const { cartStatus, AddToCart, IsAddedToCart } = useCart()
-  // do not show error if not authenticated
-  const { wishlistStatus, IsAddedToWishlist, AddToWishlist, RemoveFromWishlist } = useWishlist()
   const { productReviews } = useReviews(productId)
-  const { product, productStatus } = useProduct(productId)
-  // do not show error if not authenticated
-  const { isAuthenticated } = useUser()
 
   const [selectedSize, setSelectedSize] = useState({})
   const [selectedColor, setSelectedColor] = useState('')
+
   const isProductInCart = IsAddedToCart(productId, selectedColor.color, selectedSize)
-  const isProductInWishlist = IsAddedToWishlist(productId)
 
   const handleAddToCart = useCallback(
     (e) => {
-      if (!isAuthenticated)
+      if (!user)
         Navigate('/login')
-      AddToCart(productId, selectedColor.color, selectedSize)
+      AddToCart({ id: productId, color: selectedColor.color, size: selectedSize, quantity: 1 })
     },
     [selectedColor, selectedSize]
   )
@@ -51,29 +60,35 @@ export default function ProductDetails() {
   const handleWishlistProduct = useCallback(
     () => {
 
-      if (!isAuthenticated)
+      if (!user)
         Navigate('/login')
 
-      if (isProductInWishlist) {
-        RemoveFromWishlist(productId, selectedColor.color, selectedSize)
+      if (isInWishlist) {
+        catchAndShowMessage(RemoveFromWishlist, { id: productId, color: selectedColor.color, size: selectedSize })
       }
       else {
-        AddToWishlist(productId, selectedColor.color, selectedSize)
+        catchAndShowMessage(
+          AddToWishlist,
+          { id: productId, color: selectedColor.color, size: selectedSize }
+        )
       }
     },
     [selectedColor, selectedSize]
   )
 
   useEffect(() => {
-    setSelectedColor(product.colors.length ? product.colors[0] : {})
-    setSelectedSize(product.sizes.length ? product.sizes[0] : '')
+    setSelectedColor((prevSelectedColor) => (
+      product?.colors?.length ? product.colors[0] : {}
+    ))
+    setSelectedSize((prevSelectedSize) => (
+      product?.sizes?.length ? product.sizes[0] : ''
+    ))
   }, [product]);
 
-  console.log('hi');
 
   return (
-    (cartStatus === 'loading' || productStatus === 'loading' || wishlistStatus === 'loading') ? <Loader /> :
-      (<div className="bg-white">
+    (isLoadingCart || isLoadingProduct || isLoadingUser || isLoadingWishlist) ? <Loader /> :
+      (product._id && <div className="bg-white">
         <div className="pt-6">
           <ProductDetailsNav name={product.product_name} />
           {/* Image gallery */}
@@ -119,7 +134,7 @@ export default function ProductDetails() {
 
                   <fieldset aria-label="Choose a color" className="mt-4">
                     <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center space-x-3">
-                      {product.colors.map((color) => (
+                      {product.colors?.map((color) => (
                         <Radio
                           key={color.color}
                           // color is an object containing color with images
@@ -164,7 +179,7 @@ export default function ProductDetails() {
                       className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                     >
                       {
-                        product.sizes.map((size) => (
+                        product.sizes?.map((size) => (
                           <Radio
                             key={size}
                             value={size}
@@ -210,11 +225,11 @@ export default function ProductDetails() {
                 {/* wishlist add button */}
                 <button
                   type="button"
-                  className={`mt-5 flex w-full capitalize items-center justify-center rounded-md border  px-8 py-3 text-base font-medium ${isProductInWishlist ? 'text-red-500' : 'text-black'} hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                  className={`mt-5 flex w-full capitalize items-center justify-center rounded-md border  px-8 py-3 text-base font-medium ${isInWishlist ? 'text-red-500' : 'text-black'} hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
                   onClick={() => handleWishlistProduct()}
                 >
-                  <HeartIcon className={`${isProductInWishlist ? 'text-red-500' : 'text-black'} size-7`} />
-                  {isProductInWishlist ? 'remove from wishlist' : " Add To WishList"}
+                  <HeartIcon className={`${isInWishlist ? 'text-red-500' : 'text-black'} size-7`} />
+                  {isInWishlist ? 'remove from wishlist' : " Add To WishList"}
                 </button>
 
                 <Link to={`/edit-product/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >

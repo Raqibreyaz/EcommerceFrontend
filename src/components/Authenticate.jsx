@@ -5,18 +5,9 @@ import { useFetchUserQuery } from '../features/user/userSlice.js'
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
-    // getting user info
-    // const { user, HandleFetchUser, isAuthenticated } = useUser()
+    const { data: { user } = {} } = useFetchUserQuery()
 
-    const x = useFetchUserQuery()
-    const { user = '', isAuthenticated = false } = x
-
-    console.log(x);
-
-    // React.useEffect(() => {
-    //     if (!user)
-    //         HandleFetchUser()
-    // }, [])
+    const isAuthenticated = !!user 
 
     // function which tells if user is authorized
     function authorized() {

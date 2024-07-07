@@ -1,56 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { catchAsyncError, wrapper } from '../../utils/catchErrorAndWrapper.js'
-import { clearErrorAndSuccess } from '../../utils/Generics.js'
-import { addProductToWishlist, fetchWishlist, removeProductFromWishlist } from './wishlistApi.js'
-
-const initialState = {
-    wishlistData: [],
-    status: 'idle',
-    error: null,
-    success: ''
-};
-
-const addProductToWishlistAsync = wrapper('wishlist/add-product', addProductToWishlist)
-
-const removeProductFromWishlistAsync = wrapper('wishlist/remove-product', removeProductFromWishlist)
-
-const fetchWishlistAsync = wrapper('wishlist/get-wishlist', fetchWishlist)
-
-const handleAsyncActions = (builder, asyncThunk) => {
-    builder
-        .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading';
-            state.error = null
-            state.success = ''
-        })
-        .addCase(asyncThunk.fulfilled, (state, action) => {
-            state.status = 'idle';
-            if (action.type.includes('get-wishlist')) {
-                state.wishlistData = action.payload.wishlist
-            }
-            else
-                state.success = action.payload.message
-        })
-        .addCase(asyncThunk.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.error.message
-        });
-};
-
-const wishlistSlice = createSlice({
-    initialState,
-    name: "wishlist",
-    reducers: {
-        ...clearErrorAndSuccess
-    },
-    extraReducers: (builder) => {
-        handleAsyncActions(builder, addProductToWishlistAsync)
-        handleAsyncActions(builder, removeProductFromWishlistAsync)
-        handleAsyncActions(builder, fetchWishlistAsync)
-    }
-})
-
 
 export const wishlistApi = createApi({
 
@@ -105,13 +53,3 @@ export const wishlistApi = createApi({
 
 export const { useAddProductToWishlistMutation, useRemoveProductFromWishlistMutation, useFetchWishlistQuery, useIsProductInWishlistQuery } = wishlistApi;
 
-
-export {
-    addProductToWishlistAsync,
-    removeProductFromWishlistAsync,
-    fetchWishlistAsync
-}
-
-export const { clearError, clearSuccess } = wishlistSlice.actions
-
-export default wishlistSlice.reducer;
