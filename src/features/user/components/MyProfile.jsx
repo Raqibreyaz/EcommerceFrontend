@@ -3,6 +3,7 @@ import { useUser } from '../../../custom-hooks/useUser.js'
 import { useFilter } from '../../../custom-hooks/useFilter.js'
 import { Link, useNavigate } from 'react-router-dom';
 import { ProductGrid } from '../../../components/index.js'
+import { useFetchUserQuery } from '../userSlice.js';
 
 const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar }) => {
 
@@ -109,8 +110,10 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
 
 const UserProfile = () => {
 
-    const { user, HandleChangeUserAvatar } = useUser()
+    const { HandleChangeUserAvatar } = useUser()
     const { products, HandleFilterSelection } = useFilter()
+
+    const { data: { user }} = useFetchUserQuery()
 
     // fetch all products of that user
     useEffect(() => {

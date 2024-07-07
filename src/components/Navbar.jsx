@@ -3,7 +3,7 @@ import { Disclosure, MenuButton, Menu, MenuItem, MenuItems, DisclosureButton, Di
 import { Bars3Icon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { logoutUserAsync } from '../features/user/userSlice'
+import { logoutUserAsync, useFetchUserQuery } from '../features/user/userSlice'
 
 
 function classNames(...classes) {
@@ -17,7 +17,11 @@ export default function Navbar() {
     { name: 'My Wishlist', to: '/wishlist' },
   ]
 
-  const user = useSelector(state => state.user.userData)
+  const { data } = useFetchUserQuery()
+
+  const user = data.user
+
+  const isAuthenticated = user ? true : false
 
   const userDetails = {
     fullname: user?.fullname || '',
@@ -25,8 +29,6 @@ export default function Navbar() {
     avatar: user?.avatar.url || ''
     // 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   }
-
-  const isAuthenticated = useSelector(state => state.user.isAuthenticated)
 
   const Navigate = useNavigate()
 

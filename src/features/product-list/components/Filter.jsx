@@ -64,6 +64,8 @@ const Filter = memo(function ({ px = '' }) {
     const { categories, HandleFetchCategories, HandleFilterSelection } = useFilter()
     const { productOwners, HandleProductOwners } = useUser()
 
+    
+
     useEffect(() => {
         HandleProductOwners()
         HandleFetchCategories()

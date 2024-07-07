@@ -2,13 +2,16 @@ import { useState, useCallback, useEffect } from "react"
 import { useSelector } from "react-redux"
 import { useMessageAndClear } from "./useMessageAndClear"
 import { clearError, clearSuccess, fetchCategoriesAsync, fetchProductsAsync } from "../features/product-list/ProductSlice"
+import { useFetchProductsQuery, useFetchCategoriesQuery } from "../features/product-list/ProductSlice"
+import { useFetchProductOwnersQuery } from "../features/user/userSlice"
 
 // a hook which gives products as per filter or sort
 export const useFilter = () => {
 
-    const { products, totalPages, filteredTotal, categories, status: productStatus } = useSelector(state => state.product)
+    const { fetchProducts, data: { products, totalPages, filteredTotal } } = useFetchProductsQuery()
 
-    const executeAndMessage = useMessageAndClear('product', clearError, clearSuccess)
+    const { data: { productOwners } } = useFetchProductOwnersQuery
+    const { data: { categories } } = useFetchCategoriesQuery
 
     const limit = 10
 
@@ -142,7 +145,7 @@ export const useFilter = () => {
 
         // console.log(queryString); // Output: discount=10&&product_owners=owner1,owner2&&category=smartphone,laptop&&min_price=10&&max_price=100&&sort[price]=1&&sort[rating]=-1
 
-        executeAndMessage(fetchProductsAsync, queryString)
+        fetchProducts()
     }
         , [filter])
 

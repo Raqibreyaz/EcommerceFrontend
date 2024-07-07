@@ -8,6 +8,8 @@ function ProductList() {
 
   const { products } = useFilter()
 
+  
+
   console.log(products);
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)

@@ -1,16 +1,22 @@
 import React from 'react'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
 import { useUser } from '../custom-hooks/useUser.js'
+import { useFetchUserQuery } from '../features/user/userSlice.js'
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
     // getting user info
-    const { user, HandleFetchUser, isAuthenticated } = useUser()
+    // const { user, HandleFetchUser, isAuthenticated } = useUser()
 
-    React.useEffect(() => {
-        if (!user)
-            HandleFetchUser()
-    }, [])
+    const x = useFetchUserQuery()
+    const { user = '', isAuthenticated = false } = x
+
+    console.log(x);
+
+    // React.useEffect(() => {
+    //     if (!user)
+    //         HandleFetchUser()
+    // }, [])
 
     // function which tells if user is authorized
     function authorized() {

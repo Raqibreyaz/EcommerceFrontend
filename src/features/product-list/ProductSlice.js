@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct} from './ProductApi';
+import { createApi,fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct } from './ProductApi';
 import { wrapper } from '../../utils/catchErrorAndWrapper.js'
 import { clearErrorAndSuccess } from '../../utils/Generics.js'
 
@@ -97,7 +98,96 @@ const productSlice = createSlice({
         handleAsyncActions(builder, addNewCategoryAsync)
 
     },
+})
+
+
+export const productApi = createApi({
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:4000/api/v1/products/',
+    }),
+    reducerPath: 'productApi',
+    tagTypes: ['Products', 'Product', 'Categories'],
+    endpoints: (build) => ({
+
+        fetchProducts: build.query({
+            query: (filter = '') => ({
+                url: `get-products?${filter}`,
+                method: 'GET',
+            }),
+            providesTags: ['Products'],
+        }),
+
+        fetchCategories: build.query({
+            query: () => ({
+                url: 'category/get-categories',
+                method: 'GET',
+            }),
+            providesTags: ['Categories'],
+        }),
+
+        fetchProductDetails: build.query({
+            query: (id) => ({
+                url: `get-product/${id}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, id) => [{ type: 'Product', id }],
+        }),
+
+        addNewProduct: build.mutation({
+            query: (productData) => ({
+                url: 'addnew',
+                method: 'POST',
+                body: productData,
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Products'],
+        }),
+
+        editProduct: build.mutation({
+            query: ({ id, ...data }) => ({
+                url: `edit-product/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
+
+        deleteProduct: build.mutation({
+            query: (id) => ({
+                url: `delete-product/${id}`,
+                method: 'DELETE',
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Products'],
+        }),
+
+        addNewCategory: build.mutation({
+            query: (category) => ({
+                url: 'category/add-category',
+                method: 'POST',
+                body: { name: category },
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+    }),
+
 });
+
+export const {
+    useFetchProductsQuery,
+    useFetchCategoriesQuery,
+    useFetchProductDetailsQuery,
+    useAddNewProductMutation,
+    useEditProductMutation,
+    useDeleteProductMutation,
+    useAddNewCategoryMutation,
+} = productApi;
+
+
 
 export const { clearError, clearSuccess } = productSlice.actions
 

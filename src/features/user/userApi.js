@@ -1,5 +1,7 @@
 import { makeRequest } from "../../utils/Generics.js"
 
+
+
 const fetchUser = async () => {
   return await makeRequest({
     method: 'get',
@@ -10,7 +12,7 @@ const fetchUser = async () => {
 
 const signUpUser = async (data) => {
   return await makeRequest({
-    method: 'put',
+    method: 'post',
     data,
     url: '/users/register',
     withCredentials: true,
@@ -72,7 +74,7 @@ const loginUser = async (data) => {
 
 const logoutUser = async () => {
   return await makeRequest({
-    method: 'get',
+    method: 'post',
     url: '/users/logout',
     withCredentials: true
   })
