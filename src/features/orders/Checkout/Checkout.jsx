@@ -1,27 +1,25 @@
 import Cart from '../../cart/Cart'
-import { useDispatch, useSelector } from 'react-redux'
 import AddressForm from './AddressForm'
 import PaymentMethods from './PaymentMethods';
 import ExistingAddresses from './ExistingAddresses';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useEffect } from 'react';
-import { fetchUserCartAsync } from '../../cart/cartSlice';
-import { createOrderAsync } from '../orderSlice';
-import { FailedMessage, SuccessMessage } from '../../../components/MessageDialog';
-import { clearError, clearSuccess } from '../orderSlice';
+import { useFetchUserCartQuery } from '../../cart/cartSlice';
+import { useCreateOrderMutation } from '../orderSlice';
+import { useFetchUserQuery } from '../../user/userSlice';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
+import { Container } from '../../../components/index';
 
 export default function Checkout() {
 
-    const user = useSelector(state => state.user.userData)
-
-    let userCart = useSelector(state => state.cart.userCart)
-
-    const error = useSelector(state => state.order.error)
-    const success = useSelector(state => state.order.success)
-
-    const dispatch = useDispatch()
+    const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
+    const { data: { userCart = [] } = {}, isLoading: isLoadingUserCart } = useFetchUserCartQuery()
+    const [CreateOrder, { isLoading: isLoadingCreateOrder }] = useCreateOrderMutation()
 
     const onSubmit = (data) => {
+
+        delete data.deliveryAddress.name
+        delete data.deliveryAddress.id
+
         data.deliveryAddress = JSON.stringify(data.deliveryAddress)
         data.totalPrice = 0
         data.totalDiscount = 0
@@ -39,34 +37,19 @@ export default function Checkout() {
             { product, discount, image, size, color, price, product_name, quantity }
         ))
 
-        delete data.deliveryAddress.name
-        delete data.deliveryAddress.id
-
-
-        dispatch(createOrderAsync(data))
+        catchAndShowMessage(CreateOrder, data)
     }
 
     const methods = useForm()
 
     const { handleSubmit, control } = methods
 
-    if (error) {
-        FailedMessage(error)
-            .then(() => dispatch(clearError()))
-    }
-
-    if (success) {
-        SuccessMessage(success)
-            .then(() => dispatch(clearSuccess()))
-    }
-
-    useEffect(() => {
-        dispatch(fetchUserCartAsync())
-    }, [])
-
-
     return (
-        <div className='my-10'>
+        <Container
+            className='my-10'
+            LoadingConditions={[isLoadingCreateOrder, isLoadingUser, isLoadingUserCart]}
+            RenderingConditions={[!!user, userCart.length > 0]}
+        >
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(onSubmit)} className='bg-white p-5 border-b ' >
                     <div className="">
@@ -78,6 +61,6 @@ export default function Checkout() {
                     <button type='submit' className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 capitalize mt-6">Confirm Order</button>
                 </form>
             </FormProvider>
-        </div>
+        </Container>
     )
 }

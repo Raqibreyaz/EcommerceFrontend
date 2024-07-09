@@ -103,7 +103,7 @@ export const userApi = createApi({
         method: 'GET',
         credentials: 'omit',
       }),
-      providesTags: ['Profile'],
+      providesTags: (result, error, id) => [{ type: 'Profile', id }],
     }),
 
     removeAddress: build.mutation({

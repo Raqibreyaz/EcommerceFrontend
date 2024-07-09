@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersAsync } from './orderSlice';
+import { useFetchOrdersQuery } from './orderSlice';
 import { Link } from 'react-router-dom';
+import { Container } from '../../components/index.js'
 
 const OrderCard = ({ order }) => {
     const statusColors = {
@@ -201,9 +200,6 @@ const OrderCard = ({ order }) => {
 
 const Orders = () => {
 
-    const dispatch = useDispatch()
-
-    const orders = useSelector(state => state.order.orders)
 
     // Sample orders data within the component
     // const orders = [
@@ -231,22 +227,22 @@ const Orders = () => {
     //     // Add more orders as needed
     // ];
 
-    useEffect(() => {
-
-        dispatch(fetchOrdersAsync())
-
-    }, [])
+    const { data: { orders } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery()
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <h1 className="text-4xl font-semibold mb-6">Orders</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {!orders.length && <h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
+            <Container
+                LoadingConditions={[isLoadingOrders]}
+                RenderingConditions={[!!orders, orders.length > 0]}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                backupElem={<h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
+            >
                 {orders.map((order) => (
                     <OrderCard key={order._id} order={order} />
                 ))}
-            </div>
-        </div>
+            </Container >
+        </div >
     );
 };
 

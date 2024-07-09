@@ -1,4 +1,5 @@
 import React, { useState, memo } from 'react';
+import { Container } from '../../components/index.js';
 
 const initialReviews = [
     {
@@ -13,22 +14,12 @@ const initialReviews = [
 
 const ReviewComponent = memo(({ productReviews }) => {
 
-    // const [reviews, setReviews] = useState(initialReviews);
-
-    // const onSubmit = (data) => {
-    //     // setReviews([...reviews, { ...data, image: 'https://via.placeholder.com/50' }]);
-    //     console.log(data);
-    //     // createReview(productId, data)
-    // };
-
-    // const [edit, setEdit] = useState(false)
-    // const onEdit = (data) => {
-    //     console.log(data);
-    //     setEdit(false)
-    // };
 
     return (
-        productReviews.length && <div className="max-w-2xl mx-auto p-4">
+        <Container
+            RenderingConditions={[!!productReviews, productReviews.length > 0]}
+            className="max-w-2xl mx-auto p-4"
+        >
             {/* <div className="mb-6">
                 <h3 className="text-xl font-semibold mb-4">Add Your Review</h3>
                 {/* {
@@ -101,7 +92,7 @@ const ReviewComponent = memo(({ productReviews }) => {
                     </div>
                 ))}
             </div>
-        </div >
+        </Container>
     );
 });
 

@@ -3,9 +3,10 @@ import { Dialog, DialogPanel, Menu, MenuItem, MenuItems, MenuButton, Transition,
 import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/20/solid'
-import { useFilter } from '../../../custom-hooks/useFilter.js';
-import { useUser } from '../../../custom-hooks/useUser.js';
-import Loader from '../../../components/Loader.jsx'
+import { useFetchCategoriesQuery } from '../ProductSlice.js'
+import { useFetchProductOwnersQuery } from '../../user/userSlice.js'
+import { updateFilterSelection, updateSortSelection } from '../../filter/filterSlice.js'
+import { useDispatch } from 'react-redux'
 
 const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
 
@@ -62,7 +63,14 @@ const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen })
 
 const Filter = memo(function ({ px = '' }) {
 
-    const { categories, HandleFilterSelection, productOwners } = useFilter()
+    const dispatch = useDispatch()
+
+    const { data: { categories = [] } = {} } = useFetchCategoriesQuery()
+    const { data: { productOwners = [] } = {} } = useFetchProductOwnersQuery()
+
+    const HandleFilterSelection = (checked = false, field, value) => {
+        dispatch(updateFilterSelection({ checked, field, value }))
+    }
 
     return (
         < div >
@@ -165,7 +173,11 @@ const Filter = memo(function ({ px = '' }) {
 
 const SortMenu = memo(function ({ setMobileFiltersOpen }) {
 
-    const { HandleSortSelection } = useFilter()
+    const dispatch = useDispatch()
+
+    const HandleSortSelection = (field, order) => {
+        dispatch(updateSortSelection({ field, order }))
+    }
 
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')

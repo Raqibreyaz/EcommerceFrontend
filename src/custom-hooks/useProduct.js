@@ -1,8 +1,9 @@
 import { memo, useCallback, useEffect } from "react";
 import { useFetchProductDetailsQuery } from "../features/product-list/ProductSlice";
 import { useAddProductToWishlistMutation, useIsProductInWishlistQuery, useRemoveProductFromWishlistMutation } from "../features/wishlist/wishlistSlice";
-import { useAddProductToCartMutation, useFetchUserCartQuery, useRemoveProductFromCartMutation } from "../features/cart/cartSlice";
+import { useAddProductToCartMutation, useFetchUserCartQuery } from "../features/cart/cartSlice";
 import { useFetchUserQuery } from "../features/user/userSlice";
+import { useFetchProductReviewsQuery } from "../features/reviews/reviewSlice";
 
 
 // product details
@@ -17,11 +18,15 @@ export const useProduct = (id) => {
 
     const { data: { userCart = [] } = {}, isLoading: isLoadingCart } = useFetchUserCartQuery()
 
-    const { data: { user = {} } = {}, isLoadingUser } = useFetchUserQuery()
+    const { data: { user = null } = {}, isLoadingUser } = useFetchUserQuery()
 
-    const [AddToWishlist] = useAddProductToWishlistMutation()
-    const [AddToCart] = useAddProductToCartMutation()
-    const [RemoveFromWishlist] = useRemoveProductFromWishlistMutation()
+    const { data: { reviews = [] } = {}, isLoading: isLoadingReviews } = useFetchProductReviewsQuery(id) 
+
+    const [AddToWishlist, { isLoading: isLoadingAddToWishlist, isSuccess: isSuccessfullInWishlist }] = useAddProductToWishlistMutation()
+
+    const [AddToCart, { isLoading: isLoadingAddToCart, isSuccess: isSuccessfullInCart }] = useAddProductToCartMutation()
+
+    const [RemoveFromWishlist, { isLoading: isLoadingRemoveFromWishlist, isSuccess: isSuccessfullRemoveFromWishlist }] = useRemoveProductFromWishlistMutation()
 
     // checks for if the product is added to cart
     const IsAddedToCart = useCallback(function (productId, color, size) {
@@ -33,7 +38,29 @@ export const useProduct = (id) => {
             }
         }
         return false
-    }, [])
+    }, [userCart])
 
-    return { product, IsAddedToCart, AddToWishlist, AddToCart, RemoveFromWishlist, user, isInWishlist, isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist }
+    console.log(product);
+
+    return {
+        product,
+        reviews,
+        IsAddedToCart,
+        AddToWishlist,
+        AddToCart,
+        RemoveFromWishlist,
+        user,
+        isInWishlist,
+        isLoadingCart,
+        isLoadingReviews,
+        isLoadingProduct,
+        isLoadingUser,
+        isLoadingWishlist,
+        isLoadingAddToCart,
+        isLoadingAddToWishlist,
+        isLoadingRemoveFromWishlist,
+        isSuccessfullInCart,
+        isSuccessfullInWishlist,
+        isSuccessfullRemoveFromWishlist
+    }
 }

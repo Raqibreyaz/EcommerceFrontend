@@ -1,90 +1,24 @@
 import { useState, useCallback, memo } from "react"
-import { useSelector } from "react-redux"
-import { Link } from "react-router-dom"
+import { useDispatch} from "react-redux"
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid"
-import { useFilter } from "../custom-hooks/useFilter"
+import { updateFilterSelection } from "../features/filter/filterSlice"
 
-const Pagination = memo(function ({ limit = 10 }) {
-
-    const { totalPages, filteredTotal, HandleFilterSelection } = useFilter()
+const Pagination = memo(function ({ limit = 10, totalPages, filteredTotal }) {
 
     console.log(totalPages, filteredTotal);
 
+    const dispatch = useDispatch()
+
     const [page, setPage] = useState(1)
 
-    const handlePageChange = (index) => {
-        setPage(index)
-        // setting the page in filter
-        HandleFilterSelection(false, 'page', index)
-    }
-
-    // const PageNumberCompo = ({ page, totalPages, handlePageChange }) => {
-    //     const PageNumbers = [];
-
-    //     const PageNumber = ({ index, currentPage }) => (
-    //         currentPage === index ? (
-    //             <button
-    //                 type="button"
-    //                 key={index}
-    //                 aria-current="page"
-    //                 className={`relative z-10 inline-flex items-center bg-indigo-600  px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
-    //             >
-    //                 {index}
-    //             </button>
-    //         ) : (
-    //             <button
-    //                 type="button"
-    //                 key={index}
-    //                 onClick={() => handlePageChange(index)}
-    //                 className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-    //             >
-    //                 {index}
-    //             </button>
-    //         )
-    //     );
-
-    //     if (totalPages - 6 > page) {
-    //         // taking the first 3
-    //         for (let index = page; index <= page + 2; index++) {
-    //             PageNumbers.push(<PageNumber key={index} index={index} currentPage={page} />);
-    //         }
-
-    //         // pushing the ellipsis
-    //         PageNumbers.push(
-    //             <span key="ellipsis-1" className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-    //                 ...
-    //             </span>
-    //         );
-
-    //         // taking the last 3
-    //         for (let index = totalPages - 2; index <= totalPages; index++) {
-    //             PageNumbers.push(<PageNumber key={index} index={index} currentPage={page} />);
-    //         }
-    //     } else if (totalPages - 4 > page) {
-    //         // taking the first 2 
-    //         for (let index = page; index <= page + 1; index++) {
-    //             PageNumbers.push(<PageNumber key={index} index={index} currentPage={page} />);
-    //         }
-
-    //         // pushing the ellipsis
-    //         PageNumbers.push(
-    //             <span key="ellipsis-2" className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-    //                 ...
-    //             </span>
-    //         );
-
-    //         // taking the last 2
-    //         for (let index = totalPages - 1; index <= totalPages; index++) {
-    //             PageNumbers.push(<PageNumber key={index} index={index} currentPage={page} />);
-    //         }
-    //     } else {
-    //         for (let index = page; index <= totalPages; index++) {
-    //             PageNumbers.push(<PageNumber key={index} index={index} currentPage={page} />);
-    //         }
-    //     }
-
-    //     return <div className="pagination">{PageNumbers}</div>;
-    // };
+    const handlePageChange = useCallback(
+        (index) => {
+            setPage(index)
+            // setting the page in filter
+            dispatch(updateFilterSelection(false, 'page', index))
+        },
+        [],
+    )
 
     return (
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
@@ -212,3 +146,4 @@ function PageNumberCompo({ totalPages, page, handlePageChange }) {
 }
 
 export default Pagination
+

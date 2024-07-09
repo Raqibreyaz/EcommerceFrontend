@@ -1,17 +1,20 @@
 import { Link } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { memo } from "react";
+import { Container } from './index'
 
 const ProductGrid = memo(function ({ products }) {
     return (
         <div className="lg:col-span-3 overflow-auto">
             <div className="bg-white">
-                <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8 ">
-                    {!products.length && <h1 className="absolute translate-x-[-30%] capitalize left-1/2 text-4xl">no products found</h1>}
+                <Container
+                    backupElem={<h1 className="absolute translate-x-[-30%] capitalize left-1/2 text-4xl">no products found</h1>}
+                    className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8 "
+                >
                     {products.map((product) => (
                         <ProductCard key={product._id} product={product} />
                     ))}
-                </div>
+                </Container>
             </div>
         </div >
     )

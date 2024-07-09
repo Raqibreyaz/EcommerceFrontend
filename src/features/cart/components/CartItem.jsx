@@ -35,7 +35,13 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
               <div className="text-gray-500 flex gap-2 items-center ">Qty
                 <p className='flex items-center gap-2 border rounded-3xl px-2'>
                   <select defaultValue={product.quantity} onChange={(e) => {
-                    AddToCart(product.product, product.color, product.size, e.target.value)
+                    AddToCart(
+                      {
+                        id: product.product,
+                        color: product.color,
+                        size: product.size,
+                        quantity: e.target.value
+                      })
                   }} className='px-2'>
                     {
                       [1, 2, 3, 4, 5, 6, 7, 8, 9].map((count) => (
@@ -52,7 +58,7 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
                   className="font-medium text-red-500 hover:text-red-600 flex"
                   onClick={() => {
                     showConfirmation('Remove Product', 'Do you Really Want to Remove The Product').then((result) => {
-                      if (result.isConfirmed) RemoveFromCart(product.product, product.color, product.size)
+                      if (result.isConfirmed) RemoveFromCart({ id: product.product, color: product.color, size: product.size })
                     })
                   }}
                 >

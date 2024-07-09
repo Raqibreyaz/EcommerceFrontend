@@ -1,11 +1,12 @@
 import React from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
-import { useUser } from '../../../custom-hooks/useUser.js'
-import { FormError } from '../../../components/index.js'
+import { FormError, Container } from '../../../components/index.js'
+import { useEditUserProfileMutation, useFetchUserQuery } from '../userSlice.js'
 
 function EditProfile() {
 
-    const { user, HandleEditUser } = useUser()
+    const { data: { user } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
+    const [EditUser, { isLoading: isLoadingEditUSer }] = useEditUserProfileMutation()
 
     const methods = useForm({
         defaultValues: {
@@ -20,65 +21,68 @@ function EditProfile() {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = methods
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <FormProvider {...methods}>
-                <form onSubmit={handleSubmit(HandleEditUser)}>
-                    {
-                        [
-                            {
-                                type: 'email',
-                                name: 'email',
-                                cond: { required: "email is required!!" },
-                                child: "email address",
-                                id: 1
-                            },
-                            {
-                                type: 'password',
-                                name: 'password',
-                                cond: { required: "password is required!!" },
-                                child: 'password',
-                                id: 2
-                            },
-                            {
-                                type: 'password',
-                                name: 'newPassword',
-                                cond: {},
-                                child: 'new password',
-                                id: 3
-                            },
-                            {
-                                type: 'text',
-                                name: 'fullname',
-                                cond: { required: "fullname is required!!" },
-                                child: 'fullname',
-                                id: 4
-                            },
-                            {
-                                type: 'text',
-                                name: 'phoneNo',
-                                cond: { required: "phone no is required", minLength: 10 },
-                                child: 'phone no',
-                                id: 5
-                            },
-                        ].map((input, index) => (
-                            <div key={input.id} className="relative z-0 mb-6 w-full group">
-                                <input
-                                    type={input.type}
-                                    id={input.name}
-                                    {...register(input.name, input.cond)}
-                                    className="block py-2.5 px-0 w-full text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-black dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer "
-                                />
-                                <label
-                                    htmlFor={input.name}
-                                    className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 capitalize"
-                                >
-                                    {input.child}
-                                </label>
-                                <FormError field={input.name} />
-                            </div>
-                        ))
-                    }
-                    {/* <div className="relative z-0 mb-6 w-full group">
+        <Container
+            LoadingConditions={[isLoadingEditUSer, isLoadingUser]}
+        >
+            <div className="max-w-2xl mx-auto">
+                <FormProvider {...methods}>
+                    <form onSubmit={handleSubmit(EditUser)}>
+                        {
+                            [
+                                {
+                                    type: 'email',
+                                    name: 'email',
+                                    cond: { required: "email is required!!" },
+                                    child: "email address",
+                                    id: 1
+                                },
+                                {
+                                    type: 'password',
+                                    name: 'password',
+                                    cond: { required: "password is required!!" },
+                                    child: 'password',
+                                    id: 2
+                                },
+                                {
+                                    type: 'password',
+                                    name: 'newPassword',
+                                    cond: {},
+                                    child: 'new password',
+                                    id: 3
+                                },
+                                {
+                                    type: 'text',
+                                    name: 'fullname',
+                                    cond: { required: "fullname is required!!" },
+                                    child: 'fullname',
+                                    id: 4
+                                },
+                                {
+                                    type: 'text',
+                                    name: 'phoneNo',
+                                    cond: { required: "phone no is required", minLength: 10 },
+                                    child: 'phone no',
+                                    id: 5
+                                },
+                            ].map((input, index) => (
+                                <div key={input.id} className="relative z-0 mb-6 w-full group">
+                                    <input
+                                        type={input.type}
+                                        id={input.name}
+                                        {...register(input.name, input.cond)}
+                                        className="block py-2.5 px-0 w-full text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-black dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer "
+                                    />
+                                    <label
+                                        htmlFor={input.name}
+                                        className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 capitalize"
+                                    >
+                                        {input.child}
+                                    </label>
+                                    <FormError field={input.name} />
+                                </div>
+                            ))
+                        }
+                        {/* <div className="relative z-0 mb-6 w-full group">
                     <input
                         type="password"
                         name="floating_password"
@@ -94,7 +98,7 @@ function EditProfile() {
                         Old Password
                     </label>
                 </div> */}
-                    {/* <div className="relative z-0 mb-6 w-full group">
+                        {/* <div className="relative z-0 mb-6 w-full group">
                     <input
                         type="password"
                         name="repeat_password"
@@ -110,7 +114,7 @@ function EditProfile() {
                         New password
                     </label>
                 </div> */}
-                    {/* <div className="grid xl:grid-cols-2 xl:gap-6">
+                        {/* <div className="grid xl:grid-cols-2 xl:gap-6">
                     <div className="relative z-0 mb-6 w-full group">
                         <input
                             type="text"
@@ -128,7 +132,7 @@ function EditProfile() {
                         </label>
                     </div>
                 </div> */}
-                    {/* <div className="grid xl:grid-cols-2 xl:gap-6">
+                        {/* <div className="grid xl:grid-cols-2 xl:gap-6">
                     <div className="relative z-0 mb-6 w-full group">
                         <input
                             type="tel"
@@ -163,15 +167,16 @@ function EditProfile() {
                         </label>
                     </div>
                 </div> */}
-                    <button
-                        type="submit"
-                        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    >
-                        Submit
-                    </button>
-                </form>
-            </FormProvider>
-        </div>
+                        <button
+                            type="submit"
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </FormProvider>
+            </div>
+        </Container>
     )
 }
 

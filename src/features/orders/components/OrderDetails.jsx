@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrderDetailsAsync } from '../orderSlice';
+import { useFetchOrderDetailsQuery } from '../orderSlice';
 import { useParams, Link } from 'react-router-dom';
+import { Container } from '../../../components/index.js';
 
 const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => {
     const statusColors = {
@@ -12,7 +11,6 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => 
     };
 
     return (
-
         <div className="flex mb-6 border-t pt-4">
             <div className="w-1/5">
                 <img
@@ -42,20 +40,14 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => 
                 </div>
             </div>
         </div>
-
     );
 };
 
 const OrdersPage = () => {
 
-    const dispatch = useDispatch()
     const orderId = useParams().id
 
-    const fetchedOrder = useSelector(state => state.order.fetchedOrder)
-
-    useEffect(() => {
-        dispatch(fetchOrderDetailsAsync(orderId))
-    }, [])
+    const { data: { fetchedOrder } = {}, isLoadingOrderDetails } = useFetchOrderDetailsQuery(orderId)
 
     const orders = [
         {
@@ -86,36 +78,41 @@ const OrdersPage = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <h1 className="text-3xl font-bold mb-8 text-gray-800">Orders</h1>
-            <div className="grid grid-cols-1  gap-8">
-                <div className="bg-white shadow-lg rounded-lg w-full mb-0">
-                    <div className="p-6">
-                        {/* Order Summary */}
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <p className="text-gray-500 text-sm">Order Id</p>
-                                <p className="text-black font-semibold">{fetchedOrder._id}</p>
+        <Container
+            LoadingConditions={[isLoadingOrderDetails]}
+            RenderingConditions={[!!fetchedOrder]}
+        >
+            <div className="min-h-screen bg-gray-50 p-8">
+                <h1 className="text-3xl font-bold mb-8 text-gray-800">Orders</h1>
+                <div className="grid grid-cols-1  gap-8">
+                    <div className="bg-white shadow-lg rounded-lg w-full mb-0">
+                        <div className="p-6">
+                            {/* Order Summary */}
+                            <div className="flex justify-between items-center mb-6">
+                                <div>
+                                    <p className="text-gray-500 text-sm">Order Id</p>
+                                    <p className="text-black font-semibold">{fetchedOrder._id}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500 text-sm">Date placed</p>
+                                    <p className="text-black font-semibold">{fetchedOrder.createdAt}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500 text-sm">Total amount</p>
+                                    <p className="text-black font-semibold">{fetchedOrder.totalAmount}</p>
+                                </div>
                             </div>
+                            {/* Products */}
                             <div>
-                                <p className="text-gray-500 text-sm">Date placed</p>
-                                <p className="text-black font-semibold">{fetchedOrder.createdAt}</p>
+                                {fetchedOrder.products?.map((item, index) => (
+                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={fetchedOrder.deliveryStatus} deliveredAt={fetchedOrder.deliveredAt} />
+                                ))}
                             </div>
-                            <div>
-                                <p className="text-gray-500 text-sm">Total amount</p>
-                                <p className="text-black font-semibold">{fetchedOrder.totalAmount}</p>
-                            </div>
-                        </div>
-                        {/* Products */}
-                        <div>
-                            {fetchedOrder.products?.map((item, index) => (
-                                <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={fetchedOrder.deliveryStatus} deliveredAt={fetchedOrder.deliveredAt} />
-                            ))}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </Container>
     );
 };
 

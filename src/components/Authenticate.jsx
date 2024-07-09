@@ -1,6 +1,5 @@
 import React from 'react'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
-import { useUser } from '../custom-hooks/useUser.js'
 import { useFetchUserQuery } from '../features/user/userSlice.js'
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {

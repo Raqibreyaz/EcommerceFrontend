@@ -26,12 +26,13 @@ export const productReviewApi = createApi({
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include'
             }),
+            // will cause o refetch the reviews according to the id of the product
             invalidatesTags: (result, error, { id }) => [{ type: 'ProductReview', id }],
         }),
 
         fetchProductReviews: build.query({
             query: (id) => ({
-                url: `get-reviews/${productId}`,
+                url: `get-reviews/${id}`,
                 method: 'GET',
             }),
             // will cache the reviews according to the id of the product

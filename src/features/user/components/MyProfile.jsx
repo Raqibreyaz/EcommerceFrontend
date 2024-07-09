@@ -1,11 +1,10 @@
 import React, { useState, memo, useCallback, useEffect } from 'react';
-import { useUser } from '../../../custom-hooks/useUser.js'
-import { useFilter } from '../../../custom-hooks/useFilter.js'
 import { Link, useNavigate } from 'react-router-dom';
-import { ProductGrid } from '../../../components/index.js'
-import { useFetchUserQuery } from '../userSlice.js';
+import { Container, ProductGrid } from '../../../components/index.js'
+import { useChangeUserAvatarMutation, useFetchUserQuery } from '../userSlice.js';
+import { useFetchProductsQuery } from '../../product-list/ProductSlice.js';
 
-const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar }) => {
+const UserProfileCompo = memo(({ user, address, products, ChangeAvatar }) => {
 
     console.log(user);
     console.log(products);
@@ -14,15 +13,17 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
 
     const Navigate = useNavigate()
 
+    // calls the changeAvatar api function with the newAvatar
     const onSubmit = useCallback(
         () => {
             const formData = new FormData()
             formData.append('newAvatar', newAvatar.file)
-            HandleChangeUserAvatar(formData)
+            ChangeAvatar(formData)
         },
         [newAvatar],
     )
 
+    // revoke the url of the preview image
     useEffect(() => {
         return () => { if (newAvatar.path) URL.revokeObjectURL(newAvatar.path) }
     }, [])
@@ -77,10 +78,9 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
                         <Link to='/edit-profile/address' className='mx-2 bg-blue-600 text-white px-2 rounded-md'>Edit</Link>
                         <div className='mt-3 flex flex-col '>
                             <div className='capitalize flex flex-col gap-2'>
-                                <div className='border rounded p-1 flex'>house no: {address.house_no}</div>
-                                <div className='border rounded p-1 flex'>city: {address.city}</div>
-                                <div className='border rounded p-1 flex'>state: {address.state}</div>
-                                <div className='border rounded p-1 flex'>pincode: {address.pincode}</div>
+                                {['house_no', 'city', "state", 'pincode'].map((field) => (
+                                    <div className='border rounded p-1 flex'>{field}: {address[field]}</div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -110,23 +110,25 @@ const UserProfileCompo = memo(({ user, address, products, HandleChangeUserAvatar
 
 const UserProfile = () => {
 
-    const { HandleChangeUserAvatar } = useUser()
-    const { products, HandleFilterSelection } = useFilter()
+    const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
+    const { data: { products = [] } = {}, isLoading: isLoadingProducts } = useFetchProductsQuery(`product_owners=${user?._id || ''}`)
 
-    const { data: { user }} = useFetchUserQuery()
+    const [ChangeAvatar, { isLoading: isLoadingChangeAvatar }] = useChangeUserAvatarMutation()
 
-    // fetch all products of that user
-    useEffect(() => {
-        HandleFilterSelection(true, 'product_owners', [user._id])
-    }
-        , [])
 
     return (
-        <div className="min-h-screen bg-gray-100  p-4">
-            {
-                <UserProfileCompo user={user} address={user?.addresses[0]} products={products} HandleChangeUserAvatar={HandleChangeUserAvatar} />
-            }
-        </div>
+        < Container
+            LoadingConditions={[
+                isLoadingChangeAvatar, isLoadingUser, isLoadingProducts
+            ]}
+            RenderingConditions={[!!user, products.length > 0]}
+        >
+            < div className="min-h-screen bg-gray-100  p-4" >
+                {
+                    < UserProfileCompo user={user} address={user?.addresses[0]} products={products} ChangeAvatar={ChangeAvatar} />
+                }
+            </div >
+        </Container >
     );
 };
 

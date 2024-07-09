@@ -2,8 +2,8 @@ import { Fragment } from 'react'
 import { Disclosure, MenuButton, Menu, MenuItem, MenuItems, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
 import { Bars3Icon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { logoutUserAsync, useFetchUserQuery } from '../features/user/userSlice'
+import { useFetchUserQuery, useLogoutUserMutation } from '../features/user/userSlice'
+import { catchAndShowMessage } from '../utils/catchAndShowMessage'
 
 
 function classNames(...classes) {
@@ -17,9 +17,8 @@ export default function Navbar() {
     { name: 'My Wishlist', to: '/wishlist' },
   ]
 
-  const { data } = useFetchUserQuery()
-
-  const user = data?.user
+  const { data: { user } = {} } = useFetchUserQuery()
+  const [LogoutUser] = useLogoutUserMutation()
 
   const isAuthenticated = user ? true : false
 
@@ -219,7 +218,7 @@ export default function Navbar() {
                       <DisclosureButton
                         as="button"
                         className="block w-full rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 capitalize hover:text-white"
-                        onClick={() => handleLogout}
+                        onClick={() => catchAndShowMessage(LogoutUser)}
                       >
                         sign out
                       </DisclosureButton>

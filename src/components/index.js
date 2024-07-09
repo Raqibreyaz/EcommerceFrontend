@@ -10,6 +10,7 @@ import { SuccessMessage, FailedMessage } from './MessageDialog.jsx'
 import FormError from './FormError.jsx'
 import { ImageSection } from './ImageSection.jsx'
 import ProductGrid from './ProductGrid.jsx'
+import Container from './Container.jsx'
 
 export {
     Authenticate,
@@ -24,5 +25,6 @@ export {
     FailedMessage,
     FormError,
     ImageSection,
-    ProductGrid
+    ProductGrid,
+    Container
 }

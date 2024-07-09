@@ -3,9 +3,13 @@ import { CartItem } from './components/CartItem'
 import { AmountSection } from './components/AmountSection'
 import { useCart } from '../../custom-hooks/useCart.js'
 
-export default function Cart({ inCheckout = false }) {
 
-  const { userCart, cartStatus, subTotal, totalDiscount, AddToCart, RemoveFromCart } = useCart()
+export default function Cart({ inCheckout = false }) {
+  // fetch cart
+  // update quantity
+  // remove item
+
+  const { userCart, isLoadingCart, subTotal, totalDiscount, AddToCart, RemoveFromCart } = useCart()
 
   return (
     cartStatus === 'loading' ? <Loader /> :

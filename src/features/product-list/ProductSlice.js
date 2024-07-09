@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { useSelector } from 'react-redux';
 
 export const productApi = createApi({
     baseQuery: fetchBaseQuery({
@@ -10,10 +11,12 @@ export const productApi = createApi({
     endpoints: (build) => ({
 
         fetchProducts: build.query({
-            query: (filter = '') => ({
-                url: `get-products?${filter}`,
-                method: 'GET',
-            }),
+            query: (filter = '') => {
+                return {
+                    url: `get-products?${filter}`,
+                    method: 'GET',
+                }
+            },
             providesTags: (result, error, filter) => {
                 console.log(filter);
                 return [{ type: 'Products', id: filter }]

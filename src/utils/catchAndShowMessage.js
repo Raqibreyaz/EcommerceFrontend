@@ -1,11 +1,11 @@
 import { FailedMessage, SuccessMessage } from "../components/MessageDialog"
 
-export const catchAndShowMessage = async (fn, data) => {
+export const catchAndShowMessage = async (fn, data = {}) => {
     try {
-        let result = await fn(data)
+        let result = await fn(data).unwrap()
         SuccessMessage(result.message)
     } catch (error) {
-        FailedMessage(error.message)
+        FailedMessage(error.error)
     }
 }
 
