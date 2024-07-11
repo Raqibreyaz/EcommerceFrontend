@@ -17,7 +17,7 @@ const ReviewComponent = memo(({ productReviews }) => {
 
     return (
         <Container
-            RenderingConditions={[!!productReviews, productReviews.length > 0]}
+            RenderingConditions={[!!productReviews, !!productReviews?.length > 0]}
             className="max-w-2xl mx-auto p-4"
         >
             {/* <div className="mb-6">

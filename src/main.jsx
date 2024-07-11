@@ -8,7 +8,7 @@ import {
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
-import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage } from './pages/index.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage,ReturnRequestsPage, ReturnDetailsPage } from './pages/index.js'
 import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
@@ -91,6 +91,38 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: '/messages',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <MessageList />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/sellers',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <SellersPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/return-requests',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <ReturnRequestsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/return-details',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <ReturnDetailsPage />
+          </Authenticate>
+        )
+      },
+      {
         path: '/orders',
         element: (
           <Authenticate authState={true}>
@@ -111,14 +143,6 @@ const router = createBrowserRouter([
         element: (
           <Authenticate authState={true}>
             <WishlistPage />
-          </Authenticate>
-        )
-      },
-      {
-        path: '/messages',
-        element: (
-          <Authenticate authState={true} role={'admin'}>
-            <MessageList />
           </Authenticate>
         )
       },

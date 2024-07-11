@@ -7,12 +7,16 @@ function Container({
     RenderingConditions = [],
     backupElem = null,
     className = '' }) {
+
+    const canRender = !RenderingConditions?.includes(false)
+    const canShowLoading = LoadingConditions?.includes(true)
+
     return (
-        LoadingConditions.includes(true) ?
-            <Loader />
-            : (!RenderingConditions.includes(false) ? < div className={className}>
+        canShowLoading ?
+            <Loader /> :
+            (canRender ? <div className={className}>
                 {children}
-            </div > : backupElem)
+            </div> : backupElem)
     )
 }
 

@@ -1,15 +1,24 @@
-import React from 'react'
+import React,{useCallback} from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormError, Loader, Container } from '../../../components/index.js'
 import { useLoginUserMutation } from '../userSlice.js'
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
 
 function Login() {
 
   const methods = useForm()
   const { register, handleSubmit, formState: { isSubmitting } } = methods
 
-  const [LoginUser, { isLoading, isSuccess }] = useLoginUserMutation
+  const [LoginUser, { isLoading, isSuccess }] = useLoginUserMutation()
+
+  const HandleLogin = useCallback(
+    (data) => {
+      catchAndShowMessage(LoginUser, data)
+    },
+    [],
+  )
+
 
   const Location = useLocation()
   const Navigate = useNavigate()
@@ -21,7 +30,7 @@ function Login() {
 
   return (
     <Container
-      LoadingConditions={[isLoading]}
+      LoadingConditions={[!!isLoading]}
     >
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -38,7 +47,7 @@ function Login() {
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <FormProvider {...methods}>
-              <form onSubmit={handleSubmit(LoginUser)} className="space-y-6">
+              <form onSubmit={handleSubmit(HandleLogin)} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email address

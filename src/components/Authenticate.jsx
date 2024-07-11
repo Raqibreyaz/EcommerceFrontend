@@ -13,7 +13,7 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
 
         // user is authorized if authenticated and roles or role does not exists or role matches or roles one of it matches
         if (isAuthenticated === authState
-            && (!role && !roles.length || role && role === user.role || roles.length && roles.indexOf(user.role) !== -1))
+            && (!role && !roles.length || role && role === user?.role || roles.length && roles.indexOf(user?.role) !== -1))
             return true;
 
         // else for every case user will be unauthorized

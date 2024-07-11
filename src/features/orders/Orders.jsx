@@ -227,7 +227,7 @@ const Orders = () => {
     //     // Add more orders as needed
     // ];
 
-    const { data: { orders } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery()
+    const { data: { orders = [] } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery()
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">

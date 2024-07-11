@@ -1,11 +1,9 @@
 import { useState, useCallback, memo } from "react"
-import { useDispatch} from "react-redux"
+import { useDispatch } from "react-redux"
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid"
 import { updateFilterSelection } from "../features/filter/filterSlice"
 
-const Pagination = memo(function ({ limit = 10, totalPages, filteredTotal }) {
-
-    console.log(totalPages, filteredTotal);
+const Pagination = memo(function ({ limit = 10, totalPages = 0, filteredTotal = 0 }) {
 
     const dispatch = useDispatch()
 

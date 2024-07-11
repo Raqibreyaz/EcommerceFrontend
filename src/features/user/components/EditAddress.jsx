@@ -19,7 +19,7 @@ const AddressCard = memo(function ({ address, RemoveAddress, noOfAddress }) {
         <span className="font-bold">Pincode:</span> {address.pincode}
       </div>
       <Container
-        RenderingConditions={noOfAddress > 1}
+        RenderingConditions={[noOfAddress > 1]}
       >
         <button
           onClick={() => catchAndShowMessage(RemoveAddress, address._id)}
@@ -43,7 +43,7 @@ const AddressRemovalForm = () => {
         isLoadingUser,
         isLoadingRemoveAddress
       ]}
-      RenderingConditions={[!!user, user.addresses.length]}
+      RenderingConditions={[!!user, !!user?.addresses?.length]}
     >
       < div className="container mx-auto p-4" >
         <h2 className="text-2xl font-bold mb-4">Address:</h2>

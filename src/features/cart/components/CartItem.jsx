@@ -3,6 +3,7 @@ import { TrashIcon } from '@heroicons/react/20/solid'
 import { showConfirmation } from '../../../components/ConfirmDialog'
 import { Link } from 'react-router-dom'
 import ColorNamer from 'color-namer'
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage'
 
 export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
   return (
@@ -34,7 +35,7 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
             <div className="flex flex-1 items-end justify-between text-sm">
               <div className="text-gray-500 flex gap-2 items-center ">Qty
                 <p className='flex items-center gap-2 border rounded-3xl px-2'>
-                  <select defaultValue={product.quantity} onChange={(e) => {
+                  <select value={product.quantity} onChange={(e) => {
                     AddToCart(
                       {
                         id: product.product,
@@ -58,7 +59,7 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
                   className="font-medium text-red-500 hover:text-red-600 flex"
                   onClick={() => {
                     showConfirmation('Remove Product', 'Do you Really Want to Remove The Product').then((result) => {
-                      if (result.isConfirmed) RemoveFromCart({ id: product.product, color: product.color, size: product.size })
+                      if (result.isConfirmed) catchAndShowMessage(RemoveFromCart, { id: product.product, color: product.color, size: product.size })
                     })
                   }}
                 >

@@ -5,7 +5,7 @@ const filterSlice = createSlice({
         filter: { limit: 10 },
     },
     name: 'filter',
-    reducer: {
+    reducers: {
         updateFilterSelection: (state, action) => {
             const field = action.payload.field
             const checked = action.payload.checked

@@ -7,8 +7,13 @@ import ImageGallery from './ImageGallery'
 import ProductDetailsNav from './ProductDetailsNav'
 import ReviewComponent from '../features/reviews/Reviews.jsx'
 import { Container } from '../components/index.js'
-import { useProduct } from '../custom-hooks/useProduct.js'
 import { catchAndShowMessage } from '../utils/catchAndShowMessage.js'
+import { useFetchProductDetailsQuery } from '../features/product-list/ProductSlice.js'
+import { useAddProductToWishlistMutation, useIsProductInWishlistQuery, useRemoveProductFromWishlistMutation } from '../features/wishlist/wishlistSlice.js'
+import { useAddProductToCartMutation, useFetchUserCartQuery } from '../features/cart/cartSlice.js'
+import { useFetchUserQuery } from '../features/user/userSlice.js'
+import { useFetchProductReviewsQuery } from '../features/reviews/reviewSlice.js'
+import { IsAddedToCart } from '../utils/isAddedToCart.js'
 
 // reviews:[{oneWord,review,rating,user:{fullname,avatar,address}}]
 const reviews = { href: '#', average: 4, totalCount: 117, rating: 4 }
@@ -20,38 +25,34 @@ function classNames(...classes) {
 export default function ProductDetails() {
 
   const productId = useParams().id
+
   const Navigate = useNavigate()
 
-  const {
-    product,
-    IsAddedToCart,
-    user,
-    reviews: productReviews,
-    RemoveFromWishlist,
-    AddToCart,
-    AddToWishlist,
-    isInWishlist,
-    isLoadingCart,
-    isLoadingProduct,
-    isLoadingUser,
-    isLoadingWishlist,
-    isLoadingReviews,
-    isLoadingAddToCart,
-    isLoadingAddToWishlist,
-    isLoadingRemoveFromWishlist,
-    isSuccessfullInCart,
-    isSuccessfullInWishlist,
-    isSuccessfullRemoveFromWishlist
-  } = useProduct(productId)
+  const { data: { product = {} } = {}, isLoading: isLoadingProduct } = useFetchProductDetailsQuery(productId)
+
+  const { data: { isInWishlist = false } = {}, isLoading: isLoadingWishlist } = useIsProductInWishlistQuery(productId)
+
+  console.log('in wishlist ', isInWishlist);
+
+  const { data: { user = null } = {}, isLoadingUser } = useFetchUserQuery()
+
+  const { data: { reviews: productReviews = [] } = {}, isLoading: isLoadingReviews } = useFetchProductReviewsQuery(productId)
+
+  const [AddToWishlist, { isLoading: isLoadingAddToWishlist }] = useAddProductToWishlistMutation()
+
+  const [AddToCart, { isLoading: isLoadingAddToCart }] = useAddProductToCartMutation()
+
+  const { isLoading: isLoadingCart, data: { userCart = [] } = {} } = useFetchUserCartQuery()
+
+  const [RemoveFromWishlist, { isLoading: isLoadingRemoveFromWishlist }] = useRemoveProductFromWishlistMutation()
 
   const [selectedSize, setSelectedSize] = useState({})
 
   const [selectedColor, setSelectedColor] = useState('')
 
   const isProductInCart = useMemo(() => (
-    IsAddedToCart(productId, selectedColor.color, selectedSize)
-  ), [selectedColor, selectedSize, isSuccessfullInCart])
-
+    IsAddedToCart(productId, selectedColor.color, selectedSize, userCart)
+  ), [selectedColor, selectedSize, userCart])
 
   const handleAddToCart = useCallback(
     (e) => {
@@ -59,7 +60,7 @@ export default function ProductDetails() {
         Navigate('/login')
       catchAndShowMessage(AddToCart, { id: productId, color: selectedColor.color, size: selectedSize, quantity: 1 })
     },
-    [selectedColor, selectedSize]
+    [selectedColor, selectedSize, user]
   )
 
   const handleWishlistProduct = useCallback(
@@ -69,16 +70,18 @@ export default function ProductDetails() {
         Navigate('/login')
 
       if (isInWishlist) {
+        console.log('going to remove from wishlist');
         catchAndShowMessage(RemoveFromWishlist, { id: productId, color: selectedColor.color, size: selectedSize })
       }
       else {
+        console.log('going to add in wishlist');
         catchAndShowMessage(
           AddToWishlist,
           { id: productId, color: selectedColor.color, size: selectedSize }
         )
       }
     },
-    [selectedColor, selectedSize]
+    [selectedColor, selectedSize, isInWishlist, user]
   )
 
   useEffect(() => {
@@ -98,19 +101,19 @@ export default function ProductDetails() {
       RenderingConditions={[!!product, !!product?._id]}
       className='bg-white pt-6'
     >
-      <ProductDetailsNav name={product.product_name} />
+      <ProductDetailsNav name={product?.product_name} />
       {/* Image gallery */}
       <ImageGallery selectedColor={selectedColor} />
       {/* Product info */}
       <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
         <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.product_name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product?.product_name}</h1>
         </div>
 
         {/* Options */}
         <div className="mt-4 lg:row-span-3 lg:mt-0">
           <h2 className="sr-only">Product information</h2>
-          <p className="text-3xl tracking-tight text-gray-900">{product.price}</p>
+          <p className="text-3xl tracking-tight text-gray-900">{product?.price}</p>
 
           {/* Reviews */}
           <div className="mt-6">

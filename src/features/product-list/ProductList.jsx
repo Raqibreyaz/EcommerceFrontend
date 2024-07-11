@@ -69,8 +69,6 @@ function ProductList() {
 
   const { isLoading:isLoadingProductOwners} = useFetchProductOwnersQuery()
 
-  console.log(products);
-
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   return (
