@@ -10,7 +10,7 @@ export const dashboardApi = createApi({
 
     reducerPath: 'dashboardApi',
 
-    tagTypes: ['DashBoard'],
+    tagTypes: ['DashBoard','Orders'],
 
     endpoints: (build) => ({
         fetchDashboard: build.query({
@@ -19,7 +19,7 @@ export const dashboardApi = createApi({
                 method: "GET",
             }),
             providesTags: ['DashBoard']
-        })
+        }),
     }),
 });
 

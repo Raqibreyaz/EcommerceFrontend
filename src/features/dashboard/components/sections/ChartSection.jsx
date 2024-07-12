@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import { Line } from 'react-chartjs-2'
+import { Chart } from 'chart.js/auto'
 
 const ChartSection = memo(function ChartSection({data}) {
     return (

@@ -4,18 +4,32 @@ import PaymentMethods from './PaymentMethods';
 import ExistingAddresses from './ExistingAddresses';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useFetchUserCartQuery } from '../../cart/cartSlice';
-import { useCreateOrderMutation } from '../orderSlice';
+import { useCreateOrderMutation, useCreateRazorPayOrderMutation, useVerifyRazorPayPaymentMutation } from '../orderSlice';
 import { useFetchUserQuery } from '../../user/userSlice';
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
 import { Container } from '../../../components/index';
+import { handleOnlinePayment } from '../../../utils/handleOnlinePayment';
 
 export default function Checkout() {
 
     const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
     const { data: { userCart = [] } = {}, isLoading: isLoadingUserCart } = useFetchUserCartQuery()
     const [CreateOrder, { isLoading: isLoadingCreateOrder }] = useCreateOrderMutation()
+    const [x, { isLoading: isVerifyingRazorPayOrder }] = useVerifyRazorPayPaymentMutation()
+    const [y, { isLoading: isCreatingRazorPayOrder }] = useCreateRazorPayOrderMutation()
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+
+        let toProcessFurther = true
+
+        if (data.PaymentMode === 'online') {
+            toProcessFurther = await handleOnlinePayment(user, data.totalAmount)
+        }
+
+        console.log(data);
+
+        if (!toProcessFurther)
+            return
 
         delete data.deliveryAddress.name
         delete data.deliveryAddress.id
@@ -37,8 +51,11 @@ export default function Checkout() {
             { product, discount, image, size, color, price, product_name, quantity }
         ))
 
-        catchAndShowMessage(CreateOrder, data)
-    }
+        console.log(data);
+
+        // catchAndShowMessage(CreateOrder, data)
+
+    };
 
     const methods = useForm()
 
@@ -47,7 +64,7 @@ export default function Checkout() {
     return (
         <Container
             className='my-10'
-            LoadingConditions={[isLoadingCreateOrder, isLoadingUser, isLoadingUserCart]}
+            LoadingConditions={[isLoadingCreateOrder, isLoadingUser, isLoadingUserCart, isCreatingRazorPayOrder, isVerifyingRazorPayOrder]}
             RenderingConditions={[!!user, userCart.length > 0]}
         >
             <FormProvider {...methods}>

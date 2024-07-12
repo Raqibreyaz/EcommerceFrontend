@@ -5,6 +5,7 @@ import { cartApi } from "../src/features/cart/cartSlice.js";
 import { orderApi } from "../src/features/orders/orderSlice.js";
 import { productReviewApi } from "../src/features/reviews/reviewSlice.js";
 import { wishlistApi } from "../src/features/wishlist/wishlistSlice.js";
+import dashboardApi from "../src/features/dashboard/dashboardSlice.js";
 import filterReducer from "../src/features/filter/filterSlice.js";
 
 export const store = configureStore({
@@ -15,6 +16,7 @@ export const store = configureStore({
         [orderApi.reducerPath]: orderApi.reducer,
         [productReviewApi.reducerPath]: productReviewApi.reducer,
         [wishlistApi.reducerPath]: wishlistApi.reducer,
+        [dashboardApi.reducerPath]: dashboardApi.reducer,
         filter: filterReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware()
@@ -24,6 +26,7 @@ export const store = configureStore({
             cartApi.middleware,
             orderApi.middleware,
             productReviewApi.middleware,
-            wishlistApi.middleware
+            wishlistApi.middleware,
+            dashboardApi.middleware
         )
 })

@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Loader } from './index.js'
 
-function Container({
+const Container=memo(function Container({
     children,
     LoadingConditions = [],
     RenderingConditions = [],
@@ -11,6 +11,7 @@ function Container({
     const canRender = !RenderingConditions?.includes(false)
     const canShowLoading = LoadingConditions?.includes(true)
 
+
     return (
         canShowLoading ?
             <Loader /> :
@@ -18,6 +19,6 @@ function Container({
                 {children}
             </div> : backupElem)
     )
-}
+})
 
 export default Container

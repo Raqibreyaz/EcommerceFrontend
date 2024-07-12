@@ -1,6 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Line } from 'react-chartjs-2';
 import { useFetchDashboardQuery } from './dashboardSlice';
 import { Container } from '../../components/index'
 import SideBar from './components/SideBar';
@@ -10,9 +8,9 @@ import ChartSection from './components/sections/ChartSection';
 
 const AdminDashboard = () => {
 
-    const { data: { totalProducts, totalSells, monthlySellsData, totalSellers, recentOrders } = {}, isLoading: isLoadingDashBoard } = useFetchDashboardQuery()
+    const { data: { totalProducts, totalSells, monthlySellsData, totalSellers, recentOrders, soldToday } = {}, isLoading: isLoadingDashBoard } = useFetchDashboardQuery()
 
-    console.log(totalProducts, totalSellers, totalSells, monthlySellsData, recentOrders)
+    console.log(totalProducts, totalSellers, totalSells, monthlySellsData, recentOrders, soldToday)
 
     const data = {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -30,7 +28,8 @@ const AdminDashboard = () => {
     return (
         <Container
             LoadingConditions={[!!isLoadingDashBoard]}
-            RenderingConditions={[!!totalProducts, !!totalSells, !!totalSellers, !!monthlySellsData, !!recentOrders]}
+            // 
+            RenderingConditions={[!isNaN(totalProducts), !isNaN(totalSells), !isNaN(totalSellers), !!(monthlySellsData), !!(recentOrders)]}
         >
             <div className="flex">
                 <SideBar />
@@ -40,9 +39,9 @@ const AdminDashboard = () => {
                     {/* Revenue Chart */}
                     <ChartSection data={data} />
                     {/* Number Sections */}
-                    <StatsSection />
+                    <StatsSection totalProducts={totalProducts} totalSells={totalSells} totalSellers={totalSellers} soldToday={soldToday}/>
                     {/* Orders Section */}
-                    <OrdersSection />
+                    <OrdersSection recentOrders={recentOrders}/>
                 </div>
             </div>
         </Container>

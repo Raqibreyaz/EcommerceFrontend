@@ -1,7 +1,7 @@
 import HomePage from './Home.jsx'
 import CheckoutPage from './CheckoutPage.jsx'
 import OrderDetailsPage from './OrderDetailsPage.jsx'
-import OrdersPage from './MyOrdersPage.jsx'
+import MyOrdersPage from './MyOrdersPage.jsx'
 import WishlistPage from './WishlistPage.jsx'
 import LoginPage from './LoginPage.jsx'
 import SignupPage from './SignupPage.jsx'
@@ -19,12 +19,13 @@ import SellerProfilePage from './SellerProfilePage.jsx'
 import SellersPage from './SellersPage.jsx'
 import ReturnRequestsPage from './ReturnRequestsPage.jsx'
 import ReturnDetailsPage from './ReturnDetailsPage.jsx'
+import OrdersPage from './OrdersPage.jsx'
 
 export {
     HomePage,
     CheckoutPage,
     OrderDetailsPage,
-    OrdersPage,
+    MyOrdersPage,
     WishlistPage,
     LoginPage,
     SignupPage,
@@ -41,7 +42,8 @@ export {
     SellerProfilePage,
     SellersPage,
     ReturnRequestsPage,
-    ReturnDetailsPage
+    ReturnDetailsPage,
+    OrdersPage
 }
 
 

@@ -6,8 +6,26 @@ export const orderApi = createApi({
     credentials: 'include',
   }),
   reducerPath: 'orderApi',
-  tagTypes: ['Orders', 'Order'],
+  tagTypes: ['Orders', 'Order', 'AllOrders'],
   endpoints: (build) => ({
+
+    createRazorPayOrder: build.mutation({
+      query: (data) => ({
+        url: 'create-razorpay-order',
+        method: 'POST',
+        body: data,
+        headers: { "Content-Type": "application/json" }
+      })
+    }),
+
+    verifyRazorPayPayment: build.mutation({
+      query: (data) => ({
+        url: 'verify-razorpay-payment',
+        method: 'POST',
+        body: data,
+        headers: { "Content-Type": "application/json" }
+      })
+    }),
 
     createOrder: build.mutation({
       query: (data) => ({
@@ -16,7 +34,7 @@ export const orderApi = createApi({
         body: data,
         headers: { 'Content-Type': 'application/json' },
       }),
-      invalidatesTags: ['Orders'],
+      invalidatesTags: ['Orders', 'AllOrders'],
     }),
 
     fetchOrders: build.query({
@@ -32,15 +50,15 @@ export const orderApi = createApi({
         url: 'get-orders/all',
         method: 'GET',
       }),
-      providesTags: ['Orders'],
+      providesTags: ['AllOrders'],
     }),
 
     fetchOrderDetails: build.query({
       query: (id) => ({
-        url: `get-Orders-details/${id}`,
+        url: `get-order-details/${id}`,
         method: 'GET',
       }),
-      providesTags: (result, error, id) => [{type: 'Order', id}],
+      providesTags: (result, error, id) => [{ type: 'Order', id }],
     }),
   }),
 });
@@ -50,4 +68,6 @@ export const {
   useFetchOrdersQuery,
   useFetchAllOrdersQuery,
   useFetchOrderDetailsQuery,
+  useCreateRazorPayOrderMutation,
+  useVerifyRazorPayPaymentMutation
 } = orderApi;

@@ -47,7 +47,7 @@ const OrdersPage = () => {
 
     const orderId = useParams().id
 
-    const { data: { fetchedOrder } = {}, isLoadingOrderDetails } = useFetchOrderDetailsQuery(orderId)
+    const { data: { orderDetails } = {}, isLoadingOrderDetails } = useFetchOrderDetailsQuery(orderId)
 
     const orders = [
         {
@@ -77,10 +77,12 @@ const OrdersPage = () => {
         }
     ];
 
+    console.log(orderDetails );
+
     return (
         <Container
-            LoadingConditions={[isLoadingOrderDetails]}
-            RenderingConditions={[!!fetchedOrder]}
+            LoadingConditions={[!!isLoadingOrderDetails]}
+            RenderingConditions={[!!orderDetails ]}
         >
             <div className="min-h-screen bg-gray-50 p-8">
                 <h1 className="text-3xl font-bold mb-8 text-gray-800">Orders</h1>
@@ -91,21 +93,21 @@ const OrdersPage = () => {
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <p className="text-gray-500 text-sm">Order Id</p>
-                                    <p className="text-black font-semibold">{fetchedOrder._id}</p>
+                                    <p className="text-black font-semibold">{orderDetails ?._id}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Date placed</p>
-                                    <p className="text-black font-semibold">{fetchedOrder.createdAt}</p>
+                                    <p className="text-black font-semibold">{orderDetails ?.createdAt}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Total amount</p>
-                                    <p className="text-black font-semibold">{fetchedOrder.totalAmount}</p>
+                                    <p className="text-black font-semibold">{orderDetails ?.totalAmount}</p>
                                 </div>
                             </div>
                             {/* Products */}
                             <div>
-                                {fetchedOrder.products?.map((item, index) => (
-                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={fetchedOrder.deliveryStatus} deliveredAt={fetchedOrder.deliveredAt} />
+                                {orderDetails ?.products?.map((item, index) => (
+                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={orderDetails .deliveryStatus} deliveredAt={orderDetails .deliveredAt} />
                                 ))}
                             </div>
                         </div>
