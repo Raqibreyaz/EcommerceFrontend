@@ -1,32 +1,50 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormError, Container } from '../../../components/index.js'
 import { useEditUserProfileMutation, useFetchUserQuery } from '../userSlice.js'
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
 
 function EditProfile() {
 
     const { data: { user } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
-    const [EditUser, { isLoading: isLoadingEditUSer }] = useEditUserProfileMutation()
+    const [EditUser, { isLoading: isEditingUser, isSuccess: isSuccessEditingUser }] = useEditUserProfileMutation()
 
     const methods = useForm({
         defaultValues: {
             email: user?.email || '',
             password: '',
             newPassword: '',
-            phoneNo: user.phoneNo || '',
-            fullname: user.fullname || ''
+            phoneNo: user?.phoneNo || '',
+            fullname: user?.fullname || ''
         }
     })
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = methods
 
+    const Navigate = useNavigate()
+
+    const onSubmit = useCallback(
+        (data) => {
+            catchAndShowMessage(EditUser, data)
+        },
+        [],
+    )
+
+    useEffect(() => {
+
+        if (isSuccessEditingUser)
+            Navigate('/profile')
+    }, [isSuccessEditingUser])
+
+
     return (
         <Container
-            LoadingConditions={[isLoadingEditUSer, isLoadingUser]}
+            LoadingConditions={[isEditingUser, isLoadingUser]}
         >
             <div className="max-w-2xl mx-auto">
                 <FormProvider {...methods}>
-                    <form onSubmit={handleSubmit(EditUser)}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         {
                             [
                                 {

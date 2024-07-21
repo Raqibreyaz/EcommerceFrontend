@@ -15,7 +15,7 @@ const OrderCard = ({ order }) => {
             <div className="p-4">
                 {/* Product Images */}
                 <div className="flex mb-4 space-x-4 items-end">
-                    {order.products.slice(0, 3).map(({ product, image }) => (
+                    {order.products.slice(0, 3).map(({ product, image },index) => (
                         <div className='size-[9vw]'>
                             <img
                                 key={product}

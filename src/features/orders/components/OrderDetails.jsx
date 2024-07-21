@@ -22,15 +22,17 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => 
             <div className="w-4/5 pl-6">
                 <p className="text-lg font-semibold capitalize">{orderedProduct.product_name}</p>
                 <div className="flex justify-between items-center mb-2 flex-col">
-                    <p className="text-lg font-semibold">₹{orderedProduct.price * (100 - orderedProduct.discount) / 100}</p>
+                    <p className="text-lg font-semibold">
+                        ₹{orderedProduct.price - Math.round(orderedProduct.price * orderedProduct.discount / 100)}
+                    </p >
                     <p className="text-lg font-semibold text-gray-400 line-through">₹{orderedProduct.price}</p>
                 </div>
                 <div>
                     <p className="text-gray-500 mb-4">{orderedProduct.description}</p>
-                    <p className={`flex items-center font-semibold ${statusColors[deliveryStatus.toLowerCase()]}`}>
+                    <p className={`flex items-center font-semibold `}>
                         {deliveredAt && <span className="mr-2">✔</span>}
                         {deliveredAt && <span> Delivered on {deliveredAt}</span>}
-                        {!deliveredAt && <span> {deliveryStatus}</span>}
+                        {!deliveredAt && <span >Status: <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}</span></span>}
                     </p>
                 </div>
                 <div className="flex space-x-4 mt-4">
@@ -77,12 +79,12 @@ const OrdersPage = () => {
         }
     ];
 
-    console.log(orderDetails );
+    console.log(orderDetails);
 
     return (
         <Container
             LoadingConditions={[!!isLoadingOrderDetails]}
-            RenderingConditions={[!!orderDetails ]}
+            RenderingConditions={[!!orderDetails]}
         >
             <div className="min-h-screen bg-gray-50 p-8">
                 <h1 className="text-3xl font-bold mb-8 text-gray-800">Orders</h1>
@@ -93,21 +95,21 @@ const OrdersPage = () => {
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <p className="text-gray-500 text-sm">Order Id</p>
-                                    <p className="text-black font-semibold">{orderDetails ?._id}</p>
+                                    <p className="text-black font-semibold">{orderDetails?._id}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Date placed</p>
-                                    <p className="text-black font-semibold">{orderDetails ?.createdAt}</p>
+                                    <p className="text-black font-semibold">{orderDetails?.createdAt}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Total amount</p>
-                                    <p className="text-black font-semibold">{orderDetails ?.totalAmount}</p>
+                                    <p className="text-black font-semibold">{orderDetails?.totalAmount}</p>
                                 </div>
                             </div>
                             {/* Products */}
                             <div>
-                                {orderDetails ?.products?.map((item, index) => (
-                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={orderDetails .deliveryStatus} deliveredAt={orderDetails .deliveredAt} />
+                                {orderDetails?.products?.map((item, index) => (
+                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={orderDetails.deliveryStatus} deliveredAt={orderDetails.deliveredAt} />
                                 ))}
                             </div>
                         </div>

@@ -1,8 +1,11 @@
-import React from 'react'
-import { Controller } from 'react-hook-form'
+import React, { memo } from 'react'
+import { Controller, useFormContext } from 'react-hook-form'
 import { FormError } from '../../../components/index.js'
 
-function PaymentMethods({ control }) {
+const PaymentMethods = memo(function () {
+
+    const { control } = useFormContext()
+
     return (
         <div>
             <h1 className='text-lg capitalize font-semibold '>payment methods</h1>
@@ -14,7 +17,7 @@ function PaymentMethods({ control }) {
             </div>
         </div>
     )
-}
+})
 
 function Method({ control, methodName }) {
     return (

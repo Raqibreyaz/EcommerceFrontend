@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { useForm } from 'react-hook-form'
-import {  useAddNewAddressMutation, useFetchUserQuery } from '../../user/userSlice.js'
+import { useAddNewAddressMutation, useFetchUserQuery } from '../../user/userSlice.js'
 import { FailedMessage, Container } from '../../../components/index.js'
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
 
-function AddressForm() {
+const AddressForm = memo(function() {
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
 
@@ -24,13 +24,13 @@ function AddressForm() {
         }
 
         // check for data is unique
-        let checkUnique = user.addresses.filter((addressObj) => (
+        let uniqueIndex = user.addresses.findIndex((addressObj) => (
             addressObj.house_no === data.house_no
             && addressObj.state === data.state
             && addressObj.city === data.city
             && addressObj.pincode === data.pincode
         ))
-        if (checkUnique.length)
+        if (uniqueIndex !== -1)
             FailedMessage('Address already exists')
 
         catchAndShowMessage(AddNewAddress, data)
@@ -108,6 +108,6 @@ function AddressForm() {
             </div>
         </Container>
     )
-}
+})
 
 export default AddressForm

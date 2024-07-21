@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { cartApi } from '../cart/cartSlice';
 
 export const orderApi = createApi({
   baseQuery: fetchBaseQuery({
@@ -6,7 +7,7 @@ export const orderApi = createApi({
     credentials: 'include',
   }),
   reducerPath: 'orderApi',
-  tagTypes: ['Orders', 'Order', 'AllOrders'],
+  tagTypes: ['Orders', 'Order', 'AllOrders','Cart'],
   endpoints: (build) => ({
 
     createRazorPayOrder: build.mutation({
@@ -29,12 +30,12 @@ export const orderApi = createApi({
 
     createOrder: build.mutation({
       query: (data) => ({
-        url: 'create-Orders',
+        url: 'create-order',
         method: 'POST',
         body: data,
         headers: { 'Content-Type': 'application/json' },
       }),
-      invalidatesTags: ['Orders', 'AllOrders'],
+      invalidatesTags: ['Orders', 'AllOrders','Cart'],
     }),
 
     fetchOrders: build.query({

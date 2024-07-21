@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import ColorNamer from 'color-namer'
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage'
 
-export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
+export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart ,totalAmount}) {
   return (
     <div>
       {
@@ -25,7 +25,7 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart }) {
                   <Link to={`/product-details/${product.product}`}>{product.product_name}</Link>
                 </h3>
                 <p className="ml-4">
-                  <span className='block'>{Math.round(product.price * product.quantity * (1 - product.discount / 100))}</span>
+                  <span className='block'>{totalAmount}</span>
                   <span className='line-through'>{product.price * product.quantity}</span>
                 </p>
               </div>
