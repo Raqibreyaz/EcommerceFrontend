@@ -20,6 +20,7 @@ import SellersPage from './SellersPage.jsx'
 import ReturnRequestsPage from './ReturnRequestsPage.jsx'
 import ReturnDetailsPage from './ReturnDetailsPage.jsx'
 import OrdersPage from './OrdersPage.jsx'
+import ReturnRequestFormPage from './ReturnRequestFormPage.jsx'
 
 export {
     HomePage,
@@ -43,7 +44,8 @@ export {
     SellersPage,
     ReturnRequestsPage,
     ReturnDetailsPage,
-    OrdersPage
+    OrdersPage,
+    ReturnRequestFormPage
 }
 
 

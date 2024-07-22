@@ -1,12 +1,13 @@
 import React from 'react'
 import { LoginPage, NotFoundPage } from '../pages/index.js'
 import { useFetchUserQuery } from '../features/user/userSlice.js'
+import { Container, Loader } from './index.js'
 
 function Authenticate({ children, authState = true, role, roles = [], allowed = false }) {
 
-    const { data: { user } = {} } = useFetchUserQuery()
+    const { data: { user } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
 
-    const isAuthenticated = !!user 
+    const isAuthenticated = !!user
 
     // function which tells if user is authorized
     function authorized() {
@@ -20,21 +21,30 @@ function Authenticate({ children, authState = true, role, roles = [], allowed = 
         return false;
     }
 
-    // when the route is allowed then just allow user
-    if (allowed) {
-        return <div>{children}</div>
-    }
+    if (!isLoadingUser) {
 
-    // tells that the route is only accessible for authenticated user
-    else if (!isAuthenticated && authState !== isAuthenticated)
-        return <LoginPage />
+        // when the route is allowed then just allow user
+        if (allowed || authorized()) {
+            return (
+                <Container
+                    LoadingConditions={[!!isLoadingUser]}
+                >
+                    {children}
+                </Container>
+            )
+        }
 
-    // handles cases for role specific routes 
-    else if (authorized())
-        return <div>{children}</div>
+        // tells that the route is only accessible for authenticated user
+        else if (!isAuthenticated && authState !== isAuthenticated)
+            return (<Container
+                LoadingConditions={[!!isLoadingUser]}
+            >
+                < LoginPage />
+            </Container>)
 
-    // shows an 404 page  to unauthorized users
-    else
-        return <NotFoundPage />
+        // shows an 404 page  to unauthorized users
+        else
+            return <NotFoundPage />
+    } else return <Loader />
 }
 export default Authenticate

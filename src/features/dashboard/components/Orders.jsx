@@ -1,8 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTable } from 'react-table';
-import { useFetchAllOrdersQuery } from '../../orders/orderSlice';
+import { useFetchAllOrdersQuery, useUpdateOrderMutation } from '../../orders/orderSlice';
 import { Container } from '../../../components/index';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
 
 const TableComponent = memo(({ columns, data }) => {
     const {
@@ -13,7 +15,7 @@ const TableComponent = memo(({ columns, data }) => {
         prepareRow,
     } = useTable({ columns, data });
 
-    console.log(rows);
+    // console.log(rows);
 
     return (
         <table {...getTableProps()} className="min-w-full bg-white ">
@@ -22,6 +24,7 @@ const TableComponent = memo(({ columns, data }) => {
                     <tr {...headerGroup.getHeaderGroupProps()} >
                         {headerGroup.headers.map(column => (
                             <th {...column.getHeaderProps()} className="py-2 px-4 border">
+                                {/* telling react to render Header */}
                                 {column.render('Header')}
                             </th>
                         ))}
@@ -35,8 +38,9 @@ const TableComponent = memo(({ columns, data }) => {
                         <tr key={row.getRowProps().key} role={row.getRowProps().role} className='border-y'>
                             {row.cells.map(cell => {
                                 // have to give select elem for changing status
-                                console.log(cell)
+                                // console.log(cell)
                                 return <td key={cell.getCellProps().key} role={cell.getCellProps().role} className="py-2 px-4 border">
+                                    {/* telling react to render Cell */}
                                     {cell.render('Cell')}
                                 </td>
                             })}
@@ -61,14 +65,32 @@ function Orders() {
     //                         noOfProducts: 2
     // }
 
-    const statusColors = {
-        delivered: 'text-green-600',
-        pending: 'text-yellow-600',
-        cancelled: 'text-red-600',
-        returned: 'text-gray-600'
-    };
+    const { data: { orders } = {}, isLoading: isLoadingOrders } = useFetchAllOrdersQuery()
+
+    const [UpdateOrder, { isLoading: isUpdatingOrder }] = useUpdateOrderMutation()
+
+    const statusColors = useMemo(() => (
+        {
+            delivered: 'text-green-600',
+            pending: 'text-yellow-600',
+            cancelled: 'text-red-600',
+            returned: 'text-gray-600'
+        }
+    ), []);
+
+    const changeStatus = useCallback(
+        (deliveryStatus, orderId) => {
+            console.log(deliveryStatus, orderId);
+            catchAndShowMessage(UpdateOrder, { deliveryStatus, id: orderId })
+        }
+        ,
+        [],
+    )
+
 
     const columns = React.useMemo(
+        // header specifies the header of that column
+        // accessor specifies the key for getting the value corresponding to column and that row
         () => [
             { Header: 'Customer Name', accessor: 'customer_name' },
             { Header: 'Total Amount', accessor: 'totalAmount' },
@@ -76,25 +98,26 @@ function Orders() {
             { Header: 'Placed At', accessor: 'createdAt' },
             {
                 Header: 'Delivery Status', accessor: 'deliveryStatus',
-                Cell: ({ value }) => (
-                    <select value={value} className={statusColors[value]}>
-                        <option value='pending' className={statusColors['pending']}>pending</option>
-                        <option value='delivered' className={statusColors['delivered']}>delivered</option>
-                        <option value='cancelled' className={statusColors['cancelled']}>cancelled</option>
-                        <option value='returned' className={statusColors['returned']}>returned</option>
+                // Cell will have info for that cell , which can use for customization
+                Cell: ({ value, row: { original } }) => (
+                    <select value={value} onChange={(e) => changeStatus(e.target.value, original._id)} className={statusColors[value]}>
+                        {
+                            ['pending', 'delivered', 'cancelled', 'returned']
+                                .map((deliveryStatus, index) => (
+                                    <option key={index} value={deliveryStatus} className={statusColors[deliveryStatus]}>{deliveryStatus}</option>
+                                ))
+                        }
                     </select>
                 )
             },
         ],
-        []
+        [orders]
     );
-
-    const { data: { orders } = {}, isLoading: isLoadingOrders } = useFetchAllOrdersQuery()
 
     return (
         <Container
             RenderingConditions={[!!orders, !!orders?.length > 0]}
-            LoadingConditions={[!!isLoadingOrders]}
+            LoadingConditions={[!!isLoadingOrders, !!isUpdatingOrder]}
         >
             <TableComponent data={orders} columns={columns} />
         </Container>

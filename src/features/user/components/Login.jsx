@@ -25,7 +25,7 @@ function Login() {
 
   if (isSuccess) {
     const from = Location.state?.from || '/'
-    Navigate(from)
+    Navigate('/')
   }
 
   return (

@@ -7,7 +7,7 @@ export const orderApi = createApi({
     credentials: 'include',
   }),
   reducerPath: 'orderApi',
-  tagTypes: ['Orders', 'Order', 'AllOrders','Cart'],
+  tagTypes: ['Orders', 'Order', 'AllOrders', 'Cart', 'Returns'],
   endpoints: (build) => ({
 
     createRazorPayOrder: build.mutation({
@@ -35,7 +35,7 @@ export const orderApi = createApi({
         body: data,
         headers: { 'Content-Type': 'application/json' },
       }),
-      invalidatesTags: ['Orders', 'AllOrders','Cart'],
+      invalidatesTags: ['Orders', 'AllOrders', 'Cart'],
     }),
 
     fetchOrders: build.query({
@@ -61,6 +61,62 @@ export const orderApi = createApi({
       }),
       providesTags: (result, error, id) => [{ type: 'Order', id }],
     }),
+
+    cancelOrder: build.mutation({
+      query: (id) => ({
+        url: `cancel-order/${id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, id) => (
+        [
+          'AllOrders',
+          'Orders',
+          { type: 'Order', id }
+        ]
+      )
+    }),
+
+    updateOrder: build.mutation({
+      query: ({ deliveryStatus, id }) => ({
+        url: `update-order/${id}`,
+        method: 'PATCH',
+        body: { deliveryStatus },
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      invalidatesTags: (result, error, { id }) => (
+        [
+          'AllOrders',
+          'Orders',
+          { type: 'Order', id }
+        ]
+      )
+    }),
+
+    fetchReturnRequests: build.query({
+      query: () => ({
+        url: 'get-return-requests',
+        method: 'GET',
+      }),
+      providesTags: ['Returns']
+    }),
+
+    createReturnRequest: build.mutation({
+      query: ({ data, orderId }) => ({
+        url: `create-return-request/${orderId}`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { orderId }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id: orderId }]
+    }),
+
+    updateReturnRequest: () => ({
+      query: ({ id, data }) => ({
+        url: `update-return-request/${id}`,
+        method: 'PUT',
+        body: data
+      }),
+      invalidatesTags: (result, error, { id }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id }]
+    })
   }),
 });
 
@@ -69,6 +125,9 @@ export const {
   useFetchOrdersQuery,
   useFetchAllOrdersQuery,
   useFetchOrderDetailsQuery,
+  useCancelOrderMutation,
+  useCreateReturnRequestMutation,
   useCreateRazorPayOrderMutation,
-  useVerifyRazorPayPaymentMutation
+  useVerifyRazorPayPaymentMutation,
+  useUpdateOrderMutation
 } = orderApi;

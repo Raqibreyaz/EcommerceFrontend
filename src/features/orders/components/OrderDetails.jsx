@@ -1,14 +1,35 @@
 import { useFetchOrderDetailsQuery } from '../orderSlice';
-import { useParams, Link } from 'react-router-dom';
-import { Container } from '../../../components/index.js';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Container, FailedMessage } from '../../../components/index.js';
+import { useCallback } from 'react';
 
-const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => {
+const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, orderDetails }) => {
     const statusColors = {
         delivered: 'text-green-600',
         pending: 'text-yellow-600',
         cancelled: 'text-red-600',
         returned: 'text-gray-600'
     };
+
+    const Navigate = useNavigate()
+
+    const currentDate = new Date()
+    const givenDate = new Date(orderDetails.createdAt)
+
+    const daysDifference = (currentDate - givenDate) / (1000 * 60 * 60 * 24)
+
+    const handleReturnOrder = useCallback(
+        () => {
+            console.log(daysDifference);
+            if (daysDifference >= 3)
+                FailedMessage('return is only applicable for a period of 3 days')
+            else {
+                // navigate to return request page
+                Navigate(`/return-request-form/${orderDetails._id}/${orderedProduct._id}`)
+            }
+        },
+        [],
+    )
 
     return (
         <div className="flex mb-6 border-t pt-4">
@@ -29,16 +50,21 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt }) => 
                 </div>
                 <div>
                     <p className="text-gray-500 mb-4">{orderedProduct.description}</p>
-                    <p className={`flex items-center font-semibold `}>
+                    {deliveryStatus === 'delivered' && <p className={`flex items-center font-semibold `}>
                         {deliveredAt && <span className="mr-2">✔</span>}
-                        {deliveredAt && <span> Delivered on {deliveredAt}</span>}
-                        {!deliveredAt && <span >Status: <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}</span></span>}
-                    </p>
+                        {deliveredAt && <span> Delivered on {new Date(deliveredAt).toLocaleString()}</span>}
+                    </p>}
+                    <span >Status: <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}</span></span>
                 </div>
-                <div className="flex space-x-4 mt-4">
+                <div className="flex justify-between mt-4">
                     <Link to={`/product-details/${orderedProduct.product}`} className="text-indigo-500 font-semibold hover:text-indigo-700">
                         View product
                     </Link>
+                    <div className='space-x-2'>
+                        {deliveryStatus === 'delivered' && <button type='button' onClick={() => handleReturnOrder()} className='text-white p-1 border rounded bg-red-500'>Return Product</button>}
+
+                        {deliveredAt && <button type='button' className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,7 +125,7 @@ const OrdersPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Date placed</p>
-                                    <p className="text-black font-semibold">{orderDetails?.createdAt}</p>
+                                    <p className="text-black font-semibold">{new Date(orderDetails?.createdAt).toLocaleString()}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Total amount</p>
@@ -109,7 +135,7 @@ const OrdersPage = () => {
                             {/* Products */}
                             <div>
                                 {orderDetails?.products?.map((item, index) => (
-                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={orderDetails.deliveryStatus} deliveredAt={orderDetails.deliveredAt} />
+                                    <OrderedProductCard key={item.product} orderedProduct={item} deliveryStatus={orderDetails.deliveryStatus} deliveredAt={orderDetails.deliveredAt} orderDetails={orderDetails} />
                                 ))}
                             </div>
                         </div>

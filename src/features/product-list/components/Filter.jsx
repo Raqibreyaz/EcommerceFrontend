@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, memo } from 'react'
+import React, { useEffect, Fragment, memo, useCallback } from 'react'
 import { Dialog, DialogPanel, Menu, MenuItem, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
@@ -6,7 +6,7 @@ import { XMarkIcon } from '@heroicons/react/20/solid'
 import { useFetchCategoriesQuery } from '../ProductSlice.js'
 import { useFetchProductOwnersQuery } from '../../user/userSlice.js'
 import { updateFilterSelection, updateSortSelection } from '../../filter/filterSlice.js'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
 
@@ -65,6 +65,8 @@ const Filter = memo(function ({ px = '' }) {
 
     const dispatch = useDispatch()
 
+    const filter = useSelector(state => state.filter.filter)
+
     const { data: { categories = [] } = {} } = useFetchCategoriesQuery()
     const { data: { productOwners = [] } = {} } = useFetchProductOwnersQuery()
 
@@ -84,7 +86,7 @@ const Filter = memo(function ({ px = '' }) {
                             {
                                 value: category.name,
                                 label: category.name,
-                                checked: false
+                                checked: !!(filter.category && filter.category.indexOf(category.name) !== -1)
                             }
                         ))
                     },
@@ -98,7 +100,11 @@ const Filter = memo(function ({ px = '' }) {
                             { name: "5k to 10k", value: '5000,10000' },
                             { name: "10k or above", value: '10000' },
                         ].map((priceRange) => (
-                            { value: priceRange.value, label: priceRange.name, checked: false }
+                            {
+                                value: priceRange.value,
+                                label: priceRange.name,
+                                checked: !!(filter.price && filter.price.join(',') === priceRange.value)
+                            }
                         ))
                     },
                     {
@@ -111,7 +117,11 @@ const Filter = memo(function ({ px = '' }) {
                             { name: "at least 30%", value: 30 },
                             { name: "at least 40%", value: 40 },
                         ].map((discount) => (
-                            { value: discount.value, label: discount.name, checked: false }
+                            {
+                                value: discount.value,
+                                label: discount.name,
+                                checked: !!(filter.discount && filter.discount === discount.value)
+                            }
                         ))
                     },
                     {
@@ -119,7 +129,11 @@ const Filter = memo(function ({ px = '' }) {
                         name: "product_owners",
                         type: 'checkbox',
                         options: productOwners.map((brand) => (
-                            { value: brand._id, label: brand.fullname, checked: false }
+                            {
+                                value: brand._id,
+                                label: brand.fullname,
+                                checked: !!(filter.productOwners && filter.productOwners?.indexOf(brand._id) !== -1)
+                            }
                         ))
                     },
                 ].map((section) => (
@@ -147,6 +161,7 @@ const Filter = memo(function ({ px = '' }) {
                                                     name={`${section.id}`}
                                                     defaultValue={option.value}
                                                     type={section.type}
+                                                    checked={!!option.checked}
                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                     onChange={(e) => {
                                                         HandleFilterSelection(e.target.checked, section.name, option.value)
@@ -175,6 +190,8 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
 
     const dispatch = useDispatch()
 
+    const filter = useSelector(state => state.filter.filter)
+
     const HandleSortSelection = (field, order) => {
         dispatch(updateSortSelection({ field, order }))
     }
@@ -183,10 +200,34 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
         return classes.filter(Boolean).join(' ')
     }
 
+    const checkSortOption = useCallback(
+        (field, order) => {
+            console.log(filter);
+            const exists = !!(filter.sort && filter.sort.findIndex(({ field:sortedField, order:sortedOrder }) => (
+                field === sortedField && order === sortedOrder
+            )) !== -1)
+
+            console.log(exists);
+            return exists
+        },
+        [filter],
+    )
+
+
     const sortOptions = [
-        { name: 'Best Rating', sort: 'rating', order: '-1' },
-        { name: 'Price: Low to High', sort: 'price', order: '1' },
-        { name: 'Price: High to Low', sort: 'price', order: '-1' },
+        {
+            name: 'Best Rating',
+            sort: 'rating',
+            order: '-1',
+            selected: checkSortOption('rating', '-1')
+        },
+        {
+            name: 'Price: Low to High',
+            sort: 'price',
+            order: '1',
+            selected: checkSortOption('price', '1')
+        },
+        { name: 'Price: High to Low', sort: 'price', order: '-1', selected: checkSortOption('price', '-1') },
     ]
 
     return (
@@ -218,8 +259,8 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
                                     {({ active }) => (
                                         <div
                                             className={classNames(
-                                                option.current ? 'font-medium text-gray-900' : 'text-gray-500',
-                                                active ? 'bg-gray-100' : '',
+                                                option.selected ? 'font-medium text-black' : 'text-gray-500',
+                                                active ? 'bg-pink-700' : '',
                                                 'block px-4 py-2 text-sm'
                                             )}
                                             onClick={() => HandleSortSelection(option.sort, option.order)}

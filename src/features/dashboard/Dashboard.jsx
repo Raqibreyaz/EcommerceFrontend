@@ -10,7 +10,7 @@ const AdminDashboard = () => {
 
     const { data: { totalProducts, totalSells, monthlySellsData, totalSellers, recentOrders, soldToday } = {}, isLoading: isLoadingDashBoard } = useFetchDashboardQuery()
 
-    console.log(totalProducts, totalSellers, totalSells, monthlySellsData, recentOrders, soldToday)
+    console.log(monthlySellsData)
 
     const data = {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -39,9 +39,9 @@ const AdminDashboard = () => {
                     {/* Revenue Chart */}
                     <ChartSection data={data} />
                     {/* Number Sections */}
-                    <StatsSection totalProducts={totalProducts} totalSells={totalSells} totalSellers={totalSellers} soldToday={soldToday}/>
+                    <StatsSection totalProducts={totalProducts} totalSells={totalSells} totalSellers={totalSellers} soldToday={soldToday} />
                     {/* Orders Section */}
-                    <OrdersSection recentOrders={recentOrders}/>
+                    <OrdersSection recentOrders={recentOrders} />
                 </div>
             </div>
         </Container>
