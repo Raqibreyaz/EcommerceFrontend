@@ -1,23 +1,44 @@
 import React from 'react'
 import { useForm, FormProvider } from 'react-hook-form';
 import { FormError } from '../../../components/index.js'
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useCreateProductReviewMutation, useFetchUserReviewQuery } from '../reviewSlice.js';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js';
 
-function ReviewForm({ onSubmit, defaultValues = { oneWord: '', rating: 5, review: '' } }) {
+function ReviewForm() {
 
-    console.log(defaultValues);
+    const methods = useForm();
 
-    const methods = useForm({ defaultValues });
+    const { id } = useParams()
+
+    const Navigate = useNavigate()
+
+    const { from } = useLocation().state ?? {}
+
+    const { data: { userReview } = {}, isLoading: isLoadingUserReview } = useFetchUserReviewQuery(id)
+
+    const [CreateProductReview, { isLoading: isCreatingProductReview, isSuccess: isSuccessfullyCreatedProductReview }] = useCreateProductReviewMutation()
 
     const { handleSubmit, register } = methods
 
+    const handleCreateProductReview = (data) => {
+
+        catchAndShowMessage(CreateProductReview, { data, id })
+    }
+
+    if (isSuccessfullyCreatedProductReview) {
+
+        Navigate(from || '/')
+    }
+
+
     return (
         <FormProvider {...methods}>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit()}>
                 <div className="flex flex-col">
                     <label className="mb-1 text-gray-600">Rating</label>
                     <select
                         {...register('rating', { required: "rating is required!!" })}
-                        defaultValue={defaultValues.rating}
                         className="p-2 border border-gray-300 rounded"
                     >
                         <option value="5">5 - Excellent</option>
@@ -33,7 +54,6 @@ function ReviewForm({ onSubmit, defaultValues = { oneWord: '', rating: 5, review
                     <input
                         type="text"
                         {...register('oneWord', { required: "one word is required", maxLength: 10, })}
-                        defaultValue={defaultValues.oneWord}
                         className="p-2 border border-gray-300 rounded"
                     />
                     <FormError field={'oneWord'} />
@@ -42,15 +62,13 @@ function ReviewForm({ onSubmit, defaultValues = { oneWord: '', rating: 5, review
                     <label className="mb-1 text-gray-600">Review</label>
                     <textarea
                         {...register('review', { required: "review is required!!", minLength: 10 })}
-                        defaultValue={defaultValues.review}
                         className="p-2 border border-gray-300 rounded"
                         rows="4"
                     />
                     <FormError field={'review'} />
                 </div>
                 <div className="text-center">
-                    <button type="button"
-                        onClick={handleSubmit(onSubmit)}
+                    <button type="submit"
                         className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit Review</button>
                 </div>
             </form>

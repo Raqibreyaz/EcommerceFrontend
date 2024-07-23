@@ -1,7 +1,7 @@
 import { useFetchOrderDetailsQuery } from '../orderSlice';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, FailedMessage } from '../../../components/index.js';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, orderDetails }) => {
     const statusColors = {
@@ -18,6 +18,8 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
 
     const daysDifference = (currentDate - givenDate) / (1000 * 60 * 60 * 24)
 
+    const orderedProductAmount = useMemo(() => (orderedProduct.price - Math.round(orderedProduct.price * orderedProduct.discount / 100)), [orderedProduct])
+
     const handleReturnOrder = useCallback(
         () => {
             console.log(daysDifference);
@@ -25,11 +27,26 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
                 FailedMessage('return is only applicable for a period of 3 days')
             else {
                 // navigate to return request page
-                Navigate(`/return-request-form/${orderDetails._id}/${orderedProduct._id}`)
+                Navigate(`/return-request-form/${orderDetails._id}/${orderedProduct.product}`, {
+                    state: {
+                        refundAmount: orderedProductAmount,
+                        quantity: orderedProduct.quantity,
+                        color: orderedProduct.color,
+                        size: orderedProduct.size
+                    }
+                })
             }
         },
-        [],
+        [orderedProduct, orderDetails],
     )
+
+    const handleReview = useCallback(
+        () => {
+        Navigate(`review-product/${orderedProduct.product}`, {
+            state: { from: `/order-details/${orderDetails._id}` }
+        })
+    }
+        , [orderedProduct, orderDetails])
 
     return (
         <div className="flex mb-6 border-t pt-4">
@@ -44,7 +61,7 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
                 <p className="text-lg font-semibold capitalize">{orderedProduct.product_name}</p>
                 <div className="flex justify-between items-center mb-2 flex-col">
                     <p className="text-lg font-semibold">
-                        ₹{orderedProduct.price - Math.round(orderedProduct.price * orderedProduct.discount / 100)}
+                        ₹{orderedProductAmount}
                     </p >
                     <p className="text-lg font-semibold text-gray-400 line-through">₹{orderedProduct.price}</p>
                 </div>
@@ -54,20 +71,29 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
                         {deliveredAt && <span className="mr-2">✔</span>}
                         {deliveredAt && <span> Delivered on {new Date(deliveredAt).toLocaleString()}</span>}
                     </p>}
-                    <span >Status: <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}</span></span>
+                    <span >
+                        Status:
+                        {orderedProduct.returnStatus !== 'not requested' ?
+                            < span className={statusColors[orderedProduct.returnStatus.split(' ')[1]]}> {orderedProduct.returnStatus}</span> :
+                            <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}
+                            </span>}
+                    </span>
                 </div>
                 <div className="flex justify-between mt-4">
                     <Link to={`/product-details/${orderedProduct.product}`} className="text-indigo-500 font-semibold hover:text-indigo-700">
                         View product
                     </Link>
                     <div className='space-x-2'>
-                        {deliveryStatus === 'delivered' && <button type='button' onClick={() => handleReturnOrder()} className='text-white p-1 border rounded bg-red-500'>Return Product</button>}
+                        {
+                            deliveryStatus === 'delivered' &&
+                            orderedProduct.returnStatus === 'not requested' &&
+                            <button type='button' onClick={() => handleReturnOrder()} className='text-white p-1 border rounded bg-red-500'>Return Product</button>}
 
-                        {deliveredAt && <button type='button' className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
+                        {deliveredAt && <button type='button' onClick={handleReview} className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -104,8 +130,6 @@ const OrdersPage = () => {
             ]
         }
     ];
-
-    console.log(orderDetails);
 
     return (
         <Container

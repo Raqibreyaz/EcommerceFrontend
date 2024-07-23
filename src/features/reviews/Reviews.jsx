@@ -20,12 +20,6 @@ const ReviewComponent = memo(({ productReviews }) => {
             RenderingConditions={[!!productReviews, !!productReviews?.length > 0]}
             className="max-w-2xl mx-auto p-4"
         >
-            {/* <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-4">Add Your Review</h3>
-                {/* {
-                    edit ? <ReviewForm onSubmit={onEdit} defaultValues={edit} /> : <ReviewForm onSubmit={onSubmit} />
-                } */}
-            {/* </div>  */}
             <h2 className="text-2xl font-semibold text-center mb-4">Customer Reviews</h2>
             <div className="text-center mb-6">
                 <div className="flex justify-center items-center text-yellow-500">

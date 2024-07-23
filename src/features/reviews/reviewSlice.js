@@ -9,12 +9,20 @@ export const productReviewApi = createApi({
     endpoints: (build) => ({
 
         createProductReview: build.mutation({
-            query: ({ id, ...data }) => ({
+            query: ({ id, data }) => ({
                 url: `add-review/${id}`,
                 method: 'POST',
                 body: data,
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include'
+            }),
+        }),
+
+        // fetching a specific review of a product of a user
+        fetchUserReview: build.query({
+            query: (id) => ({
+                url: `get-user-review/${id}`,
+                method: 'GET',
             }),
         }),
 
@@ -47,5 +55,6 @@ export const {
     useCreateProductReviewMutation,
     useEditProductReviewMutation,
     useFetchProductReviewsQuery,
+    useFetchUserReviewQuery
 } = productReviewApi;
 

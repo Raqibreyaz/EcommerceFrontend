@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useForm, Controller, FormProvider } from 'react-hook-form';
 import { Container, FormError } from '../../../components';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useCreateReturnRequestMutation } from '../orderSlice';
 import { useFetchUserQuery } from '../../user/userSlice';
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
@@ -17,7 +17,11 @@ const ReturnRequestForm = () => {
     // product id is the _id of the product in the products array
     const { orderId, productId } = useParams()
 
-    const [CreateReturnRequest, { isLoading: isCreatingReturnRequest }] = useCreateReturnRequestMutation()
+    const { refundAmount, size, color, quantity } = useLocation().state ?? {}
+
+    console.log(useLocation().state);
+
+    const [CreateReturnRequest, { isLoading: isCreatingReturnRequest, isSuccess: isSuccessfullyCreatedReturnRequest }] = useCreateReturnRequestMutation()
 
     const { data: { user = null } = {}, isLoading: isFetchingUser } = useFetchUserQuery()
 
@@ -25,12 +29,44 @@ const ReturnRequestForm = () => {
 
     const { register, handleSubmit, control, watch } = methods;
 
-    const onSubmit = data => {
-        catchAndShowMessage(CreateReturnRequest, { data: { ...data, productId }, orderId })
-    }
+    const onSubmit = useCallback(
+        data => {
+            data.productId = productId
+            data.refundAmount = refundAmount
+            data.color = color
+            data.size = size
 
+            const formData = new FormData()
 
-    const imageFiles = watch('productReturnImages');
+            for (const key in data) {
+
+                if (Object.hasOwnProperty.call(data, key)) {
+
+                    const element = data[key];
+
+                    // when it is a filelist then append each file
+                    if (element instanceof FileList) {
+                        for (const file of element) {
+                            formData.append(key, file)
+                        }
+                    }
+                    else
+                        formData.append(key, element)
+                }
+            }
+
+            for (const [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+
+            catchAndShowMessage(CreateReturnRequest, { data: formData, orderId })
+        },
+        [])
+
+    const productReturnImages = watch('productReturnImages');
+
+    if (isSuccessfullyCreatedReturnRequest)
+        Navigate('/orders')
 
     return (
         <Container
@@ -66,25 +102,14 @@ const ReturnRequestForm = () => {
                             multiple
                             className="mt-1 block w-full text-sm text-gray-500"
                         />
-                        <FormError field={'images'} />
-                        {imageFiles && imageFiles.length > 0 && (
+                        <FormError field={'productReturnImages'} />
+                        {productReturnImages && productReturnImages.length > 0 && (
                             <ul className="mt-2">
-                                {Array.from(imageFiles).map((file, index) => (
+                                {Array.from(productReturnImages).map((file, index) => (
                                     <li key={index} className="text-sm text-gray-700">{file.name}</li>
                                 ))}
                             </ul>
                         )}
-                    </div>
-
-                    {/* to replace checkbox */}
-                    <div className="flex items-center">
-                        <input
-                            id="toReplace"
-                            type="checkbox"
-                            {...register('toReplace')}
-                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                        />
-                        <label htmlFor="toReplace" className="ml-2 block text-sm text-gray-900">Replace item?</label>
                     </div>
 
                     {/* addresses list to choose a pickup address */}
@@ -104,6 +129,28 @@ const ReturnRequestForm = () => {
                         ))}
                         <FormError field={'pickupAddress'} />
                     </div>
+
+                    {/* to replace checkbox */}
+                    <div className="flex items-center">
+                        <input
+                            id="toReplace"
+                            type="checkbox"
+                            {...register('toReplace')}
+                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                        />
+                        <label htmlFor="toReplace" className="ml-2 block text-sm text-gray-900">Replace item?</label>
+                    </div>
+
+                    {quantity && quantity > 1 && <div>
+                        <label htmlFor="quantity">quantity</label>
+                        <select id="quantity" {...register('quantity', { required: "a quantity is required" })}>
+                            {
+                                Array.from({ length: quantity }, (q, index) => (
+                                    <option value={index + 1} key={index} className='p-1'>{index + 1}</option>
+                                ))
+                            }
+                        </select>
+                    </div>}
 
                     <button type="submit" className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Submit
