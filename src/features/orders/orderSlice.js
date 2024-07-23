@@ -39,16 +39,16 @@ export const orderApi = createApi({
     }),
 
     fetchOrders: build.query({
-      query: () => ({
-        url: 'get-orders',
+      query: (query) => ({
+        url: `get-orders?${query}`,
         method: 'GET',
       }),
       providesTags: ['Orders'],
     }),
 
     fetchAllOrders: build.query({
-      query: () => ({
-        url: 'get-orders/all',
+      query: (query) => ({
+        url: `get-orders/all?${query}`,
         method: 'GET',
       }),
       providesTags: ['AllOrders'],
@@ -93,8 +93,8 @@ export const orderApi = createApi({
     }),
 
     fetchReturnRequests: build.query({
-      query: () => ({
-        url: 'get-return-requests',
+      query: (query) => ({
+        url: `get-return-requests?${query}`,
         method: 'GET',
       }),
       providesTags: ['Returns']

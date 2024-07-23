@@ -1,10 +1,10 @@
 import { useCancelOrderMutation, useFetchOrdersQuery } from './orderSlice';
 import { Link, useNavigate } from 'react-router-dom';
-import { Container, FailedMessage } from '../../components/index.js'
-import { Fragment, useCallback } from 'react';
+import { Container, FailedMessage, Pagination } from '../../components/index.js'
+import { Fragment, useCallback, useState } from 'react';
 import { catchAndShowMessage } from '../../utils/catchAndShowMessage.js';
 
-const OrderCard = ({ order }) => {
+const OrderCard = memo(({ order, CancelOrder }) => {
 
     const statusColors = {
         pending: 'bg-yellow-200 text-yellow-800',
@@ -17,8 +17,6 @@ const OrderCard = ({ order }) => {
     const givenDate = new Date(order.createdAt)
 
     const hoursDifference = (currentDate - givenDate) / (1000 * 60 * 60)
-
-    const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     const handleCancelOrder = useCallback(
         () => {
@@ -33,14 +31,16 @@ const OrderCard = ({ order }) => {
 
 
     return (
-        <div className="bg-white shadow-lg rounded-lg  mb-4 w-full">
+        <Container
+            className="bg-white shadow-lg rounded-lg  mb-4 w-full"
+        >
             <div className="p-4">
                 {/* Product Images */}
                 <div className="flex mb-4 space-x-4 items-end">
                     {order.products.slice(0, 3).map(({ product, image }, index) => (
-                        <div className='size-[9vw]'>
+                        <div className='size-[9vw]' key={product}>
                             <img
-                                key={product}
+
                                 src={image}
                                 alt=''
                                 className="size-full rounded-md"
@@ -70,9 +70,9 @@ const OrderCard = ({ order }) => {
             <Link to={`/order-details/${order._id}`} className="bg-gray-100 px-4 py-2 flex justify-between items-center">
                 <button className="text-blue-500 font-semibold hover:text-blue-700">View Details</button>
             </Link>
-        </div >
+        </Container>
     );
-};
+})
 
 // [
 //     {
@@ -230,47 +230,25 @@ const OrderCard = ({ order }) => {
 
 const Orders = () => {
 
+    const [page, setPage] = useState(1)
 
-    // Sample orders data within the component
-    // const orders = [
-    //     {
-    //         orderId: '1',
-    //         products: [
-    //             { image: 'https://m.media-amazon.com/images/I/71kZfQA-Y7L._AC_UY218_.jpg', name: 'Product 1' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' }
-    //         ],
-    //         amount: 150,
-    //         date: '2023-06-01',
-    //         status: 'Pending'
-    //     },
-    //     {
-    //         orderId: '2',
-    //         products: [
-    //             { image: 'https://m.media-amazon.com/images/I/61pXO4JeKaL._AC_UY218_.jpg', name: 'Product 3' }
-    //         ],
-    //         amount: 250,
-    //         date: '2023-05-15',
-    //         status: 'Delivered'
-    //     },
-    //     // Add more orders as needed
-    // ];
+    const { data: { orders = [], totalPages = 1, filteredTotal = 0 } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery(`limit=${10}&&page=${page}`)
 
-    const { data: { orders = [] } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery()
+    const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <h1 className="text-4xl font-semibold mb-6">Orders</h1>
             <Container
-                LoadingConditions={[isLoadingOrders]}
+                LoadingConditions={[!!isLoadingOrders, !!isCancellingOrder]}
                 RenderingConditions={[!!orders, orders.length > 0]}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 backupElem={<h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
             >
                 {orders.map((order) => (
-                    <OrderCard key={order._id} order={order} />
+                    <OrderCard key={order._id} order={order} CancelOrder={CancelOrder} />
                 ))}
+                <Pagination PageChanger={setPage} page={page} filteredTotal={filteredTotal} totalPages={totalPages} />
             </Container >
         </div >
     );

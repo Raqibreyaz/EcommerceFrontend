@@ -1,10 +1,10 @@
 import React, { useState, Fragment, useEffect, useMemo } from 'react'
-import { ProductGrid, Pagination, Loader, Container } from '../../components/index.js'
+import { ProductGrid, Container } from '../../components/index.js'
 import { Filter, MobileFilter, SortMenu } from './components/Filter'
 import { useFetchCategoriesQuery, useFetchProductsQuery } from './ProductSlice.js'
 import { useSelector } from 'react-redux'
 import { useFetchProductOwnersQuery } from '../user/userSlice.js'
-
+import PaginationHandler from './components/PaginationHandler.jsx'
 
 function ProductList() {
 
@@ -65,15 +65,17 @@ function ProductList() {
 
   const { data: { products = [], totalPages = 0, filteredTotal = 0 } = {}, isLoading: isLoadingProducts } = useFetchProductsQuery(getQueryString)
 
+  console.log(products);
+
   const { isLoadingCategories } = useFetchCategoriesQuery()
 
-  const { isLoading:isLoadingProductOwners} = useFetchProductOwnersQuery()
+  const { isLoading: isLoadingProductOwners } = useFetchProductOwnersQuery()
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   return (
     <Container
-      LoadingConditions={[!!isLoadingProducts, !!isLoadingCategories,!!isLoadingProductOwners]}
+      LoadingConditions={[!!isLoadingProducts, !!isLoadingCategories, !!isLoadingProductOwners]}
       className="bg-white"
     >
       <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} />
@@ -95,7 +97,7 @@ function ProductList() {
             <ProductGrid products={products} />
           </div>
         </section>
-        <Pagination totalPages={totalPages} filteredTotal={filteredTotal} />
+        <PaginationHandler totalPages={totalPages} filteredTotal={filteredTotal} />
       </main>
     </Container >
   )

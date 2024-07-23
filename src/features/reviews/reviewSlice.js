@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const productReviewApi = createApi({
     reducerPath: 'productReviewApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4000/api/v1/products/review/' }),
+    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4000/api/v1/products/review/', credentials: 'include' }),
 
     tagTypes: ['ProductReview'],
 

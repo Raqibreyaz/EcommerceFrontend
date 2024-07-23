@@ -14,6 +14,7 @@ const initialReviews = [
 
 const ReviewComponent = memo(({ productReviews }) => {
 
+    const [filter, setFilter] = useState({ page: 1 })
 
     return (
         <Container

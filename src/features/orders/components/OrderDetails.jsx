@@ -42,10 +42,10 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
 
     const handleReview = useCallback(
         () => {
-        Navigate(`review-product/${orderedProduct.product}`, {
-            state: { from: `/order-details/${orderDetails._id}` }
-        })
-    }
+            Navigate(`/review-product/${orderedProduct.product}`, {
+                state: { from: `/order-details/${orderDetails._id}` }
+            })
+        }
         , [orderedProduct, orderDetails])
 
     return (
@@ -89,7 +89,7 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
                             orderedProduct.returnStatus === 'not requested' &&
                             <button type='button' onClick={() => handleReturnOrder()} className='text-white p-1 border rounded bg-red-500'>Return Product</button>}
 
-                        {deliveredAt && <button type='button' onClick={handleReview} className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
+                        {deliveryStatus !== 'pending' && deliveryStatus !== 'cancelled' && <button type='button' onClick={handleReview} className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
                     </div>
                 </div>
             </div>

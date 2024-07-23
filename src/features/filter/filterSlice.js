@@ -7,9 +7,10 @@ const filterSlice = createSlice({
     name: 'filter',
     reducers: {
         updateFilterSelection: (state, action) => {
-            const field = action.payload.field
-            const checked = action.payload.checked
-            const value = action.payload.value
+
+            const { field, checked, value } = action.payload
+
+            console.log(field, checked, value);
 
             let newFilter = { ...state.filter }
             if (field === 'page')
