@@ -1,7 +1,7 @@
 import { useCancelOrderMutation, useFetchOrdersQuery } from './orderSlice';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, FailedMessage, Pagination } from '../../components/index.js'
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, memo, useCallback, useState } from 'react';
 import { catchAndShowMessage } from '../../utils/catchAndShowMessage.js';
 
 const OrderCard = memo(({ order, CancelOrder }) => {

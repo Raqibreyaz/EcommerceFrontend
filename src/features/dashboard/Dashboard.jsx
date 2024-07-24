@@ -8,17 +8,37 @@ import ChartSection from './components/sections/ChartSection';
 
 const AdminDashboard = () => {
 
-    const { data: { totalProducts, totalSells, monthlySellsData, totalSellers, recentOrders, soldToday } = {}, isLoading: isLoadingDashBoard } = useFetchDashboardQuery()
+    let { data: { totalProducts, totalSells, monthlySellsData = [], totalSellers, recentOrders, soldToday } = {}, isLoading: isLoadingDashBoard } = useFetchDashboardQuery()
 
     console.log(monthlySellsData)
 
+    // const data = {
+    //     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    //     datasets: [
+    //         {
+    //             label: 'Monthly Revenue',
+    //             data: [65, 59, 80, 81, 56, 55, 40],
+    //             fill: true,
+    //             backgroundColor: 'rgba(75,192,192,0.4)',
+    //             borderColor: 'rgba(75,192,192,1)',
+    //         },
+    //     ],
+    // };
+
     const data = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        labels: Array.from({ length: (new Date().getDate()) }, (element, index) => index + 1),
         datasets: [
             {
                 label: 'Monthly Revenue',
-                data: [65, 59, 80, 81, 56, 55, 40],
-                fill: false,
+                data: Array.from({ length: (new Date()).getDate() }, (element, index) => {
+                    if (monthlySellsData.length > 0 && monthlySellsData[0]._id === index + 1) {
+                        const sell = monthlySellsData[0].totalSells
+                        monthlySellsData = monthlySellsData.filter((_, index) => (index !== 0))
+                        return sell
+                    }
+                    return 0
+                }),
+                fill: true,
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',
             },

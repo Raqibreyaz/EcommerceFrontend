@@ -39,8 +39,8 @@ export const productReviewApi = createApi({
         }),
 
         fetchProductReviews: build.query({
-            query: (id) => ({
-                url: `get-reviews/${id}`,
+            query: ({ id, query = '' }) => ({
+                url: `get-reviews/${id}?${query}`,
                 method: 'GET',
             }),
             // will cache the reviews according to the id of the product

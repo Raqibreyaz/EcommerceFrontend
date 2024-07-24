@@ -11,7 +11,7 @@ import AddProductPage from './AddProductPage.jsx'
 import EditProductPage from './EditProductPage.jsx'
 import NotFoundPage from './NotFoundPage.jsx'
 import DashBoardPage from './DashBoardPage.jsx'
-import MessageList from './Messsages.jsx'
+import MessagesPage from './MessagesPage.jsx'
 import UserProfilePage from './UserProfilePage.jsx'
 import EditProfilePage from './EditProfilePage.jsx'
 import EditAddressPage from './EditAddressPage.jsx'
@@ -37,7 +37,7 @@ export {
     AddProductPage,
     NotFoundPage,
     DashBoardPage,
-    MessageList,
+    MessagesPage,
     UserProfilePage,
     EditProfilePage,
     EditAddressPage,

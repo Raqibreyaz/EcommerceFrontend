@@ -32,11 +32,7 @@ export default function ProductDetails() {
 
   const { data: { isInWishlist = false } = {}, isLoading: isLoadingWishlist } = useIsProductInWishlistQuery(productId)
 
-  console.log('in wishlist ', isInWishlist);
-
   const { data: { user = null } = {}, isLoadingUser } = useFetchUserQuery()
-
-  const { data: { reviews: productReviews = [] } = {}, isLoading: isLoadingReviews } = useFetchProductReviewsQuery(productId)
 
   const [AddToWishlist, { isLoading: isLoadingAddToWishlist }] = useAddProductToWishlistMutation()
 
@@ -97,7 +93,7 @@ export default function ProductDetails() {
 
   return (
     <Container
-      LoadingConditions={[isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist, isLoadingReviews, isLoadingAddToCart, isLoadingAddToWishlist, isLoadingRemoveFromWishlist]}
+      LoadingConditions={[isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist,  isLoadingAddToCart, isLoadingAddToWishlist, isLoadingRemoveFromWishlist]}
       RenderingConditions={[!!product, !!product?._id]}
       className='bg-white pt-6'
     >
@@ -259,7 +255,7 @@ export default function ProductDetails() {
       </div>
       <div>
         {/* memoised */}
-        <ReviewComponent productReviews={productReviews} />
+        <ReviewComponent />
       </div>
     </Container>
   )

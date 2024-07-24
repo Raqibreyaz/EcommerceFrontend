@@ -7,7 +7,7 @@ export const orderApi = createApi({
     credentials: 'include',
   }),
   reducerPath: 'orderApi',
-  tagTypes: ['Orders', 'Order', 'AllOrders', 'Cart', 'Returns'],
+  tagTypes: ['Orders', 'Order', 'AllOrders', 'Cart', 'Returns', 'ReturnDetails'],
   endpoints: (build) => ({
 
     createRazorPayOrder: build.mutation({
@@ -93,7 +93,7 @@ export const orderApi = createApi({
     }),
 
     fetchReturnRequests: build.query({
-      query: (query) => ({
+      query: (query = '') => ({
         url: `get-return-requests?${query}`,
         method: 'GET',
       }),
@@ -109,13 +109,21 @@ export const orderApi = createApi({
       invalidatesTags: (result, error, { orderId }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id: orderId }]
     }),
 
-    updateReturnRequest: () => ({
+    updateReturnRequest: build.mutation({
       query: ({ id, data }) => ({
         url: `update-return-request/${id}`,
         method: 'PUT',
         body: data
       }),
-      invalidatesTags: (result, error, { id }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id }]
+      invalidatesTags: (result, error, { id, data }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id: data.orderId }, { type: 'ReturnDetails', id }]
+    }),
+
+    fetchReturnRequestDetails: build.query({
+      query: (id) => ({
+        url: `get-return-details/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'ReturnDetails', id }],
     })
   }),
 });
@@ -125,9 +133,11 @@ export const {
   useFetchOrdersQuery,
   useFetchAllOrdersQuery,
   useFetchOrderDetailsQuery,
+  useFetchReturnRequestsQuery,
+  useFetchReturnRequestDetailsQuery,
   useCancelOrderMutation,
   useCreateReturnRequestMutation,
   useCreateRazorPayOrderMutation,
   useVerifyRazorPayPaymentMutation,
-  useUpdateOrderMutation
+  useUpdateOrderMutation,
 } = orderApi;

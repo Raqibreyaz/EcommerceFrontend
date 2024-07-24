@@ -63,9 +63,7 @@ function ProductList() {
     [filter],
   )
 
-  const { data: { products = [], totalPages = 0, filteredTotal = 0 } = {}, isLoading: isLoadingProducts } = useFetchProductsQuery(getQueryString)
-
-  console.log(products);
+  const { data: { products = [], totalPages = 1, filteredTotal = 0 } = {}, isLoading: isLoadingProducts } = useFetchProductsQuery(getQueryString)
 
   const { isLoadingCategories } = useFetchCategoriesQuery()
 
