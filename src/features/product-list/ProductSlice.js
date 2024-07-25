@@ -18,7 +18,6 @@ export const productApi = createApi({
                 }
             },
             providesTags: (result, error, filter) => {
-                console.log(filter);
                 return [{ type: 'Products', id: filter }]
             },
         }),

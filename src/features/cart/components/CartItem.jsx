@@ -25,8 +25,8 @@ export const CartItem = memo(function ({ product, AddToCart, RemoveFromCart ,tot
                   <Link to={`/product-details/${product.product}`}>{product.product_name}</Link>
                 </h3>
                 <p className="ml-4">
-                  <span className='block'>{totalAmount}</span>
-                  <span className='line-through'>{product.price * product.quantity}</span>
+                  <span className='block'>₹{totalAmount}</span>
+                  <span className='line-through text-gray-400'>₹{product.price * product.quantity}</span>
                 </p>
               </div>
               <p className="mt-1 text-sm text-gray-500">{ColorNamer(product.color).ntc[0].name}</p>

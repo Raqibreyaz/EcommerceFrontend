@@ -8,7 +8,7 @@ import {
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
-import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, MyOrdersPage, OrdersPage, DashBoardPage, MessagesPage, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage, ReturnRequestsPage, ReturnDetailsPage, ReturnRequestFormPage, ReviewFormPage } from './pages/index.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, MyOrdersPage, OrdersPage, DashBoardPage, MessagesPage, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage, ReturnRequestsPage, ReturnDetailsPage, ReturnRequestFormPage, ReviewFormPage, MessageFormPage } from './pages/index.js'
 import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
@@ -191,6 +191,14 @@ const router = createBrowserRouter([
         element: (
           <Authenticate authState={true}>
             <EditAddressPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/message-form',
+        element: (
+          <Authenticate authState={true}>
+            <MessageFormPage />
           </Authenticate>
         )
       },

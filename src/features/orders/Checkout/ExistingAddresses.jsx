@@ -1,9 +1,9 @@
 import React, { memo } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import {  useFormContext } from 'react-hook-form'
 import { FormError } from '../../../components/index.js'
 
 
-const ExistingAddresses = memo(function({ addresses }) {
+const ExistingAddresses = memo(function ({ addresses }) {
 
     return (
         <div>
@@ -19,13 +19,13 @@ const ExistingAddresses = memo(function({ addresses }) {
     )
 })
 
-function AddressCard({ address }) {
+const AddressCard = memo(function ({ address }) {
 
-    const { control } = useFormContext()
+    const { register } = useFormContext() ?? {}
 
     return (
         <li className="flex gap-x-6 py-5 items-center">
-            <div className="flex min-w-0 gap-x-4 items-start">
+            {/* <div className="flex min-w-0 gap-x-4 items-start">
                 <Controller
                     control={control}
                     name='deliveryAddress'
@@ -53,10 +53,19 @@ function AddressCard({ address }) {
                         <div className='font-semibold text-sm'>{address.city}</div>
                     </div>
                 </div>
-            </label>
-
+            </label> */}
+            <div className="flex items-center mt-2">
+                <input
+                    type="radio"
+                    id={`address-${address._id}`}
+                    value={JSON.stringify(address)}
+                    {...register('deliveryAddress', { required: 'Please select a delivery address' })}
+                    className="h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <label htmlFor={`address-${address._id}`} className="ml-2 block text-sm text-gray-900">{Object.values(address).slice(0, -1).reverse().join(' ')}</label>
+            </div>
         </li >
     )
-}
+})
 
 export default ExistingAddresses

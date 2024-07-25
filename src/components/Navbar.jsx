@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Disclosure, MenuButton, Menu, MenuItem, MenuItems, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
-import { Bars3Icon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, ShoppingCartIcon, XMarkIcon, ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline'
 import { Link, useNavigate } from 'react-router-dom'
 import { useFetchUserQuery, useLogoutUserMutation } from '../features/user/userSlice'
 import { catchAndShowMessage } from '../utils/catchAndShowMessage'
@@ -91,11 +91,16 @@ export default function Navbar() {
                     className="hidden md:block"
                   >
                     <div className="ml-4 flex items-center md:ml-6">
+
+                      <Link to='/message-form' className='size-8 text-gray-400 hover:text-white mr-5'>
+                        <ChatBubbleOvalLeftEllipsisIcon />
+                      </Link>
+
                       < Link to='/cart'
                         className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 mr-2"
                       >
-                        <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 absolute">266</span>
-                        <ShoppingCartIcon className="h-6 w-6 m-3" aria-hidden="true" />
+                        {/* <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 absolute">266</span> */}
+                        <ShoppingCartIcon className="size-8 m-3" aria-hidden="true" />
                       </Link>
 
                       {/* Profile dropdown */}

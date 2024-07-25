@@ -74,7 +74,7 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
                     <span >
                         Status:
                         {orderedProduct.returnStatus !== 'not requested' ?
-                            < span className={statusColors[orderedProduct.returnStatus.split(' ')[1]]}> {orderedProduct.returnStatus}</span> :
+                            < span className={{'return pending':'text-yellow-500','return approved':'text-green-500','return rejected':'text-red-500'}[orderedProduct.returnStatus]}> {orderedProduct.returnStatus}</span> :
                             <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}
                             </span>}
                     </span>
@@ -153,7 +153,7 @@ const OrdersPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-sm">Total amount</p>
-                                    <p className="text-black font-semibold">{orderDetails?.totalAmount}</p>
+                                    <p className="text-black font-semibold">₹{orderDetails?.totalAmount}</p>
                                 </div>
                             </div>
                             {/* Products */}

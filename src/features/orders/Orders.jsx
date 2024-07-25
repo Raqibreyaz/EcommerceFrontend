@@ -38,7 +38,7 @@ const OrderCard = memo(({ order, CancelOrder }) => {
                 {/* Product Images */}
                 <div className="flex mb-4 space-x-4 items-end">
                     {order.products.slice(0, 3).map(({ product, image }, index) => (
-                        <div className='size-[9vw]' key={product}>
+                        <div className='size-20' key={product}>
                             <img
 
                                 src={image}
@@ -47,7 +47,7 @@ const OrderCard = memo(({ order, CancelOrder }) => {
                             />
                         </div>
                     ))}
-                    <span className=''>+More</span>
+                    {order.products.length > 3 && <span className=''>+More</span>}
                 </div>
                 {/* Order Amount and Date */}
                 <div className="mb-4 font-semibold text-sm">
@@ -234,6 +234,8 @@ const Orders = () => {
 
     const { data: { orders = [], totalPages = 1, filteredTotal = 0 } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery(`limit=${10}&&page=${page}`)
 
+    console.log(totalPages, filteredTotal);
+
     const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     return (
@@ -248,8 +250,8 @@ const Orders = () => {
                 {orders.map((order) => (
                     <OrderCard key={order._id} order={order} CancelOrder={CancelOrder} />
                 ))}
-                <Pagination PageChanger={setPage} page={page} filteredTotal={filteredTotal} totalPages={totalPages} />
             </Container >
+            {orders.length > 0 && < Pagination PageChanger={setPage} page={page} filteredTotal={filteredTotal} totalPages={totalPages} />}
         </div >
     );
 };

@@ -1,143 +1,73 @@
-// import React from 'react';
+import { useFetchSellersQuery } from '../dashboardSlice';
+import React, { memo } from 'react';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon, CalendarDaysIcon } from '@heroicons/react/24/solid';
+import {Container}from '../../../components/index.js'
 
-// const people = [
-//   {
-//     id: 1,
-//     name: 'John Doe',
-//     avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-//     dateJoined: '2023-01-15',
-//     productsSold: 120,
-//     revenueGenerated: 15000,
-//   },
-//   {
-//     id: 2,
-//     name: 'Jane Smith',
-//     avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-//     dateJoined: '2022-11-20',
-//     productsSold: 200,
-//     revenueGenerated: 25000,
-//   },
-//   {
-//     id: 3,
-//     name: 'Alice Johnson',
-//     avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-//     dateJoined: '2023-03-10',
-//     productsSold: 180,
-//     revenueGenerated: 22000,
-//   },
-//   {
-//     id: 4,
-//     name: 'Bob Brown',
-//     avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-//     dateJoined: '2022-12-05',
-//     productsSold: 150,
-//     revenueGenerated: 18000,
-//   },
-//   // Add more people as needed
-// ];
-
-// const Sellers = () => {
-//   return (
-//     <div className="container mx-auto p-4">
-//       <h1 className="text-2xl font-bold mb-4 text-center">People List</h1>
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//         {people.map((person) => (
-//           <div
-//             key={person.id}
-//             className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
-//           >
-//             <div className="flex items-center mb-4">
-//               <img
-//                 src={person.avatar}
-//                 alt={person.name}
-//                 className="w-16 h-16 rounded-full mr-4"
-//               />
-//               <div>
-//                 <h2 className="text-xl font-semibold">{person.name}</h2>
-//                 <p className="text-gray-500">Joined: {new Date(person.dateJoined).toLocaleDateString()}</p>
-//               </div>
-//             </div>
-//             <div className="text-gray-700">
-//               <p>Products Sold: {person.productsSold}</p>
-//               <p>Revenue Generated: ${person.revenueGenerated.toLocaleString()}</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Sellers;
-
-import React from 'react';
-
-const people = [
+const sellers = [
   {
-    id: 1,
-    name: 'John Doe',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    dateJoined: '2023-01-15',
-    productsSold: 120,
-    revenueGenerated: 15000,
+    fullname: 'John Doe',
+    avatar: 'https://via.placeholder.com/150',
+    address: {
+      house_no: '123',
+      state: 'California',
+      city: 'Los Angeles',
+      pincode: '90001'
+    },
+    phoneNo: '123-456-7890',
+    email: 'john.doe@example.com',
+    joinedAt: '2021-01-01'
   },
   {
-    id: 2,
-    name: 'Jane Smith',
-    avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-    dateJoined: '2022-11-20',
-    productsSold: 200,
-    revenueGenerated: 25000,
-  },
-  {
-    id: 3,
-    name: 'Alice Johnson',
-    avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    dateJoined: '2023-03-10',
-    productsSold: 180,
-    revenueGenerated: 22000,
-  },
-  {
-    id: 4,
-    name: 'Bob Brown',
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    dateJoined: '2022-12-05',
-    productsSold: 150,
-    revenueGenerated: 18000,
-  },
-  // Add more people as needed
+    fullname: 'Jane Smith',
+    avatar: 'https://via.placeholder.com/150',
+    address: {
+      house_no: '456',
+      state: 'New York',
+      city: 'New York',
+      pincode: '10001'
+    },
+    phoneNo: '987-654-3210',
+    email: 'jane.smith@example.com',
+    joinedAt: '2020-05-15'
+  }
+  // Add more sellers as needed
 ];
 
-const PeopleList = () => {
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">People List</h1>
-      <div className="space-y-6">
-        {people.map((person) => (
-          <div
-            key={person.id}
-            className="bg-blue-50 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
-          >
-            <div className="flex items-center mb-4">
-              <img
-                src={person.avatar}
-                alt={person.name}
-                className="w-16 h-16 rounded-full mr-4"
-              />
-              <div>
-                <h2 className="text-xl font-semibold text-blue-900">{person.name}</h2>
-                <p className="text-gray-500">Joined: {new Date(person.dateJoined).toLocaleDateString()}</p>
-              </div>
-            </div>
-            <div className="text-gray-700">
-              <p>Products Sold: {person.productsSold}</p>
-              <p>Revenue Generated: ${person.revenueGenerated.toLocaleString()}</p>
-            </div>
-          </div>
-        ))}
+const SellerCard = memo(({ seller }) => (
+  <div className="bg-white shadow-lg rounded-lg p-8 m-6 w-full transform transition-transform hover:shadow-xl">
+    <div className="flex items-center mb-6">
+      <img src={seller.avatar.url} alt={seller.fullname} className="w-20 h-20 rounded-full mr-6 border-2 border-gray-300 transition-transform hover:scale-110" />
+      <div>
+        <h2 className="text-2xl font-semibold">{seller.fullname}</h2>
+        <p className="text-gray-500 flex items-center"><EnvelopeIcon className="h-5 w-5 mr-2" />{seller.email}</p>
       </div>
     </div>
-  );
-};
+    <div className="text-gray-700">
+      <p className="mb-4 flex items-center"><MapPinIcon className="h-5 w-5 mr-2" /><strong>Address:</strong> {`${seller.address.house_no}, ${seller.address.city}, ${seller.address.state} - ${seller.address.pincode}`}</p>
+      <p className="mb-4 flex items-center"><PhoneIcon className="h-5 w-5 mr-2" /><strong>Phone: </strong> {seller.phoneNo}</p>
+      <p className="flex items-center"><CalendarDaysIcon className="h-5 w-5 mr-2" /><strong>Joined At: </strong> {seller.joinedAt ? new Date(seller.joinedAt).toLocaleDateString() : 'unknown'}</p>
+    </div>
+  </div>
+))
 
-export default PeopleList;
+const SellerList = () => {
+
+  const { data: { sellers = [] } = {}, isLoading: isLoadingSellers } = useFetchSellersQuery()
+
+  return (
+    <Container
+      className="container mx-auto p-6"
+      LoadingConditions={[!!isLoadingSellers]}
+      backupElem={<h1 className='text-xl font-semibold text-center'>No sellers found</h1>}
+    >
+      <h1 className="text-4xl font-bold mb-6 text-center">List of Sellers</h1>
+      <div className="flex flex-wrap -mx-6 justify-center">
+        {sellers.map((seller, index) => (
+          <SellerCard key={seller._id} seller={seller} />
+        ))}
+      </div>
+    </Container>
+  )
+}
+
+export default SellerList;

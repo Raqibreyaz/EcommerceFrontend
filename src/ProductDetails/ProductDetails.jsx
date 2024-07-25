@@ -66,11 +66,9 @@ export default function ProductDetails() {
         Navigate('/login')
 
       if (isInWishlist) {
-        console.log('going to remove from wishlist');
         catchAndShowMessage(RemoveFromWishlist, { id: productId, color: selectedColor.color, size: selectedSize })
       }
       else {
-        console.log('going to add in wishlist');
         catchAndShowMessage(
           AddToWishlist,
           { id: productId, color: selectedColor.color, size: selectedSize }
@@ -81,7 +79,6 @@ export default function ProductDetails() {
   )
 
   useEffect(() => {
-    // console.log(product);
     setSelectedColor((prevSelectedColor) => (
       product?.colors?.length ? product.colors[0] : {}
     ))

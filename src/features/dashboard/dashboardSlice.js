@@ -31,7 +31,7 @@ export const dashboardApi = createApi({
 
         fetchMessages: build.query({
             query: (query = '') => ({
-                url: `messages?${query}`,
+                url: `messages/get-messages?${query}`,
                 method: 'GET'
             }),
             providesTags: ['Messages']
@@ -39,7 +39,7 @@ export const dashboardApi = createApi({
 
         createMessage: build.mutation({
             query: (data) => ({
-                url: 'create-message',
+                url: 'messages/create-message',
                 method: 'POST',
                 body: data,
                 headers: { 'Content-Type': 'application/json' }

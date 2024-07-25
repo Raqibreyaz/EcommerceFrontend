@@ -1,4 +1,5 @@
 import React from 'react'
+import Messages from '../features/dashboard/components/Messages'
 
 function MessagesPage() {
   return (
@@ -6,4 +7,4 @@ function MessagesPage() {
   )
 }
 
-export default Messages
+export default MessagesPage

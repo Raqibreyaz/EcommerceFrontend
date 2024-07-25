@@ -74,7 +74,6 @@ function Orders() {
             delivered: 'text-green-600',
             pending: 'text-yellow-600',
             cancelled: 'text-red-600',
-            returned: 'text-gray-600'
         }
     ), []);
 
@@ -102,7 +101,7 @@ function Orders() {
                 Cell: ({ value, row: { original } }) => (
                     <select value={value} onChange={(e) => changeStatus(e.target.value, original._id)} className={statusColors[value]}>
                         {
-                            ['pending', 'delivered', 'cancelled', 'returned']
+                            ['pending', 'delivered', 'cancelled']
                                 .map((deliveryStatus, index) => (
                                     <option key={index} value={deliveryStatus} className={statusColors[deliveryStatus]}>{deliveryStatus}</option>
                                 ))

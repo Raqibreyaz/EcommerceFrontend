@@ -22,11 +22,8 @@ const RatingBreakdown = memo(({ reviewStats = [], filteredTotal = 0 }) => {
                 Array.from({ length: 5 }, (_, rating) => {
 
                     const { count } = reviewStats?.find(({ _id }) => {
-                        console.log(_id, rating + 1);
                         return _id === rating + 1
                     }) ?? { count: 0 }
-
-                    console.log(count);
 
                     return (
                         < div key={rating} className='flex items-center'>
@@ -96,8 +93,6 @@ const ReviewComponent = memo(() => {
         }, [])
 
     const { data: { productReviews = [], filteredTotal = 0, reviewStats = [], totalPages = 1 } = {}, isLoading: isLoadingReviews } = useFetchProductReviewsQuery({ id, query })
-
-    console.log(productReviews);
 
     return (
         <Container

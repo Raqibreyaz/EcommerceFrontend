@@ -106,7 +106,7 @@ export const orderApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { orderId }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id: orderId }]
+      invalidatesTags: (result, error, { orderId }) => ['Returns', { type: 'Order', id: orderId }]
     }),
 
     updateReturnRequest: build.mutation({
@@ -115,7 +115,11 @@ export const orderApi = createApi({
         method: 'PUT',
         body: data
       }),
-      invalidatesTags: (result, error, { id, data }) => ['AllOrders', 'Orders', 'Returns', { type: 'Order', id: data.orderId }, { type: 'ReturnDetails', id }]
+      invalidatesTags: (result, error, { id, data }) => [
+        'Returns',
+        { type: 'ReturnDetails', id },
+        { type: 'Order', id: data.orderId }
+      ]
     }),
 
     fetchReturnRequestDetails: build.query({
@@ -140,4 +144,5 @@ export const {
   useCreateRazorPayOrderMutation,
   useVerifyRazorPayPaymentMutation,
   useUpdateOrderMutation,
+  useUpdateReturnRequestMutation
 } = orderApi;

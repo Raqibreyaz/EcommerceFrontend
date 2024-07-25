@@ -40,6 +40,13 @@ const DescriptionDetailsAndHighlights = React.memo(function ({ product }) {
                     <p className="text-sm text-gray-600">{product.details}</p>
                 </div>
             </div>
+            <div className="mt-10">
+                <h2 className="text-sm font-medium text-gray-900">return policy</h2>
+
+                <div className="mt-4 space-y-6">
+                    <p className="text-sm text-gray-600">{product.returnPolicy}</p>
+                </div>
+            </div>
         </div>
     )
 })

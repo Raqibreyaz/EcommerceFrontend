@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useForm, Controller, FormProvider } from 'react-hook-form';
 import { Container, FormError } from '../../../components';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -17,9 +17,9 @@ const ReturnRequestForm = () => {
     // product id is the _id of the product in the products array
     const { orderId, productId } = useParams()
 
-    const { refundAmount, size, color, quantity } = useLocation().state ?? {}
+    const Navigate = useNavigate()
 
-    console.log(useLocation().state);
+    const { refundAmount, size, color, quantity } = useLocation().state ?? {}
 
     const [CreateReturnRequest, { isLoading: isCreatingReturnRequest, isSuccess: isSuccessfullyCreatedReturnRequest }] = useCreateReturnRequestMutation()
 
@@ -65,8 +65,10 @@ const ReturnRequestForm = () => {
 
     const productReturnImages = watch('productReturnImages');
 
-    if (isSuccessfullyCreatedReturnRequest)
-        Navigate('/orders')
+    useEffect(() => {
+        if (isSuccessfullyCreatedReturnRequest)
+            Navigate('/orders')
+    }, [isSuccessfullyCreatedReturnRequest])
 
     return (
         <Container

@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, memo, useCallback } from 'react'
+import React, { useEffect, Fragment, memo, useCallback, useMemo } from 'react'
 import { Dialog, DialogPanel, Menu, MenuItem, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
@@ -73,7 +73,7 @@ const Filter = memo(function ({ px = '' }) {
     const HandleFilterSelection = (checked = false, field, value) => {
         dispatch(updateFilterSelection({ checked, field, value }))
     }
-
+    console.log(filter);
     return (
         < div >
             {
@@ -132,7 +132,7 @@ const Filter = memo(function ({ px = '' }) {
                             {
                                 value: brand._id,
                                 label: brand.fullname,
-                                checked: !!(filter.productOwners && filter.productOwners?.indexOf(brand._id) !== -1)
+                                checked: !!(filter.product_owners && filter.product_owners?.indexOf(brand._id) !== -1)
                             }
                         ))
                     },
@@ -203,7 +203,7 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
     const checkSortOption = useCallback(
         (field, order) => {
             console.log(filter);
-            const exists = !!(filter.sort && filter.sort.findIndex(({ field:sortedField, order:sortedOrder }) => (
+            const exists = !!(filter.sort && filter.sort.findIndex(({ field: sortedField, order: sortedOrder }) => (
                 field === sortedField && order === sortedOrder
             )) !== -1)
 
@@ -214,21 +214,23 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
     )
 
 
-    const sortOptions = [
-        {
-            name: 'Best Rating',
-            sort: 'rating',
-            order: '-1',
-            selected: checkSortOption('rating', '-1')
-        },
-        {
-            name: 'Price: Low to High',
-            sort: 'price',
-            order: '1',
-            selected: checkSortOption('price', '1')
-        },
-        { name: 'Price: High to Low', sort: 'price', order: '-1', selected: checkSortOption('price', '-1') },
-    ]
+    const sortOptions = useMemo(() => (
+        [
+            {
+                name: 'Best Rating',
+                sort: 'rating',
+                order: '-1',
+                selected: checkSortOption('rating', '-1')
+            },
+            {
+                name: 'Price: Low to High',
+                sort: 'price',
+                order: '1',
+                selected: checkSortOption('price', '1')
+            },
+            { name: 'Price: High to Low', sort: 'price', order: '-1', selected: checkSortOption('price', '-1') },
+        ]
+    ), [])
 
     return (
         <div className="flex items-center">

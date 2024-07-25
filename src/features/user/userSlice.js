@@ -23,9 +23,6 @@ export const userApi = createApi({
         method: 'POST',
         body: data,
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       }),
       invalidatesTags: ['User'],
     }),
