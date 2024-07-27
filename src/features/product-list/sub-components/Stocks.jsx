@@ -1,8 +1,9 @@
-import React, { memo, useEffect, useMemo, useState } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FormError } from '../../../components'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import ColorNamer from 'color-namer'
 
-const Stocks = memo(() => {
+const Stocks = memo(({ colorArray = [], sizeArray = [], isEditingSize = false, isEditingColor = false }) => {
 
     const { register, control, setValue } = useFormContext()
 
@@ -11,16 +12,35 @@ const Stocks = memo(() => {
         name: "stocks"
     });
 
-    const sizes = useWatch({
-        control,
-        name: 'sizes'
-    }) ?? []
-    const colors = useWatch({
-        control,
-        name: "colors"
-    }) ?? []
+    const sizes = isEditingColor ?
+        sizeArray : useWatch({
+            control,
+            name: 'sizes'
+        }) ?? []
 
-    const [customStock, setCustomStock] = useState({ yes: false, defaultStocks: 100 })
+    const colors = isEditingSize ?
+        colorArray : useWatch({
+            control,
+            name: "colors"
+        }) ?? []
+
+    // in editing custom stock will be preferred 
+    const [customStock, setCustomStock] = useState(
+        {
+            yes: (isEditingColor || isEditingSize),
+            defaultStocks: 100
+        }
+    )
+
+    const givePreviousStock = useCallback(
+        (size, color) => {
+            return stocks.find(({ size: stockSize, color: stockColor }) => (
+                stockSize === size && stockColor === color
+            ))?.stock ?? 0
+        },
+        [stocks],
+    )
+
 
     // recompute stocks when sizes or colors change
     useEffect(
@@ -33,7 +53,13 @@ const Stocks = memo(() => {
                     if (size) {
                         colors.forEach(({ color }) => {
                             if (color) {
-                                newStocks.push({ size, color, stock: customStock.defaultStocks });
+                                newStocks.push(
+                                    {
+                                        size,
+                                        color,
+                                        stock: customStock.yes ? givePreviousStock(size, color) : customStock.defaultStocks
+                                    }
+                                );
                             }
                         });
                     }
@@ -74,7 +100,7 @@ const Stocks = memo(() => {
                 stocks.map((field, index) => (
                     <div key={field.id} className="flex space-x-2 mb-2">
                         <span>size:{field.size}</span>
-                        <span>color:{field.color}</span>
+                        <span>color: {ColorNamer(field.color).ntc[0].name}({field.color})</span>
                         <input type="number"
                             {...register(
                                 `stocks[${index}].stock`,
