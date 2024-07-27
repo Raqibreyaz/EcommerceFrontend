@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { Loader } from './index.js'
 
-const Container=memo(function Container({
+const Container = memo(function Container({
     children,
     LoadingConditions = [],
     RenderingConditions = [],
