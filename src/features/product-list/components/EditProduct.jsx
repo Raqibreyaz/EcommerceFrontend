@@ -10,7 +10,7 @@ import KeyHighlights from '../sub-components/KeyHighlights';
 import IsReturnable from '../sub-components/IsReturnable';
 import Sizes from '../sub-components/Sizes';
 import Stocks from '../sub-components/Stocks';
-import { MenuHeading } from '@headlessui/react';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
 
 
 // const EditProduct = () => {
@@ -653,16 +653,14 @@ const EditProduct = memo(() => {
                 prop = 'highlight'
             else if (field === 'sizes')
                 prop = 'size'
-            else
-                prop = 'stock'
 
             for (const obj of value) {
-                if (obj[prop])
+
+                if (obj && obj[prop])
                     return true
             }
             return false
         }
-
 
         const data = {}
 
@@ -670,19 +668,27 @@ const EditProduct = memo(() => {
 
             const isDirty = methods.formState.dirtyFields[field];
 
-
+            // check if the field is modified by user
             if (!checkDirtyField(field, isDirty)) {
                 continue;
             }
 
+            // only for keyHighlights and sizes do this
             if (field === 'keyHighlights' || field === 'sizes') {
                 data[field] = wholeData[field].map((obj) => Object.values(obj)[0])
+
+                // when sizes are modified then stocks must be updated
+                if (field === 'sizes')
+                    data['stocks'] = wholeData['stocks']
             }
+            // for stocks and rest other fields
             else {
                 data[field] = wholeData[field]
             }
         }
-        console.log(data);
+
+        if (Object.keys(data).length > 0)
+        catchAndShowMessage(EditProduct, { data, id: productId })
     }, [])
 
     useEffect(() => {

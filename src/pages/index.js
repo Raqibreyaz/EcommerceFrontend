@@ -23,6 +23,7 @@ import OrdersPage from './OrdersPage.jsx'
 import ReturnRequestFormPage from './ReturnRequestFormPage.jsx'
 import ReviewFormPage from './ReviewFormPage.jsx'
 import MessageFormPage from './MessageFormPage.jsx'
+import ChangeRolePage from './ChangeRolePage.jsx'
 
 export {
     HomePage,
@@ -49,7 +50,8 @@ export {
     OrdersPage,
     ReturnRequestFormPage,
     ReviewFormPage,
-    MessageFormPage
+    MessageFormPage,
+    ChangeRolePage
 }
 
 

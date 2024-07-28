@@ -36,7 +36,7 @@ const Stocks = memo(({ colorArray = [], sizeArray = [], isEditingSize = false, i
         (size, color) => {
             return stocks.find(({ size: stockSize, color: stockColor }) => (
                 stockSize === size && stockColor === color
-            ))?.stock ?? 0
+            ))?.stock ?? customStock.defaultStocks
         },
         [stocks],
     )

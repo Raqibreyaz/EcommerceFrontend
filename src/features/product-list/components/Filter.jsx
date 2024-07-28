@@ -73,7 +73,8 @@ const Filter = memo(function ({ px = '' }) {
     const HandleFilterSelection = (checked = false, field, value) => {
         dispatch(updateFilterSelection({ checked, field, value }))
     }
-    console.log(filter);
+
+    
     return (
         < div >
             {
@@ -202,12 +203,10 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
 
     const checkSortOption = useCallback(
         (field, order) => {
-            console.log(filter);
             const exists = !!(filter.sort && filter.sort.findIndex(({ field: sortedField, order: sortedOrder }) => (
                 field === sortedField && order === sortedOrder
             )) !== -1)
 
-            console.log(exists);
             return exists
         },
         [filter],

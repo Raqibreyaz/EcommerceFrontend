@@ -52,7 +52,7 @@ export const productApi = createApi({
         }),
 
         editProduct: build.mutation({
-            query: ({ id, ...data }) => ({
+            query: ({ id, data }) => ({
                 url: `edit-product/${id}`,
                 method: 'PUT',
                 body: data,

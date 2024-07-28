@@ -10,7 +10,7 @@ export const dashboardApi = createApi({
 
     reducerPath: 'dashboardApi',
 
-    tagTypes: ['DashBoard', 'Sellers', 'Messages'],
+    tagTypes: ['DashBoard', 'Sellers', 'Messages','FetchedUser'],
 
     endpoints: (build) => ({
         fetchDashboard: build.query({
@@ -45,15 +45,37 @@ export const dashboardApi = createApi({
                 headers: { 'Content-Type': 'application/json' }
             }),
             invalidatesTags: ['Messages']
+        }),
+
+        findUser: build.mutation({
+            query: (data) => ({
+                url: '/find-user',
+                body: data,
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' }
+            }),
+            providesTags: (result, error, data) => [{ type: 'FetchedUser', id: data.email }]
+        }),
+
+        changeUserRole: build.mutation({
+            query: (data) => ({
+                url: `/change-user-role`,
+                body: data,
+                method: "PUT",
+                headers: { 'Content-Type': 'application/json' }
+            }),
+            invalidatesTags: (result, error, { email }) => [{ type: 'FetchedUser', id: email }]
         })
     }),
 });
 
 export default dashboardApi
 
-export const { 
-    useFetchDashboardQuery ,
+export const {
+    useFetchDashboardQuery,
     useCreateMessageMutation,
     useFetchMessagesQuery,
     useFetchSellersQuery,
+    useFindUserMutation,
+    useChangeUserRoleMutation
 } = dashboardApi

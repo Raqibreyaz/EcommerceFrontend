@@ -9,9 +9,7 @@ const filterSlice = createSlice({
         updateFilterSelection: (state, action) => {
 
             const { field, checked, value } = action.payload
-
-            console.log(field, checked, value);
-
+            
             let newFilter = { ...state.filter }
             if (field === 'page')
                 newFilter.page = value

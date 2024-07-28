@@ -86,7 +86,6 @@ const AddProduct = () => {
 
             formData.append('sizes', JSON.stringify(data.sizes.map(({ size }) => size)))
 
-
             for (const key in data) {
                 if (Object.hasOwnProperty.call(data, key)) {
                     const value = data[key];
