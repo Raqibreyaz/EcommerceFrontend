@@ -2,10 +2,12 @@ import React, { memo, useEffect } from 'react'
 import { FormError, ImageSection } from '../../../components'
 import { useFormContext } from 'react-hook-form'
 
-const Thumbnail = memo(() => {
+const Thumbnail = memo(({ isEditing = false }) => {
+    
     const { watch, register } = useFormContext()
 
     const thumbnail = watch('thumbnail')
+
     return (
         <div className='border p-2 rounded flex gap-2'>
             <label
@@ -16,10 +18,10 @@ const Thumbnail = memo(() => {
             <input
                 id='thumbnail'
                 type="file"
-                {...register('thumbnail', { required: "thumbnail is required!!", validate: (files) => files.length === 1 || "thumbnail is required for product" })}
+                {...register('thumbnail', thumbnail ? {} : { required: "thumbnail is required" })}
                 accept='image/*'
             />
-            <ImageSection files={thumbnail} />
+            <ImageSection field={'thumbnail'} removeOption={isEditing} />
             <FormError field={'thumbnail'} />
         </div>
     )

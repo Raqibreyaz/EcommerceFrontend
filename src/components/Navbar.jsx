@@ -56,12 +56,35 @@ export default function Navbar() {
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     {/* logo */}
-                    <Link to='/' className="flex-shrink-0">
-                      <img
-                        className="h-8 w-8"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
-                      />
+                    <Link to='/' className="flex-shrink-0 mt-10">
+                      <svg viewBox="20 -20 220 150" xmlns="http://www.w3.org/2000/svg" style={{ width: '150px', height: 'auto' }}>
+                        <defs>
+                          <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%">
+                            <stop offset="0%" style={{ stopColor: 'rgba(0,0,0,0.4)', stopOpacity: 1 }} />
+                            <stop offset="100%" style={{ stopColor: 'rgba(0,0,0,0.2)', stopOpacity: 1 }} />
+                          </linearGradient>
+                          <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+                            <feOffset dx="2" dy="2" result="offsetblur" />
+                            <feFlood floodColor="rgba(0,0,0,0.5)" />
+                            <feComposite in2="offsetblur" operator="in" />
+                            <feMerge>
+                              <feMergeNode />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+                        <g fill="white" filter="url(#shadow)">
+                          <g transform="translate(20, 0)">
+                            <path d="M6 6h2l4 14h16l4-14h2" stroke="white" strokeWidth="2" fill="none" />
+                            <circle cx="10" cy="24" r="4" fill="white" />
+                            <circle cx="24" cy="24" r="4" fill="white" />
+                            <path d="M8 6l2 2h16l2-2" stroke="white" strokeWidth="2" fill="none" />
+                          </g>
+                          <text x="60" y="30" fontFamily="'Brush Script MT', cursive" fontSize="30" fill="white" fontStyle="italic">Banaras Mart</text>
+                        </g>
+                      </svg>
+
                     </Link>
                     {/* desktop navElements */}
                     <div className="hidden md:block">

@@ -62,6 +62,28 @@ export const productApi = createApi({
             invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
         }),
 
+        editColorsAndImages: build.mutation({
+            query: ({ id, data }) => ({
+                url: `edit-color-images/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
+
+        addNewColors: build.mutation({
+            query: ({ id, data }) => ({
+                url: `add-new-colors/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
+
         deleteProduct: build.mutation({
             query: (id) => ({
                 url: `delete-product/${id}`,
@@ -102,5 +124,7 @@ export const {
     useEditProductMutation,
     useDeleteProductMutation,
     useAddNewCategoryMutation,
+    useEditColorsAndImagesMutation,
+    useAddNewColorsMutation
 } = productApi;
 

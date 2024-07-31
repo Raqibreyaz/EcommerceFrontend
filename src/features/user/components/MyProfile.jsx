@@ -6,6 +6,7 @@ import { useFetchProductsQuery } from '../../product-list/ProductSlice.js';
 
 const ProfileDetails = memo(
     ({ user, address }) => {
+        const Navigate = useNavigate()
         return (
             <Container
                 className='relative'

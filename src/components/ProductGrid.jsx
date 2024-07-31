@@ -45,7 +45,7 @@ function ProductCard({ product }) {
                 </div>
                 <div>
                     <p className="text-sm font-medium text-gray-900">
-                        ${Math.round(product.price * (1 - product.discount * 0.01))}
+                        ₹{Math.round(product.price * (1 - product.discount * 0.01))}
                     </p>
                     {product.discount !== 0 && (
                         <p className={`text-sm ${product.discount !== 0 ? 'line-through' : ''} text-gray-400`}>

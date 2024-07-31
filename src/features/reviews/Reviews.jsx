@@ -3,17 +3,6 @@ import { Container, Pagination } from '../../components/index.js';
 import { useParams } from 'react-router-dom';
 import { useFetchProductReviewsQuery } from './reviewSlice.js';
 
-const initialReviews = [
-    {
-        name: "Emily Selman",
-        rating: 5,
-        review: "This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.",
-        oneWord: "Perfect",
-        image: "https://via.placeholder.com/50", // Replace with actual image URL
-    },
-    // Add more reviews as needed
-];
-
 const RatingBreakdown = memo(({ reviewStats = [], filteredTotal = 0 }) => {
 
     return (
@@ -26,10 +15,10 @@ const RatingBreakdown = memo(({ reviewStats = [], filteredTotal = 0 }) => {
                     }) ?? { count: 0 }
 
                     return (
-                        < div key={rating} className='flex items-center'>
+                        < div key={rating} className='flex items-center font-semibold max-sm:text-sm'>
                             <span>{rating + 1}</span>
                             <div className="w-full h-2 bg-gray-200 mx-2 rounded-full">
-                                <div className="h-2 bg-yellow-500 rounded-full" style={{ width: `${(count ?? 0 / filteredTotal) * 100}%` }}></div>
+                                <div className="h-2 bg-yellow-400 rounded-full" style={{ width: `${(count ?? 0 / filteredTotal) * 100}%` }}></div>
                             </div>
                             <span>{((count / filteredTotal) * 100).toFixed(0)}%</span>
                         </div>
@@ -41,22 +30,27 @@ const RatingBreakdown = memo(({ reviewStats = [], filteredTotal = 0 }) => {
 })
 
 const ReviewCard = memo(({ review = {} }) => {
+    console.log(review);
     return (
-        <div className="p-4 bg-white rounded-lg shadow">
-            <div className="flex items-center mb-2">
+        <div className="p-2 bg-white rounded-lg shadow text-sm">
+            <div className="flex sm:items-center mb-2">
                 <img src={review?.user?.avatar?.url || ''} alt={review?.user?.fullname} className="w-10 h-10 rounded-full mr-4" />
                 <div>
-                    <h4 className="text-lg font-semibold">{review?.user?.fullname}</h4>
+                    <h4 className="text-lg font-semibold capitalize">{review?.user?.fullname}</h4>
                     <div className="text-yellow-500">{"★".repeat(review?.rating)}</div>
                 </div>
-                <div className='space-x-2 ml-auto'>
-                    <span className="text-gray-700">{review?.user?.address.state}</span>,
+            </div>
+
+            <div>
+                <p className="text-gray-500 italic font-semibold capitalize">"{review?.oneWord}"</p>
+                <p className="text-gray-700 font-semibold">{review?.review}</p>
+            </div>
+            <div className='flex  justify-between max-sm:flex-col'>
+                <div className='sm:space-x-2 flex '>
+                    <span className="text-gray-700">{review?.user?.address.state},</span>
                     <span className="text-gray-700">{review?.user?.address.city}</span>
                 </div>
-            </div>
-            <div>
-                <p className="text-gray-700">{review?.review}</p>
-                <p className="text-gray-500 italic">"{review?.oneWord}"</p>
+                <div className='text-gray-700'>{new Date(review.createdAt).toDateString()}</div>
             </div>
         </div>
     )
@@ -102,7 +96,7 @@ const ReviewComponent = memo(() => {
         >
             <h2 className="text-2xl font-semibold text-center mb-4">Customer Reviews</h2>
             <div className="text-center mb-6">
-                <div className="flex justify-center items-center text-yellow-500">
+                <div className="flex justify-center items-center max-sm:flex-col text-yellow-500">
                     <span className="text-xl">★★★★★</span>
                     <span className="ml-2 text-gray-600">Based on {filteredTotal} reviews</span>
                 </div>

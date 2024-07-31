@@ -1,4 +1,4 @@
-import React,{useCallback} from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormError, Loader, Container } from '../../../components/index.js'
@@ -18,15 +18,15 @@ function Login() {
     },
     [],
   )
-
-
   const Location = useLocation()
   const Navigate = useNavigate()
 
-  if (isSuccess) {
-    const from = Location.state?.from || '/'
-    Navigate('/')
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      const from = Location.state?.from || '/'
+      Navigate(from)
+    }
+  }, [isSuccess])
 
   return (
     <Container
@@ -53,7 +53,7 @@ function Login() {
                     Email address
                   </label>
                   <div className="mt-1">
-                    <input id="email" {...register('email', { required: true })} type="email" autoComplete="email"
+                    <input id="email" {...register('email', { required: "email is required" })} type="email" autoComplete="email"
                       className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Enter your email address" />
                   </div>
@@ -65,7 +65,7 @@ function Login() {
                     Password
                   </label>
                   <div className="mt-1">
-                    <input id="password" {...register('password', { required: true })} type="password" autoComplete="current-password"
+                    <input id="password" {...register('password', { required: "password is required" })} type="password" autoComplete="current-password"
                       className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Enter your password" />
                   </div>

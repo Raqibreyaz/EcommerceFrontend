@@ -687,8 +687,15 @@ const EditProduct = memo(() => {
             }
         }
 
+        // for totalStocks
+        if (data.stocks) {
+            data.totalStocks = data.stocks.reduce((prevResult, { stock }) => {
+                return prevResult + stock
+            }, 0)
+        }
+
         if (Object.keys(data).length > 0)
-        catchAndShowMessage(EditProduct, { data, id: productId })
+            catchAndShowMessage(EditProduct, { data, id: productId })
     }, [])
 
     useEffect(() => {
@@ -700,7 +707,7 @@ const EditProduct = memo(() => {
 
     // when the product is properly loaded then set the default value of the form
     useEffect(() => {
-        if (Object.keys(product).length > 0) {
+        if (product && Object.keys(product).length > 0) {
 
             const { colors, totalStocks, rating, _id, owner, ...rest } = product
 

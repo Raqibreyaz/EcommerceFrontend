@@ -9,7 +9,7 @@ function FormError({ field, index = 0, subField = '' }) {
         return null
 
     const { formState: { errors } } = methods
-
+// console.log(errors);
     // {colors:[{mainImage:{message}}]}
 
     const checker = useCallback(() => {
@@ -28,7 +28,7 @@ function FormError({ field, index = 0, subField = '' }) {
 
     return (
         checker() ?
-            (<span className='text-red-500 text-sm font-semibold'>
+            (<span className='text-red-500 text-sm max-sm:text-xs font-semibold'>
                 *{
                     checker() && subField ?
                         errors[field][index][subField]?.message :

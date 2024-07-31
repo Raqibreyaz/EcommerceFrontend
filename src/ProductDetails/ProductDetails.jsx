@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState, useMemo } from 'react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
-import { StarIcon, HeartIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { StarIcon, HeartIcon, TrashIcon, PencilIcon, PencilSquareIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
 import ImageGallery from './ImageGallery'
@@ -90,7 +90,7 @@ export default function ProductDetails() {
 
   return (
     <Container
-      LoadingConditions={[isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist,  isLoadingAddToCart, isLoadingAddToWishlist, isLoadingRemoveFromWishlist]}
+      LoadingConditions={[isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist, isLoadingAddToCart, isLoadingAddToWishlist, isLoadingRemoveFromWishlist]}
       RenderingConditions={[!!product, !!product?._id]}
       className='bg-white pt-6'
     >
@@ -100,14 +100,18 @@ export default function ProductDetails() {
       {/* Product info */}
       <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
         <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product?.product_name}</h1>
+          <h1 className=" font-bold tracking-tight capitalize  text-gray-900 text-3xl">{product?.product_name}</h1>
         </div>
 
         {/* Options */}
         <div className="mt-4 lg:row-span-3 lg:mt-0">
           <h2 className="sr-only">Product information</h2>
-          <p className="text-3xl tracking-tight text-gray-900">{product?.price}</p>
-
+          <p className={`text-3xl tracking-tight text-gray-900 `}>
+            ₹{Math.round(product.price * (1 - product.discount * 0.01))}
+          </p>
+          <p className={`text-2xl tracking-tight text-gray-500 line-through ${product.discount > 0 ? '' : 'hidden'}`}>
+            ₹{product?.price}
+          </p>
           {/* Reviews */}
           <div className="mt-6">
             <h3 className="sr-only">Reviews</h3>
@@ -235,17 +239,22 @@ export default function ProductDetails() {
               <HeartIcon className={`${isInWishlist ? 'text-red-500' : 'text-black'} size-7`} />
               {isInWishlist ? 'remove from wishlist' : " Add To WishList"}
             </button>
-
-            <Link to={`/edit-product/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >
-              <TrashIcon className='size-5 text-yellow-700' />
-              edit Product
-            </Link>
-            <span className='mt-3 font-semibold mx-auto cursor-pointer flex'
-            //  onClick={() => handleDelete()}
-            >
-              <TrashIcon className='size-5 text-red-700' />
-              Delete Product
-            </span>
+            <div className={`${user?.role === 'admin' || user?._id === product?.owner?._id ? '' : 'hidden'}`}>
+              <Link to={`/edit-product/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer flex capitalize' >
+                <PencilSquareIcon className='size-5 text-yellow-700' />
+                edit Product
+              </Link>
+              <Link to={`/edit-product-colors/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer capitalize flex'
+              >
+                <PencilIcon className='size-5 text-yellow-700' />
+                edit colors
+              </Link>
+              <Link to={`/add-new-colors/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer capitalize flex'
+              >
+                <PencilIcon className='size-5 text-green-700' />
+                Add New Colors
+              </Link>
+            </div>
           </div>
         </div>
         <DescriptionDetailsAndHighlights product={product} />

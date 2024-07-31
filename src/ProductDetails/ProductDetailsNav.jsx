@@ -11,7 +11,7 @@ function ProductDetailsNav({ name }) {
                     ].map((breadcrumb) => (
                         <li key={breadcrumb.id}>
                             <div className="flex items-center">
-                                <span className="mr-2 text-sm font-medium text-gray-900">
+                                <span className="mr-1 text-sm font-medium text-gray-900 max-sm:text-xs">
                                     {breadcrumb.name}
                                 </span>
                                 <svg
@@ -27,8 +27,8 @@ function ProductDetailsNav({ name }) {
                             </div>
                         </li>
                     ))}
-                <li className="text-sm">
-                    <span aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
+                <li className="text-sm max-sm:text-xs">
+                    <span aria-current="page" className=" text-gray-500 hover:text-gray-600 capitalize font-semibold">
                         {name}
                     </span>
                 </li>

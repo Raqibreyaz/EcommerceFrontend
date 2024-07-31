@@ -1,8 +1,9 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { FormError, ImageSection } from '../../../components';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { TrashIcon } from '@heroicons/react/20/solid';
 
-const ColorPart = memo(({ color, noOfColors, removeColor, index }) => {
+export const ColorPart = memo(({ color, noOfColors, removeColor, index, isEditing = false }) => {
 
     const { control, register } = useFormContext()
 
@@ -10,95 +11,86 @@ const ColorPart = memo(({ color, noOfColors, removeColor, index }) => {
         control,
         name: 'colors'
     })
-    
+    // console.log('color part rendered')
     return (
-        <div className="flex space-x-2 items-center w-full">
-            <label
-                htmlFor={`colors[${index}].color`}
-                className={`rounded-full size-5 border`}
-                style={{ backgroundColor: colors[index].color }}>
-            </label>
-            <input
-                type="text"
-                placeholder="Color"
-                className="border p-2 rounded w-[90%]"
-                id={`colors[${index}].color`}
-                defaultValue={color}
-                {...register(`colors[${index}].color`, { required: "color field is required" })}
-            />
+        <div className=" " >
+            <div className='flex space-x-1 items-center'>
+                <label
+                    htmlFor={`colors[${index}].color`}
+                    className={`rounded size-7 max-sm:size-5 border`}
+                    style={{ backgroundColor: colors[index].color }}>
+                </label>
+                <input
+                    type="text"
+                    placeholder="Color"
+                    disabled={isEditing}
+                    className="border p-2 p-2 rounded w-[90%]"
+                    id={`colors[${index}].color`}
+                    defaultValue={color}
+                    {...register(`colors[${index}].color`, { required: "color field is required" })}
+                />
+                {noOfColors > 1 &&
+                    <button
+                        type="button"
+                        onClick={() => removeColor(index)}
+                        className=" text-sm">
+                        <TrashIcon className='size-5  text-red-500' />
+                    </button>}
+            </div>
             <FormError field={'colors'} index={index} subField='color' />
-
             {/* button to remove color */}
-            {noOfColors > 1 &&
-                <button
-                    type="button"
-                    onClick={() => removeColor(index)}
-                    className="text-red-500 text-sm">
-                    Remove
-                </button>}
         </div>
     )
 })
 
-const ImagesPart = memo(({ index }) => {
-    
-    const { control, register } = useFormContext()
+export const ImagesPart = memo(({ index, field }) => {
 
-    const colors = useWatch({
-        control,
-        name: 'colors'
-    })
+    const { register, control } = useFormContext()
 
+    const colors = useWatch({ control, name: 'colors' })
+
+    const applyValidation = useCallback(() => {
+
+        let cond = {}
+
+        // when images are < 3 then it impose this condition
+        if ((field === 'newImages' || field === 'images') && colors[index]['images'].length < 3) {
+            cond = {
+                required: `you must give ${3 - colors[index]['images'].length} images to the product`,
+                validate: (files) => files.length === (3 - colors[index]['images'].length) || `you must give ${3 - colors[index]['images'].length} images to the product`
+            }
+        }
+        // some times it can be a empty filelist
+        else if ((field === 'newMainImage' || field === 'mainImage')
+            && (!colors[index]['mainImage'] || colors[index].mainImage.length === 0)) {
+            cond = {
+                required: `${field} is required`,
+            }
+        }
+        // when all requirements matched then no condition is required to be imposed
+        else {
+            cond = {}
+        }
+        return cond;
+    }, [colors])
+    // console.log(`${field} part rendered`);
     return (
-        <div className='flex gap-2'>
+        <div className='flex sm:gap-2  max-sm:flex-col'>
             <label
                 htmlFor="images"
                 className='capitalize font-semibold'>
-                images:
+                {field}:
             </label>
             <input
                 id='images'
                 type="file"
-                multiple
-                {...register(`colors[${index}].images`, {
-                    required: "images are required",
-                    validate: (files) => files.length === 3 || 'you must give 3 images to the product'
-                })}
+                multiple={field === 'images' || field === 'newImages'}
+                {...register(`colors[${index}].${field}`, applyValidation())}
                 accept='image/*'
+                className='text-gray-600 max-sm:text-sm'
             />
-            <ImageSection files={colors[index].images} />
-            <FormError field={'colors'} index={index} subField='images' />
-        </div>
-    )
-})
-
-const MainImagesPart = memo(({ index }) => {
-
-    const { control, register } = useFormContext()
-
-    const colors = useWatch({
-        control,
-        name: 'colors'
-    })
-
-    return (
-        <div className='flex gap-2'>
-            <label
-                htmlFor="mainImage"
-                className='capitalize font-semibold'>
-                MainImage:
-            </label>
-            <input
-                id='mainImage'
-                type="file"
-                {...register(`colors[${index}].mainImage`, {
-                    required: "main image is required",
-                    validate: (files) => files.length === 1 || "you must give a main image to the product"
-                })}
-                accept='image/*'
-            />
-            <ImageSection files={colors[index].mainImage} />
-            <FormError field={'colors'} index={index} subField='mainImage' />
+            <ImageSection field={"colors"} subField={field} index={index} />
+            <FormError field={'colors'} index={index} subField={field} />
         </div>
     )
 })
@@ -113,9 +105,9 @@ const Colors = memo(() => {
     })
 
     return (
-        <div>
+        <div className="rounded-lg space-y-4 bg-white">
             {colors.map(({ color, id }, index) => (
-                <div key={id} className="border p-4 rounded-lg space-y-2">
+                <div key={id} className="border p-2 rounded-lg space-y-6">
                     <ColorPart
                         color={color}
                         noOfColors={colors.length}
@@ -124,12 +116,15 @@ const Colors = memo(() => {
                     />
 
                     <ImagesPart
+                        field={'images'}
                         index={index}
                     />
 
-                    <MainImagesPart
+                    <ImagesPart
+                        field={'mainImage'}
                         index={index}
                     />
+
                 </div>
             ))}
             <button

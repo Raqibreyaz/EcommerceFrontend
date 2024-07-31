@@ -24,6 +24,8 @@ import ReturnRequestFormPage from './ReturnRequestFormPage.jsx'
 import ReviewFormPage from './ReviewFormPage.jsx'
 import MessageFormPage from './MessageFormPage.jsx'
 import ChangeRolePage from './ChangeRolePage.jsx'
+import EditColorsPage from './EditColorsPage.jsx'
+import AddNewColorsPage from './AddNewColorsPage.jsx'
 
 export {
     HomePage,
@@ -51,7 +53,9 @@ export {
     ReturnRequestFormPage,
     ReviewFormPage,
     MessageFormPage,
-    ChangeRolePage
+    ChangeRolePage,
+    EditColorsPage,
+    AddNewColorsPage,
 }
 
 

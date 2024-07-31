@@ -8,7 +8,7 @@ import {
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
-import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, MyOrdersPage, OrdersPage, DashBoardPage, MessagesPage, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage, ReturnRequestsPage, ReturnDetailsPage, ReturnRequestFormPage, ReviewFormPage, MessageFormPage, ChangeRolePage } from './pages/index.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, MyOrdersPage, OrdersPage, DashBoardPage, MessagesPage, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage, ReturnRequestsPage, ReturnDetailsPage, ReturnRequestFormPage, ReviewFormPage, MessageFormPage, ChangeRolePage, EditColorsPage, AddNewColorsPage } from './pages/index.js'
 import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
@@ -79,6 +79,22 @@ const router = createBrowserRouter([
         element: (
           <Authenticate authState={true} roles={['admin', 'seller']}>
             <EditProductPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/edit-product-colors/:id',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <EditColorsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/add-new-colors/:id',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <AddNewColorsPage/>
           </Authenticate>
         )
       },
