@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Pagination, ProductGrid } from '../../../components/index.js'
 import { useChangeUserAvatarMutation, useFetchUserQuery } from '../userSlice.js';
 import { useFetchProductsQuery } from '../../product-list/ProductSlice.js';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js';
+import { PencilSquareIcon } from '@heroicons/react/20/solid';
 
 const ProfileDetails = memo(
     ({ user, address }) => {
@@ -12,8 +14,8 @@ const ProfileDetails = memo(
                 className='relative'
                 RenderingConditions={[!!user, !!address]}
             >
-                <button onClick={() => Navigate('/edit-profile')} className='right-0 mx-2 mt-1 inline-block bg-indigo-600 text-white p-1 rounded-md'>
-                    Edit Profile
+                <button onClick={() => Navigate('/edit-profile')} className='left-auto mx-2 mt-1 inline-block bg-indigo-600 text-white p-1 rounded-md'>
+                    <PencilSquareIcon className='size-5' />
                 </button>
                 <div className="p-6 space-y-4">
                     <div className="flex items-center">
@@ -24,15 +26,15 @@ const ProfileDetails = memo(
                         <span className="w-24 font-bold">Phone:</span>
                         <span>{user.phoneNo}</span>
                     </div>
-                    <div className="">
+                    <div className="w-full">
                         <span className="w-24 font-bold">Address:</span>
-                        <Link to='/edit-profile/address' className='mx-2 bg-blue-600 text-white px-2 rounded-md'>Edit</Link>
                         <div className='mt-3 flex flex-col '>
                             <div className='capitalize flex flex-col gap-2'>
                                 {['house_no', 'city', "state", 'pincode'].map((field) => (
                                     <div className='border rounded p-1 flex' key={field}>{field}: {address[field]}</div>
                                 ))}
                             </div>
+                            <Link className='mt-3 text-red-500 font-semibold' to={'/edit-profile/address'}>Remove Address</Link>
                         </div>
                     </div>
                 </div>
@@ -52,7 +54,7 @@ const ProfileHeader = memo(({ user }) => {
         () => {
             const formData = new FormData()
             formData.append('newAvatar', newAvatar.file)
-            ChangeAvatar(formData)
+            catchAndShowMessage(ChangeAvatar, formData)
         },
         [newAvatar],
     )
@@ -82,7 +84,7 @@ const ProfileHeader = memo(({ user }) => {
                             Confirm Avatar
                         </button> :
                         <label htmlFor="avatar" className='right-0 absolute bottom-1/2 bg-yellow-600 px-1 rounded-md '>
-                            edit
+                            <PencilSquareIcon className='size-5' />
                         </label>}
                     <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({
                         path: URL.createObjectURL(e.target.files[0]),
@@ -90,7 +92,7 @@ const ProfileHeader = memo(({ user }) => {
                     })} />
                 </div>
             </div>
-            <div className="md:ml-6 text-center md:text-left">
+            <div className="md:ml-6 text-center md:text-left capitalize">
                 <h2 className="text-3xl font-bold">{user.fullname}</h2>
                 <p className="text-lg">{user.role}</p>
             </div>
@@ -115,7 +117,7 @@ const UserProfile = () => {
             ]}
             RenderingConditions={[!!user, products.length > 0]}
         >
-            < div className="min-h-screen bg-gray-100  p-4" >
+            < div className="min-h-screen bg-gray-100" >
                 <div className="max-w-4xl  bg-white shadow-md rounded-lg overflow-hidden">
                     {/* Header */}
                     <ProfileHeader user={user} />

@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState, useMemo } from 'react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
-import { StarIcon, HeartIcon, TrashIcon, PencilIcon, PencilSquareIcon } from '@heroicons/react/20/solid'
+import { StarIcon, HeartIcon, TrashIcon, PencilIcon, PencilSquareIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
 import DescriptionDetailsAndHighlights from './DescriptionDetailsAndHighlights'
 import ImageGallery from './ImageGallery'
@@ -98,7 +98,7 @@ export default function ProductDetails() {
       {/* Image gallery */}
       <ImageGallery selectedColor={selectedColor} />
       {/* Product info */}
-      <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
+      <div className="mx-auto max-w-2xl px-4 pb-10 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
         <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
           <h1 className=" font-bold tracking-tight capitalize  text-gray-900 text-3xl">{product?.product_name}</h1>
         </div>
@@ -106,7 +106,7 @@ export default function ProductDetails() {
         {/* Options */}
         <div className="mt-4 lg:row-span-3 lg:mt-0">
           <h2 className="sr-only">Product information</h2>
-          <p className={`text-3xl tracking-tight text-gray-900 `}>
+          <p className={`sm:text-3xl max-sm:text-2xl font-semibold tracking-tight text-gray-900 `}>
             ₹{Math.round(product.price * (1 - product.discount * 0.01))}
           </p>
           <p className={`text-2xl tracking-tight text-gray-500 line-through ${product.discount > 0 ? '' : 'hidden'}`}>
@@ -115,8 +115,8 @@ export default function ProductDetails() {
           {/* Reviews */}
           <div className="mt-6">
             <h3 className="sr-only">Reviews</h3>
-            <div className="flex items-center">
-              <div className="flex items-center">
+            <div className="flex items-center flex-wrap">
+              <div className="flex items-center ">
                 {[0, 1, 2, 3, 4].map((rating) => (
                   <StarIcon
                     key={rating}
@@ -136,95 +136,96 @@ export default function ProductDetails() {
           </div>
 
           <div className="mt-10">
-            {/* Colors */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-900">Color</h3>
-
-              <fieldset aria-label="Choose a color" className="mt-4">
-                <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center space-x-3">
-                  {product.colors?.map((color) => (
-                    <Radio
-                      key={color.color}
-                      // color is an object containing color with images
-                      value={color}
-                      aria-label={color.color}
-                      className={({ focus, checked }) =>
-                        classNames(
-                          'ring-gray-400',
-                          focus && checked ? 'ring ring-offset-1' : '',
-                          !focus && checked ? 'ring-2' : '',
-                          'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'
-                        )
-                      }
+            {
+              [
+                {
+                  name: 'color',
+                  child:
+                    <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center max-sm:gap-3 gap-2 flex-wrap">
+                      {product.colors?.map((color) => (
+                        <Radio
+                          key={color.color}
+                          // color is an object containing color with images
+                          value={color}
+                          aria-label={color.color}
+                          className={({ focus, checked }) =>
+                            classNames(
+                              'ring-gray-400',
+                              focus && checked ? 'ring ring-offset-1' : '',
+                              !focus && checked ? 'ring-2' : '',
+                              'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'
+                            )
+                          }
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={classNames(
+                              color.color,
+                              `h-8 w-8 rounded-full border border-black border-opacity-10`
+                            )}
+                            style={{ backgroundColor: color.color }}
+                          />
+                        </Radio>
+                      ))}
+                      <Link to={`/add-new-colors/${productId}`}>
+                        <PlusCircleIcon className=' text-gray-500 size-8' />
+                      </Link>
+                    </RadioGroup>
+                },
+                {
+                  name: 'size',
+                  child:
+                    <RadioGroup
+                      value={selectedSize}
+                      onChange={setSelectedSize}
+                      className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                     >
-                      <span
-                        aria-hidden="true"
-                        className={classNames(
-                          color.color,
-                          `h-8 w-8 rounded-full border border-black border-opacity-10`
-                        )}
-                        style={{ backgroundColor: color.color }}
-                      />
-                    </Radio>
-                  ))}
-                </RadioGroup>
-              </fieldset>
-            </div>
-
-            {/* Sizes */}
-            <div className="mt-10">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                <Link href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                  Size guide
-                </Link>
-              </div>
-
-              <fieldset aria-label="Choose a size" className="mt-4">
-                <RadioGroup
-                  value={selectedSize}
-                  onChange={setSelectedSize}
-                  className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
-                >
-                  {
-                    product.sizes?.map((size) => (
-                      <Radio
-                        key={size}
-                        value={size}
-                        className={({ focus }) =>
-                          classNames(
-                            'cursor-pointer bg-white text-gray-900 shadow-sm',
-                            focus ? 'ring-2 ring-indigo-500' : '',
-                            'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
-                          )
-                        }
-                      >
-                        {({ checked, focus }) => (
-                          <>
-                            <span>{size}</span>
-                            <span
-                              className={classNames(
-                                checked ? 'border-indigo-500' : 'border-transparent',
-                                focus ? 'border' : 'border-2',
-                                'pointer-events-none absolute -inset-px rounded-md'
-                              )}
-                              aria-hidden="true"
-                            />
-                          </>
-                        )}
-                      </Radio>
-                    ))
-                  }
-                </RadioGroup>
-              </fieldset>
-            </div>
+                      {
+                        product.sizes?.map((size) => (
+                          <Radio
+                            key={size}
+                            value={size}
+                            className={({ focus }) =>
+                              classNames(
+                                'cursor-pointer bg-white text-gray-900 shadow-sm',
+                                focus ? 'ring-2 ring-indigo-500' : '',
+                                'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
+                              )
+                            }
+                          >
+                            {({ checked, focus }) => (
+                              <>
+                                <span>{size}</span>
+                                <span
+                                  className={classNames(
+                                    checked ? 'border-indigo-500' : 'border-transparent',
+                                    focus ? 'border' : 'border-2',
+                                    'pointer-events-none absolute -inset-px rounded-md'
+                                  )}
+                                  aria-hidden="true"
+                                />
+                              </>
+                            )}
+                          </Radio>
+                        ))
+                      }
+                    </RadioGroup>
+                }].map(({ name, child }) => (
+                  <div key={name} className="mt-10">
+                    <h3 className="text-sm  text-gray-900 capitalize font-semibold">{name}</h3>
+                    <fieldset aria-label={`Choose a ${name}`} className="mt-4">
+                      {child}
+                    </fieldset>
+                  </div>
+                ))
+            }
 
             {/* add to cart or go to cart */}
             {
               !isProductInCart ? <button
                 type="button"
                 onClick={handleAddToCart}
-                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 max-sm:text-sm"
               >
                 Add to Cart
               </button> : <Link to='/cart' className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Go To Cart</Link>
@@ -233,7 +234,7 @@ export default function ProductDetails() {
             {/* wishlist add button */}
             <button
               type="button"
-              className={`mt-5 flex w-full capitalize items-center justify-center rounded-md border  px-8 py-3 text-base font-medium ${isInWishlist ? 'text-red-500' : 'text-black'} hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+              className={`mt-5 flex w-full capitalize items-center justify-center rounded-md border  px-4 py-3 text-base font-medium ${isInWishlist ? 'text-red-500' : 'text-black'} hover:bg-gray-600-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 max-sm:text-sm`}
               onClick={() => handleWishlistProduct()}
             >
               <HeartIcon className={`${isInWishlist ? 'text-red-500' : 'text-black'} size-7`} />
@@ -244,15 +245,10 @@ export default function ProductDetails() {
                 <PencilSquareIcon className='size-5 text-yellow-700' />
                 edit Product
               </Link>
-              <Link to={`/edit-product-colors/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer capitalize flex'
+              <Link to={`/edit-product-colors/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer capitalize flex items-center'
               >
-                <PencilIcon className='size-5 text-yellow-700' />
+                <PencilIcon className='size-4 text-yellow-700' />
                 edit colors
-              </Link>
-              <Link to={`/add-new-colors/${product._id}`} className='mt-3 font-semibold mx-auto cursor-pointer capitalize flex'
-              >
-                <PencilIcon className='size-5 text-green-700' />
-                Add New Colors
               </Link>
             </div>
           </div>

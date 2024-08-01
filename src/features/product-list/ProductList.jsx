@@ -78,8 +78,8 @@ function ProductList() {
     >
       <MobileFilter mobileFiltersOpen={mobileFiltersOpen} setMobileFiltersOpen={setMobileFiltersOpen} />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sticky top-0">
-        <div className="flex items-baseline justify-between border-b border-gray-200 pb-6  ">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">All Products</h1>
+        <div className="flex items-baseline justify-between border-b border-gray-200 pb-6">
+          <h1 className="text-4xl max-sm:text-2xl font-bold tracking-tight text-gray-900">All Products</h1>
           <SortMenu setMobileFiltersOpen={setMobileFiltersOpen} />
         </div>
         <section aria-labelledby="products-heading" className="pb-24 pt-6 flex">
@@ -88,7 +88,7 @@ function ProductList() {
           </h2>
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
             {/* Filters */}
-            <div className='sticky top-[20px] hidden lg:block h-screen'>
+            <div className='sticky top-20 h-[60vh] overflow-y-auto w-[20vw] hidden lg:block '>
               <Filter />
             </div>
             {/* Product grid */}

@@ -15,6 +15,8 @@ import { useAddNewProductMutation } from '../ProductSlice.js';
 import Container from '../../../components/Container.jsx';
 import { useNavigate } from 'react-router-dom';
 import { FailedMessage } from '../../../components/MessageDialog.jsx';
+import { appendToFormData } from '../utils/appendToFormData.js';
+import { addImagesToFormData } from '../utils/addImagesToFormData.js';
 
 // image section 
 
@@ -51,63 +53,18 @@ const AddProduct = () => {
 
             console.log(data);
 
-            // unique validation of sizes and colors
-            if (new Set(data.colors.map(({ color }) => color)).size !== data.colors.length)
-                FailedMessage("colors must be unique")
-            if (new Set(data.sizes.map(({ size }) => size)).size !== data.sizes.length)
-                FailedMessage("sizes must be unique")
+            let formData = new FormData()
 
-            const formData = new FormData()
+            formData = addImagesToFormData(formData, data.colors, { images: 'images', mainImage: 'mainImage' })
 
-            const colorArray = data.colors.map(({ color }) => color)
-            formData.append('colors', JSON.stringify(colorArray))
+            formData = appendToFormData(data, formData)
 
-            let totalStocks = 0
+            if (!formData)
+                return;
 
-            data.stocks.forEach(({ stock }) => {
-                totalStocks += parseInt(stock)
-            });
-            formData.append('totalStocks', totalStocks)
-
-            // // adding images and mainImages with corresponding indices
-            data.colors.forEach(({ images, mainImage }, index) => {
-                for (let i = 0; i < images.length; i++) {
-                    formData.append(`colors[${index}].images`, images[i])
-                }
-                formData.append(`colors[${index}].mainImage`, mainImage[0])
-            }
-            )
-
-            formData.append('keyHighlights', JSON.stringify(
-                data.keyHighlights.map(({ highlight }) => highlight))
-            )
-
-            formData.append('stocks', JSON.stringify(data.stocks))
-
-            formData.append('sizes', JSON.stringify(data.sizes.map(({ size }) => size)))
-
-            for (const key in data) {
-                if (Object.hasOwnProperty.call(data, key)) {
-                    const value = data[key];
-
-                    if (key !== 'keyHighlights' && key !== "stocks" && key !== 'colors' && key !== 'sizes')
-                        formData.append(`${key}`, value instanceof FileList ? value[0] : value)
-                }
-            }
-
-            for (const [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
             catchAndShowMessage(AddNewProduct, formData)
         }
         , [])
-
-    const fieldObj = useMemo(() => ({
-        sizes: <Sizes />,
-        colors: <Colors />,
-        stocks: <Stocks />
-    }), [])
-
 
     useEffect(() => {
         if (isSuccessfullyAddedProduct) {
@@ -127,7 +84,7 @@ const AddProduct = () => {
             <FormProvider {...methods}>
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="space-y-6 bg-white p-6 rounded-lg shadow-md w-[95%]">
+                    className="space-y-6 bg-white p-6 rounded-lg shadow-md w-full">
 
                     {/*form dependent */}
                     <ProductName />
@@ -144,23 +101,11 @@ const AddProduct = () => {
                     {/*form independent */}
                     <Thumbnail />
 
-                    {
-                        [
-                            'sizes',
-                            'colors',
-                            'stocks'
-                        ].map((field) => (
-                            <div
-                                key={field}
-                                className="border p-4 rounded-lg space-y-4">
-                                <h2
-                                    className="text-lg font-semibold">
-                                    {field}
-                                </h2>
-                                {fieldObj[field]}
-                            </div>
-                        ))
-                    }
+                    <Sizes />
+
+                    <Colors />
+                    
+                    <Stocks />
 
                     {/* form dependent */}
                     <IsReturnable />

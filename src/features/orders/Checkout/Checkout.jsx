@@ -65,7 +65,7 @@ export default function Checkout() {
 
     return (
         <Container
-            className='my-10'
+            className=''
             LoadingConditions={[isLoadingCreateOrder, isLoadingUser, isCreatingRazorPayOrder, isVerifyingRazorPayOrder]}
             RenderingConditions={[!!user]}
         >

@@ -13,13 +13,13 @@ const OrderCard = memo(({ order, CancelOrder }) => {
         returned: 'bg-gray-200 text-gray-800'
     };
 
-    const currentDate = new Date()
-    const givenDate = new Date(order.createdAt)
-
-    const hoursDifference = (currentDate - givenDate) / (1000 * 60 * 60)
 
     const handleCancelOrder = useCallback(
         () => {
+            const currentDate = new Date()
+            const givenDate = new Date(order.createdAt)
+
+            const hoursDifference = (currentDate - givenDate) / (1000 * 60 * 60)
             if (hoursDifference >= 3)
                 FailedMessage('order cancellation is only applicable within 3 hours of order creation')
             else {
@@ -29,6 +29,7 @@ const OrderCard = memo(({ order, CancelOrder }) => {
         [],
     )
 
+    const productImages = [...(new Set(order.products.map(({ image }) => image)))].slice(0, 3)
 
     return (
         <Container
@@ -36,9 +37,9 @@ const OrderCard = memo(({ order, CancelOrder }) => {
         >
             <div className="p-4">
                 {/* Product Images */}
-                <div className="flex mb-4 space-x-4 items-end">
-                    {order.products.slice(0, 3).map(({ product, image }, index) => (
-                        <div className='size-20' key={product}>
+                <div className="flex mb-4 flex-wrap gap-2 items-end">
+                    {productImages.map((image, index) => (
+                        <div className='size-20' key={index}>
                             <img
 
                                 src={image}
@@ -239,12 +240,12 @@ const Orders = () => {
     const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
+        <div className="min-h-screen bg-gray-100 p-4">
             <h1 className="text-4xl font-semibold mb-6">Orders</h1>
             <Container
                 LoadingConditions={[!!isLoadingOrders, !!isCancellingOrder]}
                 RenderingConditions={[!!orders, orders.length > 0]}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 backupElem={<h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
             >
                 {orders.map((order) => (

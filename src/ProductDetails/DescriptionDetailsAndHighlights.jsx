@@ -3,21 +3,14 @@ import { useNavigate, Link } from 'react-router-dom'
 
 const DescriptionDetailsAndHighlights = React.memo(function ({ product }) {
 
-    const Navigate = useNavigate()
-
     return (
-        <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
+        <div className="pt-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
             {/* Description,keyHighlights and details */}
             <div>
-                <button type='button' onClick={() => { Navigate(`/profile/${product.owner._id}`) }}
-                    className='text-blue-600 font-semibold'
-                >
-                    see owner profile
-                </button>
                 <h3 className="sr-only">Description</h3>
 
                 <div className="space-y-6">
-                    <p className="text-base text-gray-900">{product.description}</p>
+                    <p className="text-base font-normal text-gray-900">{product.description}</p>
                 </div>
             </div>
             <div className="mt-10">

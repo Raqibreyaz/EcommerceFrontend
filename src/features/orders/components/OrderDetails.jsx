@@ -49,49 +49,54 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
         , [orderedProduct, orderDetails])
 
     return (
-        <div className="flex mb-6 border-t pt-4">
-            <div className="w-1/5">
+        <div className="flex mb-6 border-t pt-4 gap-4 flex-wrap">
+            <div className="w-36">
                 <img
                     src={orderedProduct.image}
                     alt={orderedProduct.product_name}
                     className="w-full h-auto object-cover rounded-md"
                 />
             </div>
-            <div className="w-4/5 pl-6">
-                <p className="text-lg font-semibold capitalize">{orderedProduct.product_name}</p>
-                <div className="flex justify-between items-center mb-2 flex-col">
-                    <p className="text-lg font-semibold">
-                        ₹{orderedProductAmount}
-                    </p >
-                    <p className="text-lg font-semibold text-gray-400 line-through">₹{orderedProduct.price}</p>
+            <div className="w-[80%] ">
+                <div className='flex justify-between'>
+                    <p className="text-lg font-semibold capitalize">{orderedProduct.product_name}</p>
+                    <div className="flex gap-x-2  items-center mb-2 sm:flex-col text-md">
+                        {/* <h1>Amount</h1> */}
+                        <p className=" font-semibold">
+                            ₹{orderedProductAmount}
+                        </p >
+                        <p className=" font-semibold text-gray-400 line-through">₹{orderedProduct.price}</p>
+                    </div>
                 </div>
                 <div>
                     <p className="text-gray-500 mb-4">{orderedProduct.description}</p>
                     {deliveryStatus === 'delivered' && <p className={`flex items-center font-semibold `}>
                         {deliveredAt && <span className="mr-2">✔</span>}
-                        {deliveredAt && <span> Delivered on {new Date(deliveredAt).toLocaleString()}</span>}
+                        {deliveredAt && <span> Delivered on {new Date(deliveredAt).toDateString()}</span>}
                     </p>}
-                    <span >
-                        Status:
+                    <div className='font-semibold capitalize'>
+                        <span className=' mr-1'>
+                            Status:
+                        </span>
                         {orderedProduct.returnStatus !== 'not requested' ?
-                            < span className={{'return pending':'text-yellow-500','return approved':'text-green-500','return rejected':'text-red-500'}[orderedProduct.returnStatus]}> {orderedProduct.returnStatus}</span> :
+                            < span className={{ 'return pending': 'text-yellow-500', 'return approved': 'text-green-500', 'return rejected': 'text-red-500' }[orderedProduct.returnStatus]}> {orderedProduct.returnStatus}</span> :
                             <span className={`${statusColors[deliveryStatus.toLowerCase()]}`}>{deliveryStatus}
                             </span>}
-                    </span>
+                    </div>
                 </div>
                 <div className="flex justify-between mt-4">
                     <Link to={`/product-details/${orderedProduct.product}`} className="text-indigo-500 font-semibold hover:text-indigo-700">
                         View product
                     </Link>
-                    <div className='space-x-2'>
-                        {
-                            deliveryStatus === 'delivered' &&
-                            orderedProduct.returnStatus === 'not requested' &&
-                            <button type='button' onClick={() => handleReturnOrder()} className='text-white p-1 border rounded bg-red-500'>Return Product</button>}
-
-                        {deliveryStatus !== 'pending' && deliveryStatus !== 'cancelled' && <button type='button' onClick={handleReview} className='text-white p-1 border rounded bg-yellow-600'>Review Product</button>}
-                    </div>
                 </div>
+            </div>
+            <div className='space-x-2 font-semibold'>
+                {
+                    deliveryStatus === 'delivered' &&
+                    orderedProduct.returnStatus === 'not requested' &&
+                    <button type='button' onClick={() => handleReturnOrder()} className=' p-1 rounded text-red-500'>Return Product</button>}
+
+                {deliveryStatus !== 'pending' && deliveryStatus !== 'cancelled' && <button type='button' onClick={handleReview} className=' p-1  rounded text-yellow-600'>Review Product</button>}
             </div>
         </div >
     );
@@ -142,7 +147,7 @@ const OrdersPage = () => {
                     <div className="bg-white shadow-lg rounded-lg w-full mb-0">
                         <div className="p-6">
                             {/* Order Summary */}
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex justify-between items-center mb-6 flex-wrap gap-x-8 gap-y-2">
                                 <div>
                                     <p className="text-gray-500 text-sm">Order Id</p>
                                     <p className="text-black font-semibold">{orderDetails?._id}</p>

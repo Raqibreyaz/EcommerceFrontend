@@ -5,6 +5,9 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Container } from '../../../components/index.js'
 import { useAddNewColorsMutation, useFetchProductDetailsQuery } from '../ProductSlice.js'
 import Stocks from '../sub-components/Stocks.jsx'
+import { addImagesToFormData } from '../utils/addImagesToFormData.js'
+import { appendToFormData } from '../utils/appendToFormData.js'
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
 
 const AddNewColors = () => {
 
@@ -16,10 +19,7 @@ const AddNewColors = () => {
         }
     })
 
-    // const { data: { product = null } = {}, isLoading: isLoadingProductDetails } = useFetchProductDetailsQuery(id)
-
-    const isLoadingProductDetails=false
-    const product =undefined
+    const { data: { product = null } = {}, isLoading: isLoadingProductDetails } = useFetchProductDetailsQuery(id)
 
     const { formState: { errors, isSubmitting } } = methods
 
@@ -29,15 +29,18 @@ const AddNewColors = () => {
 
     const onSubmit = useCallback((data) => {
         console.log(data);
-    }, [])
 
-    // useEffect(() => {
-    //     if (product && Object.keys(product).length > 0) {
-    //         // methods.reset({
-    //         //     colors:
-    //         // })
-    //     }
-    // }, [product])
+        let formData = new FormData()
+
+        formData = addImagesToFormData(formData, data.colors, { images: 'images', mainImage: 'mainImage' })
+
+        formData = appendToFormData(data, formData)
+
+        if (!formData)
+            return;
+
+        catchAndShowMessage(IntegrateNewColors, {data:formData,id})
+    }, [])
 
     useEffect(() => {
         if (isSuccessfullyIntegratedNewColors)
@@ -49,9 +52,9 @@ const AddNewColors = () => {
             LoadingConditions={[!!isLoadingProductDetails, !!isIntegratingNewColors]}
         >
             <FormProvider {...methods}>
-                <form onSubmit={methods.handleSubmit((data) => console.log(data))}
+                <form onSubmit={methods.handleSubmit(onSubmit)}
                     className='space-y-4 bg-white p-2 rounded'
-                    >
+                >
                     <Colors />
                     <Stocks sizeArray={product?.sizes} isEditingColor={true} />
                     <div className='w-[70%] mt-10 mx-auto '>

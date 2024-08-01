@@ -7,7 +7,7 @@ function App() {
     <>
       <Navbar />
       <div className='min-h-screen bg-gray-200 '>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border py-10">
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 border sm:py-10 max-sm:text-sm">
           <Outlet />
         </div>
       </div>

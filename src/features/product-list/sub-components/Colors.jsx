@@ -14,7 +14,7 @@ export const ColorPart = memo(({ color, noOfColors, removeColor, index, isEditin
     // console.log('color part rendered')
     return (
         <div className=" " >
-            <div className='flex space-x-1 items-center'>
+            <div className='flex gap-1 items-center flex-wrap'>
                 <label
                     htmlFor={`colors[${index}].color`}
                     className={`rounded size-7 max-sm:size-5 border`}
@@ -24,7 +24,7 @@ export const ColorPart = memo(({ color, noOfColors, removeColor, index, isEditin
                     type="text"
                     placeholder="Color"
                     disabled={isEditing}
-                    className="border p-2 p-2 rounded w-[90%]"
+                    className="border p-2  rounded w-[90%]"
                     id={`colors[${index}].color`}
                     defaultValue={color}
                     {...register(`colors[${index}].color`, { required: "color field is required" })}
@@ -75,7 +75,7 @@ export const ImagesPart = memo(({ index, field }) => {
     }, [colors])
     // console.log(`${field} part rendered`);
     return (
-        <div className='flex sm:gap-2  max-sm:flex-col'>
+        <div className='flex gap-2  max-sm:flex-col'>
             <label
                 htmlFor="images"
                 className='capitalize font-semibold'>
@@ -105,34 +105,41 @@ const Colors = memo(() => {
     })
 
     return (
-        <div className="rounded-lg space-y-4 bg-white">
-            {colors.map(({ color, id }, index) => (
-                <div key={id} className="border p-2 rounded-lg space-y-6">
-                    <ColorPart
-                        color={color}
-                        noOfColors={colors.length}
-                        removeColor={removeColor}
-                        index={index}
-                    />
+        <div
+            className="border p-4 rounded-lg space-y-4">
+            <h2
+                className="text-lg font-semibold">
+                colors
+            </h2>
+            <div className="rounded-lg space-y-4 bg-white">
+                {colors.map(({ color, id }, index) => (
+                    <div key={id} className="border p-2 rounded-lg space-y-6">
+                        <ColorPart
+                            color={color}
+                            noOfColors={colors.length}
+                            removeColor={removeColor}
+                            index={index}
+                        />
 
-                    <ImagesPart
-                        field={'images'}
-                        index={index}
-                    />
+                        <ImagesPart
+                            field={'images'}
+                            index={index}
+                        />
 
-                    <ImagesPart
-                        field={'mainImage'}
-                        index={index}
-                    />
+                        <ImagesPart
+                            field={'mainImage'}
+                            index={index}
+                        />
 
-                </div>
-            ))}
-            <button
-                type="button"
-                onClick={() => appendColor({ color: '', mainImage: null, images: [] })}
-                className="bg-blue-500 text-white px-4 py-2 mt-2 text-sm rounded">
-                Add Color
-            </button>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={() => appendColor({ color: '', mainImage: null, images: [] })}
+                    className="bg-blue-500 text-white px-4 py-2 mt-2 text-sm rounded">
+                    Add Color
+                </button>
+            </div>
         </div>
     )
 })

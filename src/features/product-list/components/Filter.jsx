@@ -76,7 +76,7 @@ const Filter = memo(function ({ px = '' }) {
 
     
     return (
-        < div >
+        < div className='min-h-[100vh]'>
             {
                 [
                     {
@@ -138,7 +138,7 @@ const Filter = memo(function ({ px = '' }) {
                         ))
                     },
                 ].map((section) => (
-                    <Disclosure as="div" key={section.id} className={`border-b border-gray-200 ${px} py-6`}>
+                    <Disclosure as="div" key={section.id} className={`border-b border-gray-200 ${px} py-6 w-full`}>
                         {({ open }) => (
                             <>
                                 <h3 className="-my-3 flow-root">
@@ -229,14 +229,14 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
             },
             { name: 'Price: High to Low', sort: 'price', order: '-1', selected: checkSortOption('price', '-1') },
         ]
-    ), [])
+    ), [filter])
 
     return (
         <div className="flex items-center">
             {/* sort menu */}
             <Menu as="div" className="relative inline-block text-left">
                 <div>
-                    <MenuButton className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <MenuButton className="group inline-flex justify-center text-sm max-sm:text-xs font-semibold text-gray-700 hover:text-gray-900">
                         Sort
                         <ChevronDownIcon
                             className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
@@ -282,7 +282,7 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
                 onClick={() => setMobileFiltersOpen(true)}
             >
                 <span className="sr-only">Filters</span>
-                <FunnelIcon className="h-5 w-5" aria-hidden="true" />
+                <FunnelIcon className="size-5 max-sm:size-4" aria-hidden="true" />
             </button>
         </div>
     )

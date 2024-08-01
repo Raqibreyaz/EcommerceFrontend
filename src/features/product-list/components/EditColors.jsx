@@ -1,12 +1,14 @@
 import React, { memo, useCallback, useEffect } from 'react';
 import { FormProvider, useFieldArray, useForm, } from 'react-hook-form';
-import { Container, ImageSection } from '../../../components';
+import { Container, ImageSection, SuccessMessage } from '../../../components';
 import { useEditColorsAndImagesMutation, useFetchProductDetailsQuery } from '../ProductSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ColorPart, ImagesPart as NewImagesPart } from '../sub-components/Colors';
 import Thumbnail from '../sub-components/Thumbnail';
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
 import Stocks from '../sub-components/Stocks';
+import { addImagesToFormData } from '../utils/addImagesToFormData';
+import { appendToFormData } from '../utils/appendToFormData';
 
 const ImagesPart = memo(({ colorIndex, field }) => {
 
@@ -39,32 +41,25 @@ const Colors = memo(() => {
 
     const { fields: colors, append: appendColor, remove: removeColor } = useFieldArray({ control: methods.control, name: "colors" });
 
+
     const onSubmit = useCallback((data) => {
 
-        const formData = new FormData()
+        let formData = new FormData()
 
-        const oldImages = data.colors.map(({ color, images, mainImage }) => ({ color, images, mainImage }))
+        data.isEditingColors = true
 
-        formData.append(`colors`, JSON.stringify(oldImages))
+        formData = addImagesToFormData(
+            formData,
+            data.colors,
+            { images: 'newImages', mainImage: 'newMainImage' }
+        )
 
-        formData.append('stocks', JSON.stringify(data.stocks))
+        formData = appendToFormData(data, formData)
 
-        data.colors.forEach(({ newImages, newMainImage }, index) => {
-            for (const file of newImages) {
-                formData.append(`colors[${index}].newImages`, file)
-            }
-            if (newMainImage)
-                formData.append(`colors[${index}].newMainImage`, newMainImage[0])
-        })
+        if (!formData)
+            return;
 
-        if (data.thumbnail instanceof FileList)
-            formData.append(`thumbnail`, data.thumbnail[0])
-
-        for (const [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-
-        // catchAndShowMessage(EditColorsAndImages, { id, data: formData })
+        catchAndShowMessage(EditColorsAndImages, { id, data: formData })
 
     }, [])
 
@@ -79,6 +74,7 @@ const Colors = memo(() => {
     // ]
     useEffect(() => {
         if (product && Object.keys(product).length > 0) {
+            console.log(product);
             methods.reset({
                 colors: product.colors.map(({ color, images }) => (
                     {
@@ -90,24 +86,26 @@ const Colors = memo(() => {
                     }
                 )),
                 thumbnail: product.thumbnail,
-                stocks: [{ color: '', size: '', stock: 0 }]
+                stocks: product.stocks
             })
         }
     }, [product])
 
     // when editing successfull then navigate to product-details page
     useEffect(() => {
-        // if (isSuccessfullyEditedColors)
-        //     Navigate(`/product-details/${id}`)
+        if (isSuccessfullyEditedColors) {
+            Navigate(`/product-details/${id}`)
+        }
     }, [isSuccessfullyEditedColors])
     console.log(product);
     return (
         <Container
             LoadingCondition={[!!isLoadingProductDetails, !!isEditingColors]}
             RenderingConditions={[!!product]}
+            className='bg-white p-2'
         >
             <FormProvider {...methods}>
-                <form onSubmit={methods.handleSubmit(onSubmit)} className='w-full space-y-3'>
+                <form onSubmit={methods.handleSubmit(onSubmit)} className='w-full space-y-5'>
                     <Thumbnail isEditing={true} />
                     {colors.map(({ color, id }, index) => (
                         <div key={id} className="border p-4 rounded-lg space-y-2">
@@ -125,8 +123,12 @@ const Colors = memo(() => {
                         </div>
                     ))}
                     <Stocks sizeArray={product?.sizes ?? []} isEditingColor={true} />
-                    <div className='w-[70%] mt-3'>
-                        <button type='submit' disabled={Object.keys(errors).length > 0 || isSubmitting} className='bg-green-600 text-sm p-2 rounded-md text-white  mx-auto w-full'>submit</button>
+                    <div className='w-[70%] mx-auto '>
+                        <button
+                            type='submit'
+                            disabled={Object.keys(errors).length > 0 || isSubmitting} className='bg-green-600 text-sm p-2 rounded-md text-white w-full capitalize font-semibold'>
+                            submit
+                        </button>
                     </div>
                 </form>
             </FormProvider>

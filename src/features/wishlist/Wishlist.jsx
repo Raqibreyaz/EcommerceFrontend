@@ -40,42 +40,43 @@ const ProductList = () => {
   console.log(wishlist);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-extrabold tracking-tight text-gray-900">Favourites</h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 max-sm:my-4">Favourites</h2>
       <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
         {wishlist.map((product) => (
           <div key={product.productId} className="group relative border border-gray-300 p-2 rounded">
-            <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
-              <img
-                src={product.image}
-                alt={product.product_name}
-                className="w-full h-full object-center object-cover lg:w-full lg:h-full"
-              />
-            </div>
-            <div className="mt-4 flex justify-between">
-              <div>
-                <h3 className="text-sm text-gray-700">
-                  <Link to={`/product-details/${product.productId}`}>
+            <Link to={`/product-details/${product.productId}`}>
+              <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden  lg:h-80 lg:aspect-none">
+                <img
+                  src={product.image}
+                  alt={product.product_name}
+                  className="w-full h-full object-center object-cover lg:w-full lg:h-full"
+                />
+              </div>
+              <div className="mt-4 flex justify-between">
+                <div>
+                  <h3 className="text-sm text-gray-900 capitalize font-semibold ">
                     <span aria-hidden="true" className="inset-0" />
                     {product.product_name}
-                  </Link>
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">{product.color}</p>
-                <p className="mt-1 text-sm text-gray-500">{product.size}</p>
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">{product.color}</p>
+                  <p className="mt-1 text-sm text-gray-500">{product.size}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    ₹{Math.round(product.price * (1 - product.discount * 0.01))}
+                  </p>
+                  {product.discount !== 0 && (
+                    <p className={`text-sm ${product.discount !== 0 ? 'line-through' : ''} text-gray-400`}>
+                      ₹{product.price}
+                    </p>
+                  )}
+                </div>
+                {/* <p className="text-sm font-medium text-gray-900">₹{product.price}</p> */}
               </div>
-              <p className="text-sm font-medium text-gray-900">₹{product.price}</p>
-            </div>
-            <div className="mt-2">
-              {/* <select className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"> */}
-              {/* <option>Size</option>
-              </select> */}
-
-              {/* <button className="mt-2 w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-              onClick={}
-              >
-                Add to cart
-              </button> */}
-            </div>
+              <div className="mt-2">
+              </div>
+            </Link>
           </div>
         ))}
       </div>

@@ -9,7 +9,7 @@ const Thumbnail = memo(({ isEditing = false }) => {
     const thumbnail = watch('thumbnail')
 
     return (
-        <div className='border p-2 rounded flex gap-2'>
+        <div className='border p-2 rounded flex gap-2 w-[90%] max-sm:flex-col '>
             <label
                 htmlFor="thumbnail"
                 className='font-semibold mr-1'>
@@ -20,6 +20,7 @@ const Thumbnail = memo(({ isEditing = false }) => {
                 type="file"
                 {...register('thumbnail', thumbnail ? {} : { required: "thumbnail is required" })}
                 accept='image/*'
+                className='max-sm:text-sm'
             />
             <ImageSection field={'thumbnail'} removeOption={isEditing} />
             <FormError field={'thumbnail'} />
