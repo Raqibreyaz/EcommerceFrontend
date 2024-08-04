@@ -49,10 +49,10 @@ const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen })
                             </div>
 
                             {/* Filters */}
-                            <form className="mt-4 border-t border-gray-200 sticky top-0">
+                            <div className="mt-4 border-t border-gray-200 sticky top-0">
                                 <h3 className="sr-only">Categories</h3>
                                 <Filter px='px-4' />
-                            </form>
+                            </div>
                         </DialogPanel>
                     </TransitionChild>
                 </div>

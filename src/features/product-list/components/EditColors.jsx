@@ -74,7 +74,6 @@ const Colors = memo(() => {
     // ]
     useEffect(() => {
         if (product && Object.keys(product).length > 0) {
-            console.log(product);
             methods.reset({
                 colors: product.colors.map(({ color, images }) => (
                     {
@@ -97,7 +96,6 @@ const Colors = memo(() => {
             Navigate(`/product-details/${id}`)
         }
     }, [isSuccessfullyEditedColors])
-    console.log(product);
     return (
         <Container
             LoadingCondition={[!!isLoadingProductDetails, !!isEditingColors]}

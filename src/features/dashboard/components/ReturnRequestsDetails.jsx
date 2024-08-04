@@ -59,7 +59,7 @@ const ReturnRequests = () => {
       RenderingConditions={[!!returnDetails]}
       LoadingConditions={[!!isFetchingReturnRequestDetails, !!isUpdatingReturnRequest]}
     >
-      <h1 className="text-2xl font-bold mb-4 text-center">Return Requests</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center capitalize">Return details</h1>
       {returnDetails && <div className="space-y-6">
         <div
           className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"

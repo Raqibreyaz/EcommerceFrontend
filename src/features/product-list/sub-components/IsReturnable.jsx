@@ -9,7 +9,6 @@ const IsReturnable = memo(() => {
             <input
                 type='checkbox'
                 {...register('isReturnable')}
-                defaultChecked={true}
                 className='mr-1'
                 id='isReturnable' />
             <label

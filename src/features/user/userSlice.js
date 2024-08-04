@@ -24,7 +24,6 @@ export const userApi = createApi({
         body: data,
         credentials: 'include',
       }),
-      invalidatesTags: ['User'],
     }),
 
     editUserProfile: build.mutation({
@@ -73,7 +72,6 @@ export const userApi = createApi({
           'Content-Type': 'application/json',
         },
       }),
-      invalidatesTags: ['User'],
     }),
 
     logoutUser: build.mutation({
@@ -82,7 +80,6 @@ export const userApi = createApi({
         method: 'POST',
         credentials: 'include',
       }),
-      invalidatesTags: ['User'],
     }),
 
     fetchProductOwners: build.query({

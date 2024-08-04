@@ -26,6 +26,8 @@ import MessageFormPage from './MessageFormPage.jsx'
 import ChangeRolePage from './ChangeRolePage.jsx'
 import EditColorsPage from './EditColorsPage.jsx'
 import AddNewColorsPage from './AddNewColorsPage.jsx'
+import ForgotPasswordPage from './ForgotPasswordPage.jsx'
+import ResetPasswordPage from './ResetPasswordPage.jsx'
 
 export {
     HomePage,
@@ -56,6 +58,8 @@ export {
     ChangeRolePage,
     EditColorsPage,
     AddNewColorsPage,
+    ForgotPasswordPage,
+    ResetPasswordPage
 }
 
 

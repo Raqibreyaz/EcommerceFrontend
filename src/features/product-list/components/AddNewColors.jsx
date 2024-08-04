@@ -28,8 +28,7 @@ const AddNewColors = () => {
     const Navigate = useNavigate()
 
     const onSubmit = useCallback((data) => {
-        console.log(data);
-
+        
         let formData = new FormData()
 
         formData = addImagesToFormData(formData, data.colors, { images: 'images', mainImage: 'mainImage' })

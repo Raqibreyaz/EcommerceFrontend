@@ -9,7 +9,6 @@ function FormError({ field, index = 0, subField = '' }) {
         return null
 
     const { formState: { errors } } = methods
-// console.log(errors);
     // {colors:[{mainImage:{message}}]}
 
     const checker = useCallback(() => {

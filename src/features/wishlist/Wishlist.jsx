@@ -37,8 +37,6 @@ const ProductList = () => {
 
   const { data: { wishlist = [] } = {}, isLoading: isLoadingWishlist } = useFetchWishlistQuery()
 
-  console.log(wishlist);
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
       <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 max-sm:my-4">Favourites</h2>

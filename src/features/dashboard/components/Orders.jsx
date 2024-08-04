@@ -15,8 +15,6 @@ const TableComponent = memo(({ columns, data }) => {
         prepareRow,
     } = useTable({ columns, data });
 
-    // console.log(rows);
-
     return (
         <table {...getTableProps()} className="min-w-full bg-white ">
             <thead>
@@ -38,13 +36,14 @@ const TableComponent = memo(({ columns, data }) => {
                         <tr key={row.getRowProps().key} role={row.getRowProps().role} className='border-y'>
                             {row.cells.map(cell => {
                                 // have to give select elem for changing status
-                                // console.log(cell)
-                                return <td key={cell.getCellProps().key} role={cell.getCellProps().role} className="py-2 px-4 border">
+                                return <td
+                                    key={cell.getCellProps().key}
+                                    {...cell.getCellProps()}
+                                    className="py-2 px-4 border font-semibold capitalize">
                                     {/* telling react to render Cell */}
                                     {cell.render('Cell')}
                                 </td>
                             })}
-                            <td><Link to={`/order-details/${row.original?._id}`} className='text-blue-500 text-sm'>See Details</Link></td>
                         </tr>
                     );
                 })}
@@ -79,7 +78,6 @@ function Orders() {
 
     const changeStatus = useCallback(
         (deliveryStatus, orderId) => {
-            console.log(deliveryStatus, orderId);
             catchAndShowMessage(UpdateOrder, { deliveryStatus, id: orderId })
         }
         ,
@@ -92,23 +90,42 @@ function Orders() {
         // accessor specifies the key for getting the value corresponding to column and that row
         () => [
             { Header: 'Customer Name', accessor: 'customer_name' },
-            { Header: 'Total Amount', accessor: 'totalAmount' },
+            {
+                Header: 'Total Amount', accessor: 'totalAmount',
+                Cell: ({ value }) =>
+                    <span>₹{value}</span>
+            },
             { Header: 'No Of Products', accessor: 'noOfProducts' },
-            { Header: 'Placed At', accessor: 'createdAt' },
+            {
+                Header: 'Placed At', accessor: 'createdAt',
+                Cell: ({ value }) => (
+                    <span>{new Date(value).toLocaleString()}</span>
+                )
+            },
             {
                 Header: 'Delivery Status', accessor: 'deliveryStatus',
                 // Cell will have info for that cell , which can use for customization
                 Cell: ({ value, row: { original } }) => (
-                    <select value={value} onChange={(e) => changeStatus(e.target.value, original._id)} className={statusColors[value]}>
+                    <select
+                        value={value}
+                        onChange={(e) => changeStatus(e.target.value, original._id)} className={`${statusColors[value]} capitalize`}
+                    >
                         {
                             ['pending', 'delivered', 'cancelled']
                                 .map((deliveryStatus, index) => (
-                                    <option key={index} value={deliveryStatus} className={statusColors[deliveryStatus]}>{deliveryStatus}</option>
+                                    <option key={index} value={deliveryStatus} className={`${statusColors[deliveryStatus]} font-semibold`}>{deliveryStatus}</option>
                                 ))
                         }
                     </select>
                 )
             },
+            {
+                Header: 'Details', accessor: '_id',
+                Cell: ({ value }) => (
+                    <Link to={`/order-details/${value}`} className='text-blue-500  font-semibold'>See Details</Link>
+                )
+
+            }
         ],
         [orders]
     );
@@ -118,7 +135,10 @@ function Orders() {
             RenderingConditions={[!!orders, !!orders?.length > 0]}
             LoadingConditions={[!!isLoadingOrders, !!isUpdatingOrder]}
         >
-            <TableComponent data={orders} columns={columns} />
+            <h1 className='font-bold text-3xl max-sm:text-2xl mb-3 p-2 mx-auto '>All Orders</h1>
+            <div className='overflow-x-auto max-sm:text-xs'>
+                <TableComponent data={orders} columns={columns} />
+            </div>
         </Container>
     )
 }

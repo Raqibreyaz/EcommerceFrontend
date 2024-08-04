@@ -2,7 +2,6 @@ export const addImagesToFormData = (formData, colors, imageKeys = { images: 'ima
     // imageKeys:{images:'images'|'newImages',mainImage:'mainImage'|'newMainImage'}
 
     colors.forEach((color, index) => {
-        console.log(color);
         for (let i = 0; i < color[imageKeys['images']].length; i++) {
             formData.append(`colors[${index}].${imageKeys['images']}`,
                 color[imageKeys['images']][i])

@@ -12,8 +12,6 @@ function SellerProfile() {
 
     const { data: { profileDetails = null } = {}, isLoading: isLoadingProfile } = useFetchProfileDetailsQuery(userId)
 
-    console.log(products);
-
     return (
         <Container
             LoadingConditions={[!!isLoadingProducts, !!isLoadingProfile]}

@@ -23,7 +23,6 @@ export const handleOnlinePayment = async (user, amount, Razorpay, CreateRazorPay
             contact: user.phoneNo
         },
         handler: function (response) {
-            console.log(response);
             // Step 3: Verify payment on the backend
             // Step 4: Create the order 
             catchAndShowMessage(VerifyRazorPayOrder, response, false)

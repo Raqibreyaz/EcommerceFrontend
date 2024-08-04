@@ -3,22 +3,31 @@ import { Link } from 'react-router-dom'
 
 const StatsSection = memo(function StatsSection({ totalProducts, totalSells, soldToday, totalSellers }) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold mb-2">Total Products</h2>
-                <p className="text-3xl font-semibold text-gray-800">{totalProducts}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold mb-2">Total Sales</h2>
-                <p className="text-3xl font-semibold text-gray-800">{totalSells}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold mb-2">Sold Today</h2>
-                <p className="text-3xl font-semibold text-gray-800">{soldToday}</p>
-            </div>
-            <Link to='/sellers' className="bg-white p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 tracking-tight leading-tight">
+            {
+                [
+                    {
+                        name: 'total products',
+                        child: totalProducts
+                    },
+                    {
+                        name: 'total sells',
+                        child: totalSells
+                    },
+                    {
+                        name: 'sold today',
+                        child: soldToday
+                    },
+                ].map(({ name, child }) => (
+                    <div key={name} className="bg-white p-3 sm:p-4 rounded-lg shadow-md capitalize">
+                        <h2 className="text-lg max-sm:text-md font-semibold mb-2">{name}</h2>
+                        <p className="text-3xl max-sm:text-xl font-semibold text-gray-800">{child}</p>
+                    </div>
+                ))
+            }
+            <Link to='/sellers' className="bg-white p-3  sm:p-4 rounded-lg shadow-md">
                 <h2 className="text-lg font-semibold mb-2">Total Sellers</h2>
-                <p className="text-3xl font-semibold text-gray-800">{totalSellers}</p>
+                <p className="text-3xl max-sm:text-xl font-semibold text-gray-800">{totalSellers}</p>
             </Link>
         </div>
 

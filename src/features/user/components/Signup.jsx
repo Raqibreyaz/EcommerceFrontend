@@ -1,9 +1,11 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { FormError, FailedMessage, SuccessMessage, Loader, Container } from '../../../components/index.js'
-import { useSignUpUserMutation } from '../userSlice.js'
+import { useFetchUserQuery, useSignUpUserMutation } from '../userSlice.js'
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
+import FormError from '../../../components/FormError.jsx'
+import Container from '../../../components/Container.jsx'
+import { useFetchUserCartQuery } from '../../cart/cartSlice.js'
 
 
 function Signup() {
@@ -12,8 +14,10 @@ function Signup() {
 
   const [SignupUser, { isLoading, isSuccess }] = useSignUpUserMutation()
 
+  const {refetch} = useFetchUserQuery()
+
   const onSubmit = useCallback((data) => {
-console.log(data);
+
     const formData = new FormData()
 
     const address = {}
@@ -45,10 +49,14 @@ console.log(data);
   const Location = useLocation()
   const Navigate = useNavigate()
 
-  if (isSuccess) {
-    const from = Location.state?.from || '/'
-    Navigate(from)
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      refetch()
+      const from = Location.state?.from || '/'
+      Navigate(from)
+    }
+  }, [isSuccess])
+
 
   return (
     <Container
@@ -141,26 +149,6 @@ console.log(data);
                 </button>
               </div>
             </form>
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300">
-                  </div>
-                </div>
-                <div className="relative flex justify-center text-sm mb-2">
-                  <span className="px-2 bg-gray-100 text-gray-500">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              {/* <div>
-                <Link to="#"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                  <img className="h-6 w-6" src="https://www.svgrepo.com/show/506498/google.svg"
-                    alt="" />Google
-                </Link>
-              </div> */}
-            </div>
           </div>
         </div >
       </div >

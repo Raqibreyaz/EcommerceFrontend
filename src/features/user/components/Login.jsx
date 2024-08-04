@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormError, Loader, Container } from '../../../components/index.js'
-import { useLoginUserMutation } from '../userSlice.js'
+import { useFetchUserQuery, useLoginUserMutation } from '../userSlice.js'
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage.js'
 
 function Login() {
@@ -11,6 +11,8 @@ function Login() {
   const { register, handleSubmit, formState: { isSubmitting } } = methods
 
   const [LoginUser, { isLoading, isSuccess }] = useLoginUserMutation()
+
+  const { refetch } = useFetchUserQuery()
 
   const HandleLogin = useCallback(
     (data) => {
@@ -23,8 +25,10 @@ function Login() {
 
   useEffect(() => {
     if (isSuccess) {
+
+      refetch()
       const from = Location.state?.from || '/'
-      Navigate(from)
+      Navigate('/')
     }
   }, [isSuccess])
 

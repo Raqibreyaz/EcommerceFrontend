@@ -57,6 +57,7 @@ const ImageGallery = React.memo(function ({ selectedColor }) {
                             scrollbar={{draggable:true}}
                             autoPlay={{ delay: 1000 }}
                             loop
+                            slidesPerView={1}
                         >
                             {
                                 selectedColor.images.map(({ image: { url } }, index) => (

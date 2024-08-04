@@ -136,8 +136,7 @@ function classNames(...classes) {
 }
 
 const handleLogout = () => {
-  // Implement your logout functionality here
-  console.log('User logged out');
+
 };
 
 function DropDown() {

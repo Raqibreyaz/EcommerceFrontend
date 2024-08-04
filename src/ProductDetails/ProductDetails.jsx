@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useMemo } from 'react'
+import { useEffect, useCallback, useState, useMemo, memo } from 'react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { StarIcon, HeartIcon, TrashIcon, PencilIcon, PencilSquareIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import { Radio, RadioGroup } from '@headlessui/react'
@@ -22,13 +22,89 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+const SizesSection = memo(({ product, selectedSize, setSelectedSize }) => {
+  return (
+    <RadioGroup
+      value={selectedSize}
+      onChange={setSelectedSize}
+      className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
+    >
+      {
+        product.sizes?.map((size) => (
+          <Radio
+            key={size}
+            value={size}
+            className={({ focus }) =>
+              classNames(
+                'cursor-pointer bg-white text-gray-900 shadow-sm',
+                focus ? 'ring-2 ring-indigo-500' : '',
+                'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
+              )
+            }
+          >
+            {({ checked, focus }) => (
+              <>
+                <span>{size}</span>
+                <span
+                  className={classNames(
+                    checked ? 'border-indigo-500' : 'border-transparent',
+                    focus ? 'border' : 'border-2',
+                    'pointer-events-none absolute -inset-px rounded-md'
+                  )}
+                  aria-hidden="true"
+                />
+              </>
+            )}
+          </Radio>
+        ))
+      }
+    </RadioGroup>
+  )
+}
+)
+
+const ColorsSection = memo(({ product, setSelectedColor, selectedColor }) => {
+  return (
+    <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center max-sm:gap-3 gap-2 flex-wrap">
+      {product.colors?.map((color) => (
+        <Radio
+          key={color.color}
+          // color is an object containing color with images
+          value={color}
+          aria-label={color.color}
+          className={({ focus, checked }) =>
+            classNames(
+              'ring-gray-400',
+              focus && checked ? 'ring ring-offset-1' : '',
+              !focus && checked ? 'ring-2' : '',
+              'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'
+            )
+          }
+        >
+          <span
+            aria-hidden="true"
+            className={classNames(
+              color.color,
+              `h-8 w-8 rounded-full border border-black border-opacity-10`
+            )}
+            style={{ backgroundColor: color.color }}
+          />
+        </Radio>
+      ))}
+      <Link to={`/add-new-colors/${product._id}`}>
+        <PlusCircleIcon className=' text-gray-500 size-8' />
+      </Link>
+    </RadioGroup>
+  )
+})
+
 export default function ProductDetails() {
 
   const productId = useParams().id
 
   const Navigate = useNavigate()
 
-  const { data: { product = {} } = {}, isLoading: isLoadingProduct } = useFetchProductDetailsQuery(productId)
+  const { data: { product = {} } = {}, isLoading: isLoadingProduct, isError: isErrorInProduct } = useFetchProductDetailsQuery(productId)
 
   const { data: { isInWishlist = false } = {}, isLoading: isLoadingWishlist } = useIsProductInWishlistQuery(productId)
 
@@ -79,19 +155,22 @@ export default function ProductDetails() {
   )
 
   useEffect(() => {
-    setSelectedColor((prevSelectedColor) => (
-      product?.colors?.length ? product.colors[0] : {}
-    ))
-    setSelectedSize((prevSelectedSize) => (
-      product?.sizes?.length ? product.sizes[0] : ''
-    ))
-  }, [product]);
 
+    if (product && Object.keys(product).length > 0) {
+      setSelectedColor((prevSelectedColor) => (
+        product.colors[0]
+      ))
+      setSelectedSize((prevSelectedSize) => (
+        product.sizes[0]
+      ))
+    }
+
+  }, [product]);
 
   return (
     <Container
       LoadingConditions={[isLoadingCart, isLoadingProduct, isLoadingUser, isLoadingWishlist, isLoadingAddToCart, isLoadingAddToWishlist, isLoadingRemoveFromWishlist]}
-      RenderingConditions={[!!product, !!product?._id]}
+      RenderingConditions={[!!product, !!product?._id, !isErrorInProduct]}
       className='bg-white pt-6'
     >
       <ProductDetailsNav name={product?.product_name} />
@@ -112,8 +191,9 @@ export default function ProductDetails() {
           <p className={`text-2xl tracking-tight text-gray-500 line-through ${product.discount > 0 ? '' : 'hidden'}`}>
             ₹{product?.price}
           </p>
-          {/* Reviews */}
-          <div className="mt-6">
+
+          {/* Reviews section*/}
+          {/* <div className="mt-6">
             <h3 className="sr-only">Reviews</h3>
             <div className="flex items-center flex-wrap">
               <div className="flex items-center ">
@@ -133,83 +213,19 @@ export default function ProductDetails() {
                 {reviews.totalCount} reviews
               </Link>
             </div>
-          </div>
+          </div> */}
 
+          {/* sizes and colors section */}
           <div className="mt-10">
             {
               [
                 {
                   name: 'color',
-                  child:
-                    <RadioGroup value={selectedColor} onChange={setSelectedColor} className="flex items-center max-sm:gap-3 gap-2 flex-wrap">
-                      {product.colors?.map((color) => (
-                        <Radio
-                          key={color.color}
-                          // color is an object containing color with images
-                          value={color}
-                          aria-label={color.color}
-                          className={({ focus, checked }) =>
-                            classNames(
-                              'ring-gray-400',
-                              focus && checked ? 'ring ring-offset-1' : '',
-                              !focus && checked ? 'ring-2' : '',
-                              'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'
-                            )
-                          }
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={classNames(
-                              color.color,
-                              `h-8 w-8 rounded-full border border-black border-opacity-10`
-                            )}
-                            style={{ backgroundColor: color.color }}
-                          />
-                        </Radio>
-                      ))}
-                      <Link to={`/add-new-colors/${productId}`}>
-                        <PlusCircleIcon className=' text-gray-500 size-8' />
-                      </Link>
-                    </RadioGroup>
+                  child: <ColorsSection product={product} selectedColor={selectedColor} setSelectedColor={setSelectedColor} />
                 },
                 {
                   name: 'size',
-                  child:
-                    <RadioGroup
-                      value={selectedSize}
-                      onChange={setSelectedSize}
-                      className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
-                    >
-                      {
-                        product.sizes?.map((size) => (
-                          <Radio
-                            key={size}
-                            value={size}
-                            className={({ focus }) =>
-                              classNames(
-                                'cursor-pointer bg-white text-gray-900 shadow-sm',
-                                focus ? 'ring-2 ring-indigo-500' : '',
-                                'group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6'
-                              )
-                            }
-                          >
-                            {({ checked, focus }) => (
-                              <>
-                                <span>{size}</span>
-                                <span
-                                  className={classNames(
-                                    checked ? 'border-indigo-500' : 'border-transparent',
-                                    focus ? 'border' : 'border-2',
-                                    'pointer-events-none absolute -inset-px rounded-md'
-                                  )}
-                                  aria-hidden="true"
-                                />
-                              </>
-                            )}
-                          </Radio>
-                        ))
-                      }
-                    </RadioGroup>
+                  child: <SizesSection product={product} selectedSize={selectedSize} setSelectedSize={setSelectedSize} />
                 }].map(({ name, child }) => (
                   <div key={name} className="mt-10">
                     <h3 className="text-sm  text-gray-900 capitalize font-semibold">{name}</h3>
@@ -252,6 +268,7 @@ export default function ProductDetails() {
               </Link>
             </div>
           </div>
+
         </div>
         <DescriptionDetailsAndHighlights product={product} />
       </div>
@@ -262,56 +279,3 @@ export default function ProductDetails() {
     </Container>
   )
 }
-
-
-// const product = {
-//   name: 'Basic Tee 6-Pack',
-//   price: '$192',
-//   href: '#',
-//   breadcrumbs: [
-//     { id: 1, name: 'Men', href: '#' },
-//     { id: 2, name: 'Clothing', href: '#' },
-//   ],
-// images: [
-//   {
-//     src: 'https://tailwindui.com/img/ecommerce-images/product-page-02-secondary-product-shot.jpg',
-//     alt: 'Two each of gray, white, and black shirts laying flat.',
-//   },
-//   {
-//     src: 'https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg',
-//     alt: 'Model wearing plain black basic tee.',
-//   },
-//   {
-//     src: 'https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg',
-//     alt: 'Model wearing plain gray basic tee.',
-//   },
-//   {
-//     src: 'https://tailwindui.com/img/ecommerce-images/product-page-02-featured-product-shot.jpg',
-//     alt: 'Model wearing plain white basic tee.',
-//   },
-// ],
-//   colors: [
-//     { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
-//     { name: 'Gray', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
-//     { name: 'Black', class: 'bg-gray-900', selectedClass: 'ring-gray-900' },
-//   ],
-//   sizes: [
-//     { name: 'XXS', inStock: false },
-//     { name: 'XS', inStock: true },
-//     { name: 'S', inStock: true },
-//     { name: 'M', inStock: true },
-//     { name: 'L', inStock: true },
-//     { name: 'XL', inStock: true },
-//     { name: '2XL', inStock: true },
-//     { name: '3XL', inStock: true },
-//   ],
-//   description: 'The Basic Tee 6-Pack allows you to fully express your vibrant personality with three grayscale options. Feeling adventurous? Put on a heather gray tee. Want to be a trendsetter? Try our exclusive colorway: "Black". Need to add an extra pop of color to your outfit? Our white tee has you covered.',
-// highlights: [
-//   'Hand cut and sewn locally',
-//   'Dyed with our proprietary colors',
-//   'Pre-washed & pre-shrunk',
-//   'Ultra-soft 100% cotton',
-// ],
-//   details:
-//     'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
-// }

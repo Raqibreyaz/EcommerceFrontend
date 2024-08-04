@@ -235,8 +235,6 @@ const Orders = () => {
 
     const { data: { orders = [], totalPages = 1, filteredTotal = 0 } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery(`limit=${10}&&page=${page}`)
 
-    console.log(totalPages, filteredTotal);
-
     const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     return (

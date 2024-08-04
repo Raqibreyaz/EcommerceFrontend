@@ -14,7 +14,7 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
     const Navigate = useNavigate()
 
     const currentDate = new Date()
-    const givenDate = new Date(orderDetails.createdAt)
+    const givenDate = deliveredAt ? new Date(deliveredAt) : 0
 
     const daysDifference = (currentDate - givenDate) / (1000 * 60 * 60 * 24)
 
@@ -22,7 +22,6 @@ const OrderedProductCard = ({ orderedProduct, deliveryStatus, deliveredAt, order
 
     const handleReturnOrder = useCallback(
         () => {
-            console.log(daysDifference);
             if (daysDifference >= 3)
                 FailedMessage('return is only applicable for a period of 3 days')
             else {
@@ -142,7 +141,7 @@ const OrdersPage = () => {
             RenderingConditions={[!!orderDetails]}
         >
             <div className="min-h-screen bg-gray-50 p-8">
-                <h1 className="text-3xl font-bold mb-8 text-gray-800">Orders</h1>
+                <h1 className="text-3xl font-bold mb-8 text-gray-800 capitalize">Order details</h1>
                 <div className="grid grid-cols-1  gap-8">
                     <div className="bg-white shadow-lg rounded-lg w-full mb-0">
                         <div className="p-6">

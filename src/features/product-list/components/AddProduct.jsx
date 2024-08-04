@@ -51,8 +51,6 @@ const AddProduct = () => {
     const onSubmit = useCallback(
         async (data) => {
 
-            console.log(data);
-
             let formData = new FormData()
 
             formData = addImagesToFormData(formData, data.colors, { images: 'images', mainImage: 'mainImage' })

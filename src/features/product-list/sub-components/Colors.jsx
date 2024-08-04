@@ -11,7 +11,7 @@ export const ColorPart = memo(({ color, noOfColors, removeColor, index, isEditin
         control,
         name: 'colors'
     })
-    // console.log('color part rendered')
+
     return (
         <div className=" " >
             <div className='flex gap-1 items-center flex-wrap'>
@@ -73,7 +73,7 @@ export const ImagesPart = memo(({ index, field }) => {
         }
         return cond;
     }, [colors])
-    // console.log(`${field} part rendered`);
+
     return (
         <div className='flex gap-2  max-sm:flex-col'>
             <label

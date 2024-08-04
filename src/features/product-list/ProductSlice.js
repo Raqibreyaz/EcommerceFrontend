@@ -57,6 +57,7 @@ export const productApi = createApi({
                 method: 'PUT',
                 body: data,
                 credentials: 'include',
+                headers:{'Content-Type':'application/json'}
             }),
             // will refetch that particular product having that id
             invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],

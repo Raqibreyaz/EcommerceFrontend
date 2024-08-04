@@ -30,7 +30,6 @@ const RatingBreakdown = memo(({ reviewStats = [], filteredTotal = 0 }) => {
 })
 
 const ReviewCard = memo(({ review = {} }) => {
-    console.log(review);
     return (
         <div className="p-2 bg-white rounded-lg shadow text-sm">
             <div className="flex sm:items-center mb-2">

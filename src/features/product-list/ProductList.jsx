@@ -57,7 +57,6 @@ function ProductList() {
         });
       }
 
-      // console.log(queryString); // Output: discount=10&&product_owners=owner1,owner2&&category=smartphone,laptop&&min_price=10&&max_price=100&&sort[price]=1&&sort[rating]=-1
       return queryString
     },
     [filter],

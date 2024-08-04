@@ -15,7 +15,6 @@ const AddCategoryForm = () => {
     const [AddNewCategory, { isLoading: isCreatingNewCategory, isSuccess: isSuccessfullyCreatedCategory }] = useAddNewCategoryMutation()
 
     const onAddCategory = (data) => {
-        console.log(data);
         catchAndShowMessage(AddNewCategory,data.newCategory)
         // Handle the form submission logic here
     };

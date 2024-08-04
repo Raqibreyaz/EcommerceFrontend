@@ -67,9 +67,6 @@ export const ImageSection = function ({ field, subField = '', removeOption = fal
                         else {
                             newColors = fieldValue.map((color, i) => {
 
-                                if (!color.mainImage) {
-                                    console.log(color);
-                                }
                                 if (i === index)
                                     color.mainImage = null
                                 return color

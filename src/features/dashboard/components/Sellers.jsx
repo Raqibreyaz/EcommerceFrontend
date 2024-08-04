@@ -1,7 +1,7 @@
 import { useFetchSellersQuery } from '../dashboardSlice';
 import React, { memo } from 'react';
 import { EnvelopeIcon, PhoneIcon, MapPinIcon, CalendarDaysIcon } from '@heroicons/react/24/solid';
-import {Container}from '../../../components/index.js'
+import { Container } from '../../../components/index.js'
 
 const sellers = [
   {
@@ -34,18 +34,43 @@ const sellers = [
 ];
 
 const SellerCard = memo(({ seller }) => (
-  <div className="bg-white shadow-lg rounded-lg p-8 m-6 w-full transform transition-transform hover:shadow-xl">
-    <div className="flex items-center mb-6">
-      <img src={seller.avatar.url} alt={seller.fullname} className="w-20 h-20 rounded-full mr-6 border-2 border-gray-300 transition-transform hover:scale-110" />
+  <div className="bg-white shadow-lg rounded-lg p-8 m-2 w-full transform transition-transform hover:shadow-xl">
+    <div className="flex items-center mb-6 flex-wrap">
+      <img src={seller.avatar.url} alt={seller.fullname} className=" w-20 h-20 rounded-full mr-6 border-2 border-gray-300 transition-transform hover:scale-110" />
       <div>
-        <h2 className="text-2xl font-semibold">{seller.fullname}</h2>
+        <h2 className="text-2xl font-semibold capitalize">{seller.fullname}</h2>
         <p className="text-gray-500 flex items-center"><EnvelopeIcon className="h-5 w-5 mr-2" />{seller.email}</p>
       </div>
     </div>
     <div className="text-gray-700">
-      <p className="mb-4 flex items-center"><MapPinIcon className="h-5 w-5 mr-2" /><strong>Address:</strong> {`${seller.address.house_no}, ${seller.address.city}, ${seller.address.state} - ${seller.address.pincode}`}</p>
-      <p className="mb-4 flex items-center"><PhoneIcon className="h-5 w-5 mr-2" /><strong>Phone: </strong> {seller.phoneNo}</p>
-      <p className="flex items-center"><CalendarDaysIcon className="h-5 w-5 mr-2" /><strong>Joined At: </strong> {seller.joinedAt ? new Date(seller.joinedAt).toLocaleDateString() : 'unknown'}</p>
+      {
+        [
+          {
+            name: 'address',
+            icon: <MapPinIcon />,
+            child: `${seller.address.house_no}, ${seller.address.city}, ${seller.address.state} - ${seller.address.pincode}`
+          },
+          {
+            name: 'joined at',
+            icon: <CalendarDaysIcon />,
+            child: seller.joinedAt ?
+              new Date(seller.joinedAt).toLocaleDateString() : 'unknown'
+          },
+          {
+            name: 'phone no',
+            icon: <PhoneIcon />,
+            child: seller.phoneNo
+          },
+        ].map(({ name, icon, child }) => (
+          <p key={name} className="mb-4 flex items-center flex-wrap">
+            <div className='flex'>
+              <div className="h-5 w-5 mr-1">{icon}</div>
+              <strong className='mr-2 '>{name}:</strong>
+            </div>
+            {child}
+          </p>
+        ))
+      }
     </div>
   </div>
 ))
@@ -56,12 +81,12 @@ const SellerList = () => {
 
   return (
     <Container
-      className="container mx-auto p-6"
+      className="container mx-auto p-4"
       LoadingConditions={[!!isLoadingSellers]}
       backupElem={<h1 className='text-xl font-semibold text-center'>No sellers found</h1>}
     >
-      <h1 className="text-4xl font-bold mb-6 text-center">List of Sellers</h1>
-      <div className="flex flex-wrap -mx-6 justify-center">
+      <h1 className="text-4xl font-bold mb-4">List of Sellers</h1>
+      <div className="flex flex-wrap  justify-center">
         {sellers.map((seller, index) => (
           <SellerCard key={seller._id} seller={seller} />
         ))}
