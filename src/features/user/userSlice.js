@@ -82,6 +82,30 @@ export const userApi = createApi({
       }),
     }),
 
+    forgotPassword: build.mutation({
+      query: (data) => ({
+        url: 'forgot-password',
+        method: 'POST',
+        body:data
+      }),
+    }),
+  
+  verifyPasswordResetToken: build.mutation({
+      query: (data) => ({
+        url: 'verify-reset-token',
+        method: 'POST',
+        body:data
+      }),
+    }),
+
+    resetPassword: build.mutation({
+      query: () => ({
+        url: 'reset-password',
+        method: 'POST',
+        body:data
+      }),
+    }),
+
     fetchProductOwners: build.query({
       query: () => ({
         url: 'get-product-owners',
@@ -124,4 +148,7 @@ export const {
   useFetchProductOwnersQuery,
   useFetchProfileDetailsQuery,
   useRemoveAddressMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useVerifyPasswordResetTokenMutation
 } = userApi;

@@ -2,12 +2,15 @@ import React, { useCallback } from 'react'
 import { catchAndShowMessage } from '../../../utils/catchAndShowMessage'
 import { FormProvider, useForm } from 'react-hook-form'
 import UserFinder from '../sub-components/UserFinder'
+import { useForgotPasswordMutation } from '../userSlice'
 
 const ForgotPassword = () => {
 
     const [ForgotUserPassword, { isLoading }] = useForgotPasswordMutation()
 
     const onSubmit = useCallback((data) => {
+        console.log(data);
+        
         catchAndShowMessage(ForgotUserPassword, data)
     }, [])
 

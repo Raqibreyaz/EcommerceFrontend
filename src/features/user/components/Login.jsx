@@ -76,7 +76,7 @@ function Login() {
                   <FormError field={'password'} />
                 </div>
                 <div className="text-sm">
-                  <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
+                  <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                     Forgot your password?
                   </Link>
                 </div>
