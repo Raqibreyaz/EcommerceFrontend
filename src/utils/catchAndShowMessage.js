@@ -2,6 +2,8 @@ import { FailedMessage, SuccessMessage } from "../components/MessageDialog"
 
 export const catchAndShowMessage = async (fn, data = {}, showSuccess = true) => {
     try {
+        console.log(data);
+        
         let result = await fn(data).unwrap()
         if (showSuccess)
             SuccessMessage(result?.data?.message || result.message)

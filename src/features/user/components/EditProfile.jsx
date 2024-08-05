@@ -94,7 +94,7 @@ function EditProfile() {
                                         type={input.type}
                                         id={input.name}
                                         {...register(input.name, input.cond)}
-                                        className="block pt-5 px-0 w-full text-sm text-gray-600 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-gray-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                        className="block pt-5 px-0 w-full text-sm text-gray-600 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-gray-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 z-10 peer"
                                     />
                                     <label
                                         htmlFor={input.name}

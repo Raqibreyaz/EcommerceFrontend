@@ -99,9 +99,9 @@ export const userApi = createApi({
     }),
 
     resetPassword: build.mutation({
-      query: () => ({
+      query: (data) => ({
         url: 'reset-password',
-        method: 'POST',
+        method: 'PATCH',
         body:data
       }),
     }),

@@ -105,6 +105,7 @@ const ProfileHeader = memo(({ user }) => {
 const UserProfile = () => {
 
     const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
+console.log(user);
 
     const [page, setPage] = useState(1)
 
@@ -115,7 +116,7 @@ const UserProfile = () => {
             LoadingConditions={[
                 isLoadingUser, isLoadingProducts
             ]}
-            RenderingConditions={[!!user, products.length > 0]}
+            RenderingConditions={[!!user]}
         >
             < div className="min-h-screen bg-gray-100" >
                 <div className="max-w-4xl  bg-white shadow-md rounded-lg overflow-hidden">

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Container, FormError } from '../../../components';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,7 +11,9 @@ const ResetPassword = () => {
 
     const Navigate = useNavigate();
 
-    const Location = useLocation()
+    const token = (new URLSearchParams(useLocation().search)).get('token')
+
+    const [userId, setUserId] = useState('')
 
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = methods
 
@@ -19,10 +21,10 @@ const ResetPassword = () => {
 
     const [ResetUserPassword, { isLoading, isSuccess }] = useResetPasswordMutation()
 
-    const onSubmit = data => {
+    const onSubmit = (data) => {
+        data.userId = userId
         console.log(data);
         catchAndShowMessage(ResetUserPassword, data)
-        // Handle the password reset logic here
     };
 
     const newPassword = watch('newPassword');
@@ -34,15 +36,19 @@ const ResetPassword = () => {
     }, [isSuccess])
 
     useEffect(() => {
-        console.log('token', Location.token);
-
-        // catchAndShowMessage(VerifyPasswordResetToken, Location.token)
+        catchAndShowMessage(VerifyPasswordResetToken, { token }, false)
+            .then((data) => {
+                if (data) {
+                    console.log('user id', data.userId);
+                    setUserId(data.userId)
+                }
+            })
     }, [])
 
     return (
         <Container
             LoadingConditions={[isLoading, isVerifyingResetToken]}
-            RenderingConditions={[!isFailedToVerifyToken,!isVerifyingResetToken]}
+            RenderingConditions={[!isFailedToVerifyToken, !isVerifyingResetToken, !!userId]}
         >
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
                 <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
@@ -88,7 +94,7 @@ const ResetPassword = () => {
                             <button
                                 type="submit"
                                 className="w-full py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                disabled={isLoading || !isSubmitting || Object.keys(errors).length > 0}
+                                disabled={isLoading || isSubmitting || Object.keys(errors).length > 0}
                             >
                                 Reset Password
                             </button>
