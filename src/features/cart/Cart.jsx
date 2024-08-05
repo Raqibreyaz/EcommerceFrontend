@@ -1,31 +1,64 @@
-import { Loader } from '../../components/index.js'
+import { useMemo } from 'react'
+import { Container } from '../../components/index.js'
 import { CartItem } from './components/CartItem'
 import { AmountSection } from './components/AmountSection'
-import { useCart } from '../../custom-hooks/useCart.js'
+import { useAddProductToCartMutation, useFetchUserCartQuery, useRemoveProductFromCartMutation } from './cartSlice.js'
+import { useFormContext } from 'react-hook-form'
 
 export default function Cart({ inCheckout = false }) {
 
-  const { userCart, cartStatus, subTotal, totalDiscount, AddToCart, RemoveFromCart } = useCart()
+  const { setValue = null } = useFormContext() ?? {}
+
+  const [AddToCart, { isLoading: isLoadingAddToCart }] = useAddProductToCartMutation()
+
+  const [RemoveFromCart, { isLoading: isLoadingRemoveFromCart }] = useRemoveProductFromCartMutation()
+
+  const { data: { userCart = [] } = {}, isLoading: isLoadingCart, isFetching } = useFetchUserCartQuery()
+
+  const subTotal = useMemo(() => {
+    return userCart.reduce((acc, { price, quantity }) => acc + price * quantity, 0)
+  }, [userCart])
+
+  // total discount will be the memoized value in the useMemo fucntion
+  const totalDiscount = useMemo(() => {
+    return Math.round(userCart.reduce((acc, { price, quantity, discount }) => acc + price * discount * quantity / 100, 0));
+  }, [userCart])
+
+  // while checkout take the calculated price and discount
+  if (inCheckout) {
+    setValue('totalAmount', subTotal - totalDiscount)
+    setValue('totalDiscount', totalDiscount)
+    setValue('totalPrice', subTotal)
+    setValue('products',
+      userCart.map((
+        { product, product_name, quantity, size, color, price, discount, image }
+      ) => (
+        { product, discount, image, size, color, price, product_name, quantity }
+      )))
+  }
 
   return (
-    cartStatus === 'loading' ? <Loader /> :
-      (userCart.length > 0 ? <div>
-        <div className="mt-8">
-          <h1 className='text-3xl font-bold mb-2'>{!inCheckout ? "Cart" : 'Your Items'}</h1>
-          <div className="flow-root">
-            <ul role="list" className="-my-6 divide-y divide-gray-200">
-              {
-                userCart.map((product) => (
-                  <CartItem product={product} AddToCart={AddToCart} RemoveFromCart={RemoveFromCart}
-                    key={product.product + product.size + product.color}
-                  />
-                ))
-              }
-            </ul>
-          </div>
+    <Container
+      LoadingConditions={[!!isLoadingCart, !!isLoadingAddToCart, !!isLoadingRemoveFromCart, !!isFetching]}
+      RenderingConditions={[!!userCart, !!userCart?.length > 0]}
+      backupElem={<h1 className='text-3xl capitalize text-center'>your cart is empty</h1>}
+    >
+      <div className="mt-8">
+        <h1 className='text-3xl font-bold mb-2'>{!inCheckout ? "Cart" : 'Your Items'}</h1>
+        <div className="flow-root">
+          <ul role="list" className="-my-6 divide-y divide-gray-200">
+            {
+              userCart.map((product) => (
+                <CartItem product={product} AddToCart={AddToCart} RemoveFromCart={RemoveFromCart} totalAmount={subTotal - totalDiscount}
+                  key={product.product + product.size + product.color}
+                />
+              ))
+            }
+          </ul>
         </div>
-        <AmountSection totalDiscount={totalDiscount} subTotal={subTotal} inCheckout={inCheckout} />
-      </div > : <h1 className='text-3xl capitalize text-center'>your cart is empty</h1>)
+      </div>
+      <AmountSection totalDiscount={totalDiscount} subTotal={subTotal} inCheckout={inCheckout} />
+    </Container>
   )
 }
 

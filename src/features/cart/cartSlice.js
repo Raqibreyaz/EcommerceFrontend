@@ -1,72 +1,50 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchUserCart, addProductToCart, removeProductFromCart } from "./cartApi.js";
-import { catchAsyncError, wrapper } from '../../utils/catchErrorAndWrapper.js'
-import { clearErrorAndSuccess } from '../../utils/Generics.js'
-
-const initialState = {
-    userCart: [],
-    status: 'idle',
-    error: null,
-    success: ''
-};
-
-// fethces the users cart 
-const fetchUserCartAsync = wrapper("cart/fetchUserCart", fetchUserCart)
-
-// adds a product to the users cart using the product id ,color,size,quantity
-const addProductToCartAsync = wrapper('cart/addProductToCart', addProductToCart)
-
-// removes  a product from the users cart using the product id,color,size
-const removeProductFromCartAsync = wrapper('cart/removeProductFromCart', removeProductFromCart)
-
-const handleAsyncActions = (builder, asyncThunk) => {
-
-    builder
-        .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading'
-            state.error = null
-            state.success = ''
-        }
-        )
-        .addCase(asyncThunk.fulfilled, (state, action) => {
-
-            state.status = 'idle'
-
-            if (action.type === 'cart/fetchUserCart/fulfilled') {
-                state.userCart = action.payload.userCart
-            }
-            else
-                state.success = action.payload.message
-        }
-        )
-        .addCase(asyncThunk.rejected, (state, action) => {
-            state.error = action.error.message
-            state.status = 'failed'
-        }
-        )
-
-};
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 
-const cartSlice = createSlice({
-    initialState,
-    name: "cart",
-    reducers: {
-        ...clearErrorAndSuccess
-    },
-    extraReducers: (builder) => {
-        handleAsyncActions(builder, fetchUserCartAsync)
-        handleAsyncActions(builder, addProductToCartAsync)
-        handleAsyncActions(builder, removeProductFromCartAsync)
-    }
-})
+export const cartApi = createApi({
 
-export {
-    fetchUserCartAsync,
-    addProductToCartAsync,
-    removeProductFromCartAsync
-}
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:4000/api/v1/users/cart/',
+    credentials: 'include',
+  }),
 
-export const { clearError, clearSuccess } = cartSlice.actions
+  reducerPath: 'cartApi',
 
-export default cartSlice.reducer;
+  tagTypes: ['Cart'],
+
+  endpoints: (build) => ({
+
+    fetchUserCart: build.query({
+      query: () => ({
+        url: 'get-cart',
+        method: 'GET',
+      }),
+      providesTags: ['Cart'],
+    }),
+
+    addProductToCart: build.mutation({
+      query: ({ id, ...data }) => ({
+        url: `add-product/${id}`,
+        method: 'PUT',
+        body: data,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      invalidatesTags: ['Cart'],
+    }),
+    removeProductFromCart: build.mutation({
+      query: ({ id, ...data }) => ({
+        url: `delete-product/${id}`,
+        method: 'DELETE',
+        body: data,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      invalidatesTags: ['Cart'],
+    }),
+  }),
+});
+
+export const {
+  useFetchUserCartQuery,
+  useAddProductToCartMutation,
+  useRemoveProductFromCartMutation,
+} = cartApi;

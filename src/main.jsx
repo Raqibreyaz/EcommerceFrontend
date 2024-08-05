@@ -8,7 +8,7 @@ import {
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from '../app/store.js'
-import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, OrdersPage, DashBoardPage, MessageList, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage } from './pages/index.js'
+import { HomePage, CheckoutPage, EditProductPage, LoginPage, SignupPage, WishlistPage, ProductDetailPage, AddProductPage, CartPage, OrderDetailsPage, MyOrdersPage, OrdersPage, DashBoardPage, MessagesPage, UserProfilePage, NotFoundPage, EditProfilePage, EditAddressPage, SellerProfilePage, SellersPage, ReturnRequestsPage, ReturnDetailsPage, ReturnRequestFormPage, ReviewFormPage, MessageFormPage, ChangeRolePage, EditColorsPage, AddNewColorsPage, ForgotPasswordPage, ResetPasswordPage } from './pages/index.js'
 import Authenticate from './components/Authenticate.jsx';
 
 const router = createBrowserRouter([
@@ -67,6 +67,22 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: '/forgot-password',
+        element: (
+          <Authenticate authState={false}>
+            <ForgotPasswordPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/reset-password',
+        element: (
+          <Authenticate authState={false}>
+            <ResetPasswordPage />
+          </Authenticate>
+        )
+      },
+      {
         path: '/add-product',
         element: (
           <Authenticate authState={true} roles={['admin', 'seller']}>
@@ -83,6 +99,22 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: '/edit-product-colors/:id',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <EditColorsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/add-new-colors/:id',
+        element: (
+          <Authenticate authState={true} roles={['admin', 'seller']}>
+            <AddNewColorsPage/>
+          </Authenticate>
+        )
+      },
+      {
         path: '/dashboard',
         element: (
           <Authenticate authState={true} role={'admin'}>
@@ -91,10 +123,58 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: '/change-user-role',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <ChangeRolePage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/messages',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <MessagesPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/sellers',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <SellersPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/orders/all',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <OrdersPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/return-requests',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <ReturnRequestsPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/return-details/:id',
+        element: (
+          <Authenticate authState={true} role={'admin'}>
+            <ReturnDetailsPage />
+          </Authenticate>
+        )
+      },
+      {
         path: '/orders',
         element: (
           <Authenticate authState={true}>
-            <OrdersPage />
+            <MyOrdersPage />
           </Authenticate>
         )
       },
@@ -107,18 +187,18 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: '/wishlist',
+        path: '/return-request-form/:orderId/:productId',
         element: (
           <Authenticate authState={true}>
-            <WishlistPage />
+            <ReturnRequestFormPage />
           </Authenticate>
         )
       },
       {
-        path: '/messages',
+        path: '/wishlist',
         element: (
-          <Authenticate authState={true} role={'admin'}>
-            <MessageList />
+          <Authenticate authState={true}>
+            <WishlistPage />
           </Authenticate>
         )
       },
@@ -152,6 +232,22 @@ const router = createBrowserRouter([
           <Authenticate authState={true}>
             <EditAddressPage />
           </Authenticate>
+        )
+      },
+      {
+        path: '/message-form',
+        element: (
+          <Authenticate authState={true}>
+            <MessageFormPage />
+          </Authenticate>
+        )
+      },
+      {
+        path: '/review-product/:id',
+        element: (
+          <Authenticate authState={true}>
+            <ReviewFormPage />
+          </Authenticate >
         )
       },
       {

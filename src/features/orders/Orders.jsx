@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersAsync } from './orderSlice';
-import { Link } from 'react-router-dom';
+import { useCancelOrderMutation, useFetchOrdersQuery } from './orderSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { Container, FailedMessage, Pagination } from '../../components/index.js'
+import { Fragment, memo, useCallback, useState } from 'react';
+import { catchAndShowMessage } from '../../utils/catchAndShowMessage.js';
 
-const OrderCard = ({ order }) => {
+const OrderCard = memo(({ order, CancelOrder }) => {
+
     const statusColors = {
         pending: 'bg-yellow-200 text-yellow-800',
         delivered: 'bg-green-200 text-green-800',
@@ -11,39 +13,67 @@ const OrderCard = ({ order }) => {
         returned: 'bg-gray-200 text-gray-800'
     };
 
+
+    const handleCancelOrder = useCallback(
+        () => {
+            const currentDate = new Date()
+            const givenDate = new Date(order.createdAt)
+
+            const hoursDifference = (currentDate - givenDate) / (1000 * 60 * 60)
+            if (hoursDifference >= 3)
+                FailedMessage('order cancellation is only applicable within 3 hours of order creation')
+            else {
+                catchAndShowMessage(CancelOrder, order._id)
+            }
+        },
+        [],
+    )
+
+    const productImages = [...(new Set(order.products.map(({ image }) => image)))].slice(0, 3)
+
     return (
-        <Link to={`/order-details/${order._id}`} className="bg-white shadow-lg rounded-lg  mb-4">
+        <Container
+            className="bg-white shadow-lg rounded-lg  mb-4 w-full"
+        >
             <div className="p-4">
                 {/* Product Images */}
-                <div className="flex mb-4 space-x-4 items-end">
-                    {order.products.slice(0, 3).map(({ product, image }) => (
-                        <div className='size-[9vw]'>
+                <div className="flex mb-4 flex-wrap gap-2 items-end">
+                    {productImages.map((image, index) => (
+                        <div className='size-20' key={index}>
                             <img
-                                key={product}
+
                                 src={image}
                                 alt=''
                                 className="size-full rounded-md"
                             />
                         </div>
                     ))}
-                    <span className=''>+More</span>
+                    {order.products.length > 3 && <span className=''>+More</span>}
                 </div>
                 {/* Order Amount and Date */}
                 <div className="mb-4 font-semibold text-sm">
                     <p className="text-gray-600 mb-1">Order Amount: ₹{order.totalAmount}</p>
-                    <p className="text-gray-600">Ordered At: {new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-gray-600">Ordered At: {new Date(order.createdAt).toLocaleString()}</p>
                 </div>
                 {/* Order Status */}
-                <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${statusColors[order.deliveryStatus.toLowerCase()]}`}>
-                    {order.deliveryStatus}
+                <div className='flex justify-between'>
+                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${statusColors[order.deliveryStatus.toLowerCase()]}`}>
+                        {order.deliveryStatus}
+                    </div>
+                    {order.deliveryStatus === 'pending' &&
+                        <div>
+                            <button type='button' onClick={handleCancelOrder} className='text-sm font-semibold border bg-red-500 text-white p-1 rounded-md'>
+                                cancel order
+                            </button>
+                        </div>}
                 </div>
             </div>
-            <div className="bg-gray-100 px-4 py-2 flex justify-between items-center">
+            <Link to={`/order-details/${order._id}`} className="bg-gray-100 px-4 py-2 flex justify-between items-center">
                 <button className="text-blue-500 font-semibold hover:text-blue-700">View Details</button>
-            </div>
-        </Link>
+            </Link>
+        </Container>
     );
-};
+})
 
 // [
 //     {
@@ -201,52 +231,27 @@ const OrderCard = ({ order }) => {
 
 const Orders = () => {
 
-    const dispatch = useDispatch()
+    const [page, setPage] = useState(1)
 
-    const orders = useSelector(state => state.order.orders)
+    const { data: { orders = [], totalPages = 1, filteredTotal = 0 } = {}, isLoading: isLoadingOrders } = useFetchOrdersQuery(`limit=${10}&&page=${page}`)
 
-    // Sample orders data within the component
-    // const orders = [
-    //     {
-    //         orderId: '1',
-    //         products: [
-    //             { image: 'https://m.media-amazon.com/images/I/71kZfQA-Y7L._AC_UY218_.jpg', name: 'Product 1' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' },
-    //             { image: 'https://m.media-amazon.com/images/I/81QpkIctqPL._AC_UY218_.jpg', name: 'Product 2' }
-    //         ],
-    //         amount: 150,
-    //         date: '2023-06-01',
-    //         status: 'Pending'
-    //     },
-    //     {
-    //         orderId: '2',
-    //         products: [
-    //             { image: 'https://m.media-amazon.com/images/I/61pXO4JeKaL._AC_UY218_.jpg', name: 'Product 3' }
-    //         ],
-    //         amount: 250,
-    //         date: '2023-05-15',
-    //         status: 'Delivered'
-    //     },
-    //     // Add more orders as needed
-    // ];
-
-    useEffect(() => {
-
-        dispatch(fetchOrdersAsync())
-
-    }, [])
+    const [CancelOrder, { isLoading: isCancellingOrder }] = useCancelOrderMutation()
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
+        <div className="min-h-screen bg-gray-100 p-4">
             <h1 className="text-4xl font-semibold mb-6">Orders</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {!orders.length && <h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
+            <Container
+                LoadingConditions={[!!isLoadingOrders, !!isCancellingOrder]}
+                RenderingConditions={[!!orders, orders.length > 0]}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                backupElem={<h1 className='text-xl font-semibold'>You Have No Orders Yet</h1>}
+            >
                 {orders.map((order) => (
-                    <OrderCard key={order._id} order={order} />
+                    <OrderCard key={order._id} order={order} CancelOrder={CancelOrder} />
                 ))}
-            </div>
-        </div>
+            </Container >
+            {orders.length > 0 && < Pagination PageChanger={setPage} page={page} filteredTotal={filteredTotal} totalPages={totalPages} />}
+        </div >
     );
 };
 

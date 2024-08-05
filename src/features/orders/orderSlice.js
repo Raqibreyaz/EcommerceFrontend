@@ -1,71 +1,148 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { wrapper } from '../../utils/catchErrorAndWrapper.js'
-import { createOrder, fetchAllOrders, fetchOrderDetails, fetchOrders } from './orderApi.js';
-import { clearErrorAndSuccess } from '../../utils/Generics.js';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { cartApi } from '../cart/cartSlice';
 
-const createOrderAsync = wrapper('order/create-order', createOrder)
+export const orderApi = createApi({
+  baseQuery: fetchBaseQuery({
+    baseUrl: `http://localhost:4000/api/v1/users/orders/`,
+    credentials: 'include',
+  }),
+  reducerPath: 'orderApi',
+  tagTypes: ['Orders', 'Order', 'AllOrders', 'Cart', 'Returns', 'ReturnDetails'],
+  endpoints: (build) => ({
 
-const fetchOrdersAsync = wrapper('order/get-orders', fetchOrders)
+    createRazorPayOrder: build.mutation({
+      query: (data) => ({
+        url: 'create-razorpay-order',
+        method: 'POST',
+        body: data,
+        headers: { "Content-Type": "application/json" }
+      })
+    }),
 
-const fetchAllOrdersAsync = wrapper('order/get-orders/all', fetchAllOrders)
+    verifyRazorPayPayment: build.mutation({
+      query: (data) => ({
+        url: 'verify-razorpay-payment',
+        method: 'POST',
+        body: data,
+        headers: { "Content-Type": "application/json" }
+      })
+    }),
 
-const fetchOrderDetailsAsync = wrapper('order/get-order-details', fetchOrderDetails)
+    createOrder: build.mutation({
+      query: (data) => ({
+        url: 'create-order',
+        method: 'POST',
+        body: data,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      invalidatesTags: ['Orders', 'AllOrders', 'Cart'],
+    }),
 
-const handleAsyncActions = (builder, asyncThunk) => {
+    fetchOrders: build.query({
+      query: (query) => ({
+        url: `get-orders?${query}`,
+        method: 'GET',
+      }),
+      providesTags: ['Orders'],
+    }),
 
-    builder
-        .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading',
-                state.error = null
-            state.success = ''
-        }
-        )
-        .addCase(asyncThunk.fulfilled, (state, action) => {
-            state.success = action.payload.message
-            state.status = 'idle'
+    fetchAllOrders: build.query({
+      query: (query) => ({
+        url: `get-orders/all?${query}`,
+        method: 'GET',
+      }),
+      providesTags: ['AllOrders'],
+    }),
 
-            if (action.type === 'order/get-orders/fulfilled') {
-                state.orders = action.payload.orders
-            }
-            if (action.type === 'order/get-order-details/fulfilled') {
-                state.fetchedOrder = action.payload.orderDetails
-            }
-        }
-        )
-        .addCase(asyncThunk.rejected, (state, action) => {
-            state.error = action.error.message
-            state.status = 'failed'
-        }
-        )
+    fetchOrderDetails: build.query({
+      query: (id) => ({
+        url: `get-order-details/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Order', id }],
+    }),
 
-};
+    cancelOrder: build.mutation({
+      query: (id) => ({
+        url: `cancel-order/${id}`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, id) => (
+        [
+          'AllOrders',
+          'Orders',
+          { type: 'Order', id }
+        ]
+      )
+    }),
 
-const orderSlice = createSlice({
-    initialState: {
-        orders: [],
-        fetchedOrder: {},
-        status: 'idle',
-        error: null,
-        success: ''
-    },
-    name: "order",
-    reducers: {
-        ...clearErrorAndSuccess
-    },
-    extraReducers: (builder) => {
-        handleAsyncActions(builder, createOrderAsync)
-        handleAsyncActions(builder, fetchOrdersAsync)
-        handleAsyncActions(builder, fetchOrderDetailsAsync)
-    }
-})
+    updateOrder: build.mutation({
+      query: ({ deliveryStatus, id }) => ({
+        url: `update-order/${id}`,
+        method: 'PATCH',
+        body: { deliveryStatus },
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      invalidatesTags: (result, error, { id }) => (
+        [
+          'AllOrders',
+          'Orders',
+          { type: 'Order', id }
+        ]
+      )
+    }),
 
-export {
-    createOrderAsync,
-    fetchAllOrdersAsync,
-    fetchOrdersAsync,
-    fetchOrderDetailsAsync
-}
+    fetchReturnRequests: build.query({
+      query: (query = '') => ({
+        url: `get-return-requests?${query}`,
+        method: 'GET',
+      }),
+      providesTags: ['Returns']
+    }),
 
-export const { clearError, clearSuccess } = orderSlice.actions
+    createReturnRequest: build.mutation({
+      query: ({ data, orderId }) => ({
+        url: `create-return-request/${orderId}`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { orderId }) => ['Returns', { type: 'Order', id: orderId }]
+    }),
 
-export default orderSlice.reducer
+    updateReturnRequest: build.mutation({
+      query: ({ id, data }) => ({
+        url: `update-return-request/${id}`,
+        method: 'PUT',
+        body: data
+      }),
+      invalidatesTags: (result, error, { id, data }) => [
+        'Returns',
+        { type: 'ReturnDetails', id },
+        { type: 'Order', id: data.orderId }
+      ]
+    }),
+
+    fetchReturnRequestDetails: build.query({
+      query: (id) => ({
+        url: `get-return-details/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'ReturnDetails', id }],
+    })
+  }),
+});
+
+export const {
+  useCreateOrderMutation,
+  useFetchOrdersQuery,
+  useFetchAllOrdersQuery,
+  useFetchOrderDetailsQuery,
+  useFetchReturnRequestsQuery,
+  useFetchReturnRequestDetailsQuery,
+  useCancelOrderMutation,
+  useCreateReturnRequestMutation,
+  useCreateRazorPayOrderMutation,
+  useVerifyRazorPayPaymentMutation,
+  useUpdateOrderMutation,
+  useUpdateReturnRequestMutation
+} = orderApi;

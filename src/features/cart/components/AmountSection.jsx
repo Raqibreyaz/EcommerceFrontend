@@ -7,15 +7,15 @@ export const AmountSection = memo(function ({ subTotal, totalDiscount, inCheckou
         <div className="border-t border-gray-200 py-6 sm:px-6 w-full">
             <div className="flex justify-between text-base font-medium text-gray-900">
                 <p>Subtotal</p>
-                <p>{subTotal}</p>
+                <p>₹{subTotal}</p>
             </div>
             <div className="flex justify-between text-base font-medium text-gray-900">
                 <p className='capitalize'>total discount</p>
-                <p>{totalDiscount}</p>
+                <p>-{totalDiscount}</p>
             </div>
             <div className="flex justify-between text-base font-medium text-gray-900 border-t  mt-2">
                 <p className='capitalize'>grand total</p>
-                <p>{subTotal - totalDiscount}</p>
+                <p>₹{subTotal - totalDiscount}</p>
             </div>
             {!inCheckout && <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>}
             {

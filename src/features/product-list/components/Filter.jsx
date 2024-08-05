@@ -1,10 +1,12 @@
-import React, { useEffect, Fragment, memo } from 'react'
+import React, { useEffect, Fragment, memo, useCallback, useMemo } from 'react'
 import { Dialog, DialogPanel, Menu, MenuItem, MenuItems, MenuButton, Transition, TransitionChild, Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/20/solid'
-import { useFilter } from '../../../custom-hooks/useFilter.js';
-import { useUser } from '../../../custom-hooks/useUser.js';
+import { useFetchCategoriesQuery } from '../ProductSlice.js'
+import { useFetchProductOwnersQuery } from '../../user/userSlice.js'
+import { updateFilterSelection, updateSortSelection } from '../../filter/filterSlice.js'
+import { useDispatch, useSelector } from 'react-redux'
 
 const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen }) {
 
@@ -47,10 +49,10 @@ const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen })
                             </div>
 
                             {/* Filters */}
-                            <form className="mt-4 border-t border-gray-200 sticky top-0">
+                            <div className="mt-4 border-t border-gray-200 sticky top-0">
                                 <h3 className="sr-only">Categories</h3>
                                 <Filter px='px-4' />
-                            </form>
+                            </div>
                         </DialogPanel>
                     </TransitionChild>
                 </div>
@@ -61,16 +63,20 @@ const MobileFilter = memo(function ({ mobileFiltersOpen, setMobileFiltersOpen })
 
 const Filter = memo(function ({ px = '' }) {
 
-    const { categories, HandleFetchCategories, HandleFilterSelection } = useFilter()
-    const { productOwners, HandleProductOwners } = useUser()
+    const dispatch = useDispatch()
 
-    useEffect(() => {
-        HandleProductOwners()
-        HandleFetchCategories()
+    const filter = useSelector(state => state.filter.filter)
+
+    const { data: { categories = [] } = {} } = useFetchCategoriesQuery()
+    const { data: { productOwners = [] } = {} } = useFetchProductOwnersQuery()
+
+    const HandleFilterSelection = (checked = false, field, value) => {
+        dispatch(updateFilterSelection({ checked, field, value }))
     }
-        , [])
+
+    
     return (
-        <div>
+        < div className='min-h-[100vh]'>
             {
                 [
                     {
@@ -81,7 +87,7 @@ const Filter = memo(function ({ px = '' }) {
                             {
                                 value: category.name,
                                 label: category.name,
-                                checked: false
+                                checked: !!(filter.category && filter.category.indexOf(category.name) !== -1)
                             }
                         ))
                     },
@@ -95,7 +101,11 @@ const Filter = memo(function ({ px = '' }) {
                             { name: "5k to 10k", value: '5000,10000' },
                             { name: "10k or above", value: '10000' },
                         ].map((priceRange) => (
-                            { value: priceRange.value, label: priceRange.name, checked: false }
+                            {
+                                value: priceRange.value,
+                                label: priceRange.name,
+                                checked: !!(filter.price && filter.price.join(',') === priceRange.value)
+                            }
                         ))
                     },
                     {
@@ -108,7 +118,11 @@ const Filter = memo(function ({ px = '' }) {
                             { name: "at least 30%", value: 30 },
                             { name: "at least 40%", value: 40 },
                         ].map((discount) => (
-                            { value: discount.value, label: discount.name, checked: false }
+                            {
+                                value: discount.value,
+                                label: discount.name,
+                                checked: !!(filter.discount && filter.discount === discount.value)
+                            }
                         ))
                     },
                     {
@@ -116,11 +130,15 @@ const Filter = memo(function ({ px = '' }) {
                         name: "product_owners",
                         type: 'checkbox',
                         options: productOwners.map((brand) => (
-                            { value: brand._id, label: brand.fullname, checked: false }
+                            {
+                                value: brand._id,
+                                label: brand.fullname,
+                                checked: !!(filter.product_owners && filter.product_owners?.indexOf(brand._id) !== -1)
+                            }
                         ))
                     },
                 ].map((section) => (
-                    <Disclosure as="div" key={section.id} className={`border-b border-gray-200 ${px} py-6`}>
+                    <Disclosure as="div" key={section.id} className={`border-b border-gray-200 ${px} py-6 w-full`}>
                         {({ open }) => (
                             <>
                                 <h3 className="-my-3 flow-root">
@@ -144,6 +162,7 @@ const Filter = memo(function ({ px = '' }) {
                                                     name={`${section.id}`}
                                                     defaultValue={option.value}
                                                     type={section.type}
+                                                    checked={!!option.checked}
                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                     onChange={(e) => {
                                                         HandleFilterSelection(e.target.checked, section.name, option.value)
@@ -164,30 +183,60 @@ const Filter = memo(function ({ px = '' }) {
                     </Disclosure>
                 ))
             }
-        </div>
+        </div >
     )
 })
 
 const SortMenu = memo(function ({ setMobileFiltersOpen }) {
 
-    const { HandleSortSelection } = useFilter()
+    const dispatch = useDispatch()
+
+    const filter = useSelector(state => state.filter.filter)
+
+    const HandleSortSelection = (field, order) => {
+        dispatch(updateSortSelection({ field, order }))
+    }
 
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
     }
 
-    const sortOptions = [
-        { name: 'Best Rating', sort: 'rating', order: '-1' },
-        { name: 'Price: Low to High', sort: 'price', order: '1' },
-        { name: 'Price: High to Low', sort: 'price', order: '-1' },
-    ]
+    const checkSortOption = useCallback(
+        (field, order) => {
+            const exists = !!(filter.sort && filter.sort.findIndex(({ field: sortedField, order: sortedOrder }) => (
+                field === sortedField && order === sortedOrder
+            )) !== -1)
+
+            return exists
+        },
+        [filter],
+    )
+
+
+    const sortOptions = useMemo(() => (
+        [
+            {
+                name: 'Best Rating',
+                sort: 'rating',
+                order: '-1',
+                selected: checkSortOption('rating', '-1')
+            },
+            {
+                name: 'Price: Low to High',
+                sort: 'price',
+                order: '1',
+                selected: checkSortOption('price', '1')
+            },
+            { name: 'Price: High to Low', sort: 'price', order: '-1', selected: checkSortOption('price', '-1') },
+        ]
+    ), [filter])
 
     return (
         <div className="flex items-center">
             {/* sort menu */}
             <Menu as="div" className="relative inline-block text-left">
                 <div>
-                    <MenuButton className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <MenuButton className="group inline-flex justify-center text-sm max-sm:text-xs font-semibold text-gray-700 hover:text-gray-900">
                         Sort
                         <ChevronDownIcon
                             className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
@@ -211,8 +260,8 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
                                     {({ active }) => (
                                         <div
                                             className={classNames(
-                                                option.current ? 'font-medium text-gray-900' : 'text-gray-500',
-                                                active ? 'bg-gray-100' : '',
+                                                option.selected ? 'font-medium text-black' : 'text-gray-500',
+                                                active ? 'bg-pink-700' : '',
                                                 'block px-4 py-2 text-sm'
                                             )}
                                             onClick={() => HandleSortSelection(option.sort, option.order)}
@@ -226,10 +275,6 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
                     </MenuItems>
                 </Transition>
             </Menu>
-            <button type="button" className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7">
-                <span className="sr-only">View grid</span>
-                <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-            </button>
             {/* mobile filter toggler */}
             <button
                 type="button"
@@ -237,7 +282,7 @@ const SortMenu = memo(function ({ setMobileFiltersOpen }) {
                 onClick={() => setMobileFiltersOpen(true)}
             >
                 <span className="sr-only">Filters</span>
-                <FunnelIcon className="h-5 w-5" aria-hidden="true" />
+                <FunnelIcon className="size-5 max-sm:size-4" aria-hidden="true" />
             </button>
         </div>
     )

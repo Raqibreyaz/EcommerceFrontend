@@ -1,102 +1,154 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { catchAsyncError, wrapper } from '../../utils/catchErrorAndWrapper.js'
-import { loginUser, fetchUser, logoutUser, signUpUser, editUserProfile, addNewAddress, changeUserAvatar, fetchProductOwners, fetchProfileDetails, removeAddress } from "./userApi.js";
-import { clearErrorAndSuccess } from "../../utils/Generics.js";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const initialState = {
-    userData: null,
-    productOwners: [],
-    userProfileDetails: null,
-    isAuthenticated: false,
-    status: 'idle',
-    error: null,
-    success: ''
-};
+export const userApi = createApi({
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:4000/api/v1/users/',
+  }),
+  reducerPath: 'userApi',
+  tagTypes: ['User', 'Profile', 'ProductOwners', 'Address'],
+  endpoints: (build) => ({
 
-const loginUserAsync = wrapper('user/login', loginUser)
+    fetchUser: build.query({
+      query: () => ({
+        url: 'fetch-user',
+        method: 'GET',
+        credentials: 'include',
+      }),
+      providesTags: ['User'],
+    }),
 
-const signUpUserAsync = wrapper('user/signup', signUpUser)
+    signUpUser: build.mutation({
+      query: (data) => ({
+        url: 'register',
+        method: 'POST',
+        body: data,
+        credentials: 'include',
+      }),
+    }),
 
-const editUserProfileAsync = wrapper('user/edit-profile', editUserProfile)
+    editUserProfile: build.mutation({
+      query: (data) => ({
+        url: 'edit-profile',
+        method: 'PUT',
+        body: data,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      invalidatesTags: ['User'],
+    }),
 
-const fetchUserAsync = wrapper("user/fetchUser", fetchUser)
+    changeUserAvatar: build.mutation({
+      query: (data) => ({
+        url: 'edit-profile/avatar',
+        method: 'PATCH',
+        body: data, // FormData, browser handles multipart/form-data
+        credentials: 'include',
+      }),
+      invalidatesTags: ['User'],
+    }),
 
-const changeUserAvatarAsync = wrapper('user/change-avatar', changeUserAvatar)
+    addNewAddress: build.mutation({
+      query: (data) => ({
+        url: 'edit-profile/address',
+        method: 'PATCH',
+        body: { address: data },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      invalidatesTags: ['User'],
+    }),
 
-const addNewAddressAsync = wrapper('user/add-new-address', addNewAddress)
+    loginUser: build.mutation({
+      query: (data) => ({
+        url: 'login',
+        method: 'POST',
+        body: data,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
 
-const removeAddressAsync = wrapper('user/remove-address', removeAddress)
+    logoutUser: build.mutation({
+      query: () => ({
+        url: 'logout',
+        method: 'POST',
+        credentials: 'include',
+      }),
+    }),
 
-const logoutUserAsync = wrapper('user/logout', logoutUser)
+    forgotPassword: build.mutation({
+      query: (data) => ({
+        url: 'forgot-password',
+        method: 'POST',
+        body:data
+      }),
+    }),
+  
+  verifyPasswordResetToken: build.mutation({
+      query: (data) => ({
+        url: 'verify-reset-token',
+        method: 'POST',
+        body:data
+      }),
+    }),
 
-const fetchProductOwnersAsync = wrapper('user/fetchProductOwners', fetchProductOwners)
+    resetPassword: build.mutation({
+      query: (data) => ({
+        url: 'reset-password',
+        method: 'PATCH',
+        body:data
+      }),
+    }),
 
-const fetchProfileDetailsAsync = wrapper('user/fetchProfileDetails', fetchProfileDetails)
+    fetchProductOwners: build.query({
+      query: () => ({
+        url: 'get-product-owners',
+        method: 'GET',
+        credentials: 'omit',
+      }),
+      providesTags: ['ProductOwners'],
+    }),
 
-const handleAsyncActions = (builder, asyncThunk) => {
-    builder
-        .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading';
-            state.error = null
-            state.success = ''
-        })
-        .addCase(asyncThunk.fulfilled, (state, action) => {
-            state.status = 'idle';
-            if (!action.type.includes('fetch'))
-                state.success = action.payload.message
+    fetchProfileDetails: build.query({
+      query: (id) => ({
+        url: `get-profile-details/${id}`,
+        method: 'GET',
+        credentials: 'omit',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Profile', id }],
+    }),
 
-            if (action.type === 'user/fetchUser/fulfilled') {
-                state.userData = action.payload.user
-                state.isAuthenticated = true
-            }
+    removeAddress: build.mutation({
+      query: (addressId) => ({
+        url: `remove-address/${addressId}`,
+        method: 'DELETE',
+        credentials: 'include',
+      }),
+      invalidatesTags: ['Address', 'User'],
+    }),
+  }),
 
-            if (action.type === 'user/fetchProductOwners/fulfilled') {
-                state.productOwners = action.payload.productOwners
-            }
 
-            if (action.type.includes('fetchProfileDetails')) {
-                state.userProfileDetails = action.payload.profileDetails
-            }
-        })
-        .addCase(asyncThunk.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.error.message;
-        });
-};
+});
 
-const userSlice = createSlice({
-    initialState,
-    name: "user",
-    reducers: {
-        ...clearErrorAndSuccess
-    },
-    extraReducers: (builder) => {
-        handleAsyncActions(builder, loginUserAsync)
-        handleAsyncActions(builder, fetchUserAsync)
-        handleAsyncActions(builder, signUpUserAsync)
-        handleAsyncActions(builder, logoutUserAsync)
-        handleAsyncActions(builder, fetchProductOwnersAsync)
-        handleAsyncActions(builder, addNewAddressAsync)
-        handleAsyncActions(builder, removeAddressAsync)
-        handleAsyncActions(builder, changeUserAvatarAsync)
-        handleAsyncActions(builder, editUserProfileAsync)
-        handleAsyncActions(builder, fetchProfileDetailsAsync)
-    }
-})
-
-export const { clearError, clearSuccess } = userSlice.actions
-
-export {
-    fetchUserAsync,
-    loginUserAsync,
-    signUpUserAsync,
-    logoutUserAsync,
-    editUserProfileAsync,
-    addNewAddressAsync,
-    removeAddressAsync,
-    changeUserAvatarAsync,
-    fetchProductOwnersAsync,
-    fetchProfileDetailsAsync
-}
-
-export default userSlice.reducer;
+export const {
+  useFetchUserQuery,
+  useSignUpUserMutation,
+  useEditUserProfileMutation,
+  useChangeUserAvatarMutation,
+  useAddNewAddressMutation,
+  useLoginUserMutation,
+  useLogoutUserMutation,
+  useFetchProductOwnersQuery,
+  useFetchProfileDetailsQuery,
+  useRemoveAddressMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useVerifyPasswordResetTokenMutation
+} = userApi;

@@ -1,105 +1,131 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { fetchProducts, fetchCategories, fetchProductDetails, addNewProduct, deleteProduct, addNewCategory, editProduct} from './ProductApi';
-import { wrapper } from '../../utils/catchErrorAndWrapper.js'
-import { clearErrorAndSuccess } from '../../utils/Generics.js'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { useSelector } from 'react-redux';
 
-// fetches product from backend side can use filters
-export const fetchProductsAsync = wrapper('product/fetchProducts', fetchProducts)
+export const productApi = createApi({
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:4000/api/v1/products/',
+    }),
+    reducerPath: 'productApi',
+    tagTypes: ['Products', 'Product', 'Categories'],
+    keepUnusedDataFor: 60 * 30,
+    endpoints: (build) => ({
 
-// fetche the product details from the backend using the id
-export const fetchProductDetailsAsync = wrapper('product/fetchProductDetails', fetchProductDetails)
+        fetchProducts: build.query({
+            query: (filter = '') => {
+                return {
+                    url: `get-products?${filter}`,
+                    method: 'GET',
+                }
+            },
+            providesTags: (result, error, filter) => {
+                return [{ type: 'Products', id: filter }]
+            },
+        }),
 
-// adds a new product to the database 
-export const addNewProductAsync = wrapper('product/addNewProduct', addNewProduct)
+        fetchCategories: build.query({
+            query: () => ({
+                url: 'category/get-categories',
+                method: 'GET',
+            }),
+            // will cache all the categories
+            providesTags: ['Categories'],
+        }),
 
-// edit the product by provided params
-export const editProductAsync = wrapper('product/editProduct', editProduct)
+        fetchProductDetails: build.query({
+            query: (id) => ({
+                url: `get-product/${id}`,
+                method: 'GET',
+            }),
+            // will cache the product details having the given id
+            providesTags: (result, error, id) => [{ type: 'Product', id }],
+        }),
 
-// deletes the product from the database
-export const deleteProductAsync = wrapper('product/deleteProduct', deleteProduct)
+        addNewProduct: build.mutation({
+            query: (productData) => ({
+                url: 'addnew',
+                method: 'POST',
+                body: productData,
+                credentials: 'include',
+            }),
+            // invalidate all the caches to refetch
+            invalidatesTags: ['Products'],
+        }),
 
-// fetches all the categories of products
-export const fetchCategoriesAsync = wrapper('product/fetchCategories', fetchCategories)
+        editProduct: build.mutation({
+            query: ({ id, data }) => ({
+                url: `edit-product/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+                headers:{'Content-Type':'application/json'}
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
 
-// adds a new category
-export const addNewCategoryAsync = wrapper('product/addNewCategory', addNewCategory)
+        editColorsAndImages: build.mutation({
+            query: ({ id, data }) => ({
+                url: `edit-color-images/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
 
+        addNewColors: build.mutation({
+            query: ({ id, data }) => ({
+                url: `add-new-colors/${id}`,
+                method: 'PUT',
+                body: data,
+                credentials: 'include',
+            }),
+            // will refetch that particular product having that id
+            invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+        }),
 
+        deleteProduct: build.mutation({
+            query: (id) => ({
+                url: `delete-product/${id}`,
+                method: 'DELETE',
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Products'],
+        }),
 
-const handleAsyncActions = (builder, asyncThunk) => {
-    builder
-        .addCase(asyncThunk.pending, (state) => {
-            state.status = 'loading';
-            state.error = null
-            state.success = ''
-        })
-        .addCase(asyncThunk.fulfilled, (state, action) => {
+        addNewCategory: build.mutation({
+            query: (category) => ({
+                url: 'category/add-category',
+                method: 'POST',
+                body: { name: category },
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Categories'],
+        }),
 
-            state.status = 'idle'
+        deleteCategory: build.mutation({
+            query: (id) => ({
+                url: `category/delete-category/${id}`,
+                method: 'DELETE',
+                credentials: 'include',
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+    }),
 
-            // success message will only be shown for non fetching requests
-            if (!action.type.includes('fetch')) {
-                state.success = action.payload.message
-            }
-            if (action.type === 'product/fetchProducts/fulfilled') {
-                state.products = action.payload.products;
-                state.filteredTotal = parseInt(action.payload.filteredTotal);
-                state.overallTotal = parseInt(action.payload.overallTotal);
-                state.totalPages = parseInt(action.payload.totalPages);
-            }
-            if (action.type === 'product/fetchProductDetails/fulfilled') {
-                state.currentProduct = action.payload.product;
-            }
-            if (action.type === 'product/fetchCategories/fulfilled') {
-                state.categories = action.payload.categories;
-            }
-
-        })
-        .addCase(asyncThunk.rejected, (state, action) => {
-            state.status = 'failed'
-            state.error = action.error.message;
-        });
-};
-
-// Define a slice
-const productSlice = createSlice({
-    name: 'product',
-    initialState: {
-        products: [],
-        filteredTotal: 0,
-        overallTotal: 0,
-        totalPages: 0,
-        categories: [],
-        currentProduct: {
-            product_name: '',
-            keyHighlights: [],
-            sizes: [],
-            colors: [],
-            details: '',
-            price: '',
-            description: '',
-            reviews: []
-        },
-        currentProductReviews: [],
-        status: 'idle',
-        success: '',
-        error: null
-    },
-    reducers: {
-        ...clearErrorAndSuccess
-    },
-    extraReducers: (builder) => {
-        handleAsyncActions(builder, fetchProductsAsync)
-        handleAsyncActions(builder, fetchProductDetailsAsync)
-        handleAsyncActions(builder, addNewProductAsync)
-        handleAsyncActions(builder, editProductAsync)
-        handleAsyncActions(builder, fetchCategoriesAsync)
-        handleAsyncActions(builder, addNewCategoryAsync)
-
-    },
 });
 
-export const { clearError, clearSuccess } = productSlice.actions
+export const {
+    useFetchProductsQuery,
+    useFetchCategoriesQuery,
+    useFetchProductDetailsQuery,
+    useAddNewProductMutation,
+    useEditProductMutation,
+    useDeleteProductMutation,
+    useAddNewCategoryMutation,
+    useEditColorsAndImagesMutation,
+    useAddNewColorsMutation
+} = productApi;
 
-// Export the async thunk and reducer
-export default productSlice.reducer;

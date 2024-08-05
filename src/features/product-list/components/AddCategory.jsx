@@ -1,44 +1,54 @@
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { addNewCategoryAsync } from '../ProductSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { FailedMessage, SuccessMessage } from '../../../components/index.js'
-import { clearError, clearSuccess } from '../ProductSlice'
+import React from 'react';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { useForm } from 'react-hook-form';
+import { catchAndShowMessage } from '../../../utils/catchAndShowMessage';
+import { useAddNewCategoryMutation } from '../ProductSlice';
+import { Container } from '../../../components';
 
+const MySwal = withReactContent(Swal);
 
-function AddCategory() {
+const AddCategoryForm = () => {
 
-    const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm()
+    const { register, handleSubmit, formState: { isSubmitting } } = useForm();
 
-    const dispatch = useDispatch()
-
-    const error = useSelector(state => state.product.error)
-    const success = useSelector(state => state.product.success)
-
-    if (error) {
-        FailedMessage(error)
-            .then(() => dispatch(clearError()))
-    }
-    if (success) {
-        SuccessMessage(success)
-            .then(() => dispatch(clearSuccess()))
-    }
+    const [AddNewCategory, { isLoading: isCreatingNewCategory, isSuccess: isSuccessfullyCreatedCategory }] = useAddNewCategoryMutation()
 
     const onAddCategory = (data) => {
+        catchAndShowMessage(AddNewCategory,data.newCategory)
+        // Handle the form submission logic here
+    };
 
-        if (!data.newCategory)
-            return;
+    const showForm = () => {
+        MySwal.fire({
+            title: 'Add a Category',
+            html: (
+                <form className='flex flex-col gap-2' onSubmit={handleSubmit(onAddCategory)}>
+                    <input
+                        type="text"
+                        {...register('newCategory')}
+                        className='border placeholder:text-sm placeholder:capitalize border-blue-200 rounded p-2 focus:border-blue-500' id='add-category'
+                        placeholder='enter category name'
+                    />
+                    <button type='submit' disabled={isSubmitting} className='bg-blue-500 py-1 rounded text-white text-sm'>Add Category</button>
+                </form>
+            ),
+            showConfirmButton: false,
+        });
+    };
 
-        dispatch(addNewCategoryAsync(data.newCategory))
-    }
+    // React.useEffect(() => {
+    //     if (isSuccessfullyCreatedCategory)
+    //         MySwal.close()
+    // }, [isSuccessfullyCreatedCategory])
 
     return (
-        <form className='flex flex-col gap-2'>
-            <label htmlFor="add-category" className='font-semibold'>Add a Category:</label>
-            <input type="text" {...register('newCategory',)} className='rounded p-2 focus:border-blue-500' id='add-category' />
-            <button type='button' disabled={isSubmitting} onClick={handleSubmit(onAddCategory)} className='bg-blue-500 py-1 rounded text-white'>Add Category</button>
-        </form>
-    )
-}
+        <Container
+            LoadingConditions={[!!isCreatingNewCategory]}
+        >
+            <button onClick={showForm} className='bg-green-500 text-sm capitalize  p-1 m-1 rounded text-white'>Add new category</button>
+        </Container>
+    );
+};
 
-export default AddCategory
+export default AddCategoryForm;

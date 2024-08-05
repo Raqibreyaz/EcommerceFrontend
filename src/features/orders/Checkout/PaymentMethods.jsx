@@ -1,20 +1,23 @@
-import React from 'react'
-import { Controller } from 'react-hook-form'
-import {FormError} from '../../../components/index.js'
+import React, { memo } from 'react'
+import { Controller, useFormContext } from 'react-hook-form'
+import { FormError } from '../../../components/index.js'
 
-function PaymentMethods({ control }) {
+const PaymentMethods = memo(function () {
+
+    const { control } = useFormContext()
+
     return (
         <div>
             <h1 className='text-lg capitalize font-semibold '>payment methods</h1>
             <p className='text-gray-500'>choose one</p>
             <div className='font-semibold text-sm mt-5 flex flex-col gap-3'>
-                <Method control={control} methodName={'cash'} />
-                <Method control={control} methodName={'credit card'} />
-                <FormError field={'paymentMode'}/>
+                <Method control={control} methodName={'cash on delivery'} />
+                <Method control={control} methodName={'online'} />
+                <FormError field={'paymentMode'} />
             </div>
         </div>
     )
-}
+})
 
 function Method({ control, methodName }) {
     return (
@@ -33,7 +36,7 @@ function Method({ control, methodName }) {
                             name='paymentMode'
                             id={methodName} />
                     </>
-    )} />
+                )} />
             < label htmlFor={methodName}>{methodName}</label>
         </div>
     )
