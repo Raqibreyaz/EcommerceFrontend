@@ -98,7 +98,7 @@ function EditProfile() {
                                     />
                                     <label
                                         htmlFor={input.name}
-                                        className="absolute max-sm:text-sm text-gray-800 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 capitalize font-semibold text-xl"
+                                        className="absolute max-sm:text-sm text-gray-800 duration-300 transform -translate-y-6 scale-75 top-3  origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 capitalize font-semibold z-10 text-xl"
                                     >
                                         {input.child}{input.child === 'new password' ? '(optional)' : ''}
                                     </label>
