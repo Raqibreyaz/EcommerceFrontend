@@ -261,12 +261,20 @@ const Navbar = memo(function Navbar() {
                       <div className="text-sm font-medium leading-none text-gray-400">{userDetails.email}</div>
                     </div>
                   </div>
-                  <NavLink to='/cart'
-                    type="button"
-                    className={applyClass({ active: 'text-pink-800', inActive: '', common: "relative  flex-shrink-0 rounded-full  text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" })}
-                  >
-                    <ShoppingCartIcon className="size-8 m-4 text-inherit" aria-hidden="true" />
-                  </NavLink>
+                  <div>
+                    <NavLink to='/message-form'
+                      type="button"
+                      className={applyClass({ active: 'text-pink-800', inActive: '', common: "relative  flex-shrink-0 rounded-full  text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" })}
+                    >
+                      <ChatBubbleOvalLeftEllipsisIcon className="size-8 m-4 text-inherit" aria-hidden="true" />
+                    </NavLink>
+                    <NavLink to='/cart'
+                      type="button"
+                      className={applyClass({ active: 'text-pink-800', inActive: '', common: "relative  flex-shrink-0 rounded-full  text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" })}
+                    >
+                      <ShoppingCartIcon className="size-8 m-4 text-inherit" aria-hidden="true" />
+                    </NavLink>
+                  </div>
                 </div>
                 {/* profile setting and sign out link */}
                 <div className="mt-3 space-y-1 px-2">
