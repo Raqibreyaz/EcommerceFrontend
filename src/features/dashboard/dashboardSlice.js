@@ -4,7 +4,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 export const dashboardApi = createApi({
 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:4000/api/v1/dashboard/',
+        baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/dashboard/',
         credentials: 'include',
     }),
 

@@ -3,7 +3,7 @@ import { cartApi } from '../cart/cartSlice';
 
 export const orderApi = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://localhost:4000/api/v1/users/orders/`,
+    baseUrl: `https://ecommercebackend-5k4n.onrender.com/api/v1/users/orders/`,
     credentials: 'include',
   }),
   reducerPath: 'orderApi',

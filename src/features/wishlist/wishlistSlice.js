@@ -5,7 +5,7 @@ export const wishlistApi = createApi({
     reducerPath: 'wishlistApi',
 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:4000/api/v1/users/wishlist/', // Adjust base URL as per your setup
+        baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/users/wishlist/', // Adjust base URL as per your setup
         credentials: 'include', // Ensure credentials are included in requests
     }),
 

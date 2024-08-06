@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const cartApi = createApi({
 
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:4000/api/v1/users/cart/',
+    baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/users/cart/',
     credentials: 'include',
   }),
 

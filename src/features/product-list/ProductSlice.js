@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 export const productApi = createApi({
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:4000/api/v1/products/',
+        baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/products/',
     }),
     reducerPath: 'productApi',
     tagTypes: ['Products', 'Product', 'Categories'],
