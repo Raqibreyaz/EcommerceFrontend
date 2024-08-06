@@ -84,7 +84,16 @@ function EditProfile() {
                                 {
                                     type: 'text',
                                     name: 'phoneNo',
-                                    cond: { required: "phone no is required", minLength: 10 },
+                                    cond: {
+                                        required: "phone no is required",
+                                        minLength: {
+                                            value: 10,
+                                            message: "phone no must be of exact 10 characters"
+                                        }, maxLength: {
+                                            value: 10,
+                                            message: "phone no must be at least 10 characters"
+                                        }
+                                    },
                                     child: 'phone no',
                                     id: 5
                                 },
