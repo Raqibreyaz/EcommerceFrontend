@@ -105,7 +105,7 @@ const ProfileHeader = memo(({ user }) => {
 const UserProfile = () => {
 
     const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
-console.log(user);
+    console.log(user);
 
     const [page, setPage] = useState(1)
 
@@ -125,12 +125,12 @@ console.log(user);
                     {/* Profile Details */}
                     <ProfileDetails user={user} address={user?.addresses[0]} />
                     {/* Product Cards */}
-                    <div className="p-6 bg-gray-100">
+                    {user.role !== 'customer' && <div className="p-6 bg-gray-100">
                         <h3 className="text-2xl font-bold mb-4">Products</h3>
                         <ProductGrid products={products} />
-                    </div>
+                    </div>}
                 </div>
-                <Pagination totalPages={totalPages} filteredTotal={filteredTotal} page={page} PageChanger={setPage} />
+                {user.role !== 'customer' && <Pagination totalPages={totalPages} filteredTotal={filteredTotal} page={page} PageChanger={setPage} />}
             </div >
         </Container >
     );
