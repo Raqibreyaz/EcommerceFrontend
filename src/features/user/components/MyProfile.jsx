@@ -86,7 +86,7 @@ const ProfileHeader = memo(({ user }) => {
                         <label htmlFor="avatar" className='right-0 absolute bottom-1/2 bg-yellow-600 px-1 rounded-md '>
                             <PencilSquareIcon className='size-5' />
                         </label>}
-                    <input type="file" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({
+                    <input type="file" accept="image/*" id='avatar' className='opacity-0' onChange={(e) => setNewAvatar({
                         path: URL.createObjectURL(e.target.files[0]),
                         file: e.target.files[0]
                     })} />

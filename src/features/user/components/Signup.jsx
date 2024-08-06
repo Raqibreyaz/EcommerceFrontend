@@ -14,7 +14,7 @@ function Signup() {
 
   const [SignupUser, { isLoading, isSuccess }] = useSignUpUserMutation()
 
-  const {refetch} = useFetchUserQuery()
+  const { refetch } = useFetchUserQuery()
 
   const onSubmit = useCallback((data) => {
 
@@ -83,7 +83,7 @@ function Signup() {
                   <img src={preview} alt="" className='w-full h-full' />
                 </div>
                 <label htmlFor="avatar" className='text-gray-600 font-semibold'>Avatar: </label>
-                <input type="file" id='avatar' {...register('avatar', { required: true })} onChange={(e) => handlePreview(e)} />
+                <input type="file" id='avatar'  accept="image/*" {...register('avatar', { required: true })} onChange={(e) => handlePreview(e)} />
               </div>
               {/* fullname */}
               <div>
