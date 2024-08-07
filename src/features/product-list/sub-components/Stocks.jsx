@@ -32,11 +32,20 @@ const Stocks = memo(({ colorArray = [], sizeArray = [], isEditingSize = false, i
         }
     )
 
+    // will return 
+    const checkSizeType = useCallback((x) => {
+        if (x && (typeof x === 'object' && x.size))
+            return x.size
+        if (x && typeof x === 'string')
+            return x
+    }, [])
+
     const givePreviousStock = useCallback(
         (size, color) => {
-            return stocks.find(({ size: stockSize, color: stockColor }) => (
+            const stockObj = stocks.find(({ size: stockSize, color: stockColor }) => (
                 stockSize === size && stockColor === color
-            ))?.stock ?? customStock.defaultStocks
+            ))
+            return stockObj?.stock ?? customStock.defaultStocks
         },
         [stocks, customStock.defaultStocks],
     )
@@ -47,14 +56,14 @@ const Stocks = memo(({ colorArray = [], sizeArray = [], isEditingSize = false, i
             let newStocks = [];
             if (sizes.length > 0 && colors.length > 0) {
                 sizes.forEach((size) => {
-                    if (size && ((typeof size === 'object' && size.size) || typeof size === 'string')) {
+                    if (checkSizeType(size)) {
                         colors.forEach(({ color }) => {
                             if (color) {
                                 newStocks.push(
                                     {
-                                        size: typeof size === 'object' ? size.size : size,
+                                        size: checkSizeType(size),
                                         color,
-                                        stock: customStock.yes ? givePreviousStock(size, color) : customStock.defaultStocks,
+                                        stock: customStock.yes ? givePreviousStock(checkSizeType(size), color) : customStock.defaultStocks,
                                     }
                                 );
                             }

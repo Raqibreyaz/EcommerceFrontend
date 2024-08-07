@@ -22,7 +22,7 @@ function ProductList() {
 
       // Process discount
       if (filter.discount)
-        appendParam('discount', filter.discount);
+        appendParam('min_discount', filter.discount);
 
       if (filter.limit)
         appendParam('limit', filter.limit)

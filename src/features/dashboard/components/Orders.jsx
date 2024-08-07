@@ -19,9 +19,9 @@ const TableComponent = memo(({ columns, data }) => {
         <table {...getTableProps()} className="min-w-full bg-white ">
             <thead>
                 {headerGroups.map(headerGroup => (
-                    <tr {...headerGroup.getHeaderGroupProps()} >
+                    <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.getHeaderGroupProps().key}>
                         {headerGroup.headers.map(column => (
-                            <th {...column.getHeaderProps()} className="py-2 px-4 border">
+                            <th {...column.getHeaderProps()} key={column.getHeaderProps().key} className="py-2 px-4 border">
                                 {/* telling react to render Header */}
                                 {column.render('Header')}
                             </th>
@@ -37,8 +37,8 @@ const TableComponent = memo(({ columns, data }) => {
                             {row.cells.map(cell => {
                                 // have to give select elem for changing status
                                 return <td
+                                {...cell.getCellProps()}
                                     key={cell.getCellProps().key}
-                                    {...cell.getCellProps()}
                                     className="py-2 px-4 border font-semibold capitalize">
                                     {/* telling react to render Cell */}
                                     {cell.render('Cell')}

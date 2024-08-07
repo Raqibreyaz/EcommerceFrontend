@@ -14,10 +14,6 @@ const OrdersSection = memo(function OrdersSection({ recentOrders }) {
                             {
                                 [
                                     {
-                                        name: 'cutomer name',
-                                        child: customer_name
-                                    },
-                                    {
                                         name: 'total amount',
                                         child: '₹'+totalAmount
                                     },
@@ -38,7 +34,7 @@ const OrdersSection = memo(function OrdersSection({ recentOrders }) {
                                         child: new Date(createdAt).toDateString()
                                     },
                                 ].map(({ name, child }) => (
-                                    <p className="text-md max-sm:text-xs  capitalize">
+                                    <p key={name} className="text-md max-sm:text-xs  capitalize">
                                         <span className='font-semibold mr-1 '>
                                             {name}:
                                         </span>
