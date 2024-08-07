@@ -23,7 +23,6 @@ const ResetPassword = () => {
 
     const onSubmit = (data) => {
         data.userId = userId
-        console.log(data);
         catchAndShowMessage(ResetUserPassword, data)
     };
 
@@ -39,7 +38,6 @@ const ResetPassword = () => {
         catchAndShowMessage(VerifyPasswordResetToken, { token }, false)
             .then((data) => {
                 if (data) {
-                    console.log('user id', data.userId);
                     setUserId(data.userId)
                 }
             })

@@ -105,7 +105,6 @@ const ProfileHeader = memo(({ user }) => {
 const UserProfile = () => {
 
     const { data: { user = null } = {}, isLoading: isLoadingUser } = useFetchUserQuery()
-    console.log(user);
 
     const [page, setPage] = useState(1)
 

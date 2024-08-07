@@ -9,8 +9,6 @@ const ForgotPassword = () => {
     const [ForgotUserPassword, { isLoading }] = useForgotPasswordMutation()
 
     const onSubmit = useCallback((data) => {
-        console.log(data);
-        
         catchAndShowMessage(ForgotUserPassword, data)
     }, [])
 
@@ -18,7 +16,7 @@ const ForgotPassword = () => {
 
     return (
         <FormProvider {...methods}>
-            <UserFinder btnText={'reset password'} isLoading={isLoading} onSubmit={onSubmit}/>
+            <UserFinder btnText={'reset password'} isLoading={isLoading} onSubmit={onSubmit} />
         </FormProvider>
     )
 }
