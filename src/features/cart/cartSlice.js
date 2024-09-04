@@ -4,13 +4,15 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const cartApi = createApi({
 
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/users/cart/',
+    baseUrl: `${import.meta.env.VITE_API_BASE_URL}/users/cart/`,
     credentials: 'include',
   }),
 
   reducerPath: 'cartApi',
 
   tagTypes: ['Cart'],
+
+  keepUnusedDataFor: import.meta.env.VITE_CACHE_VALIDITY,
 
   endpoints: (build) => ({
 

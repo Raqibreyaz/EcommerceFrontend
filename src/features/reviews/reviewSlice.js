@@ -2,9 +2,11 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const productReviewApi = createApi({
     reducerPath: 'productReviewApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/products/review/', credentials: 'include' }),
+    baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_API_BASE_URL}/products/review/`, credentials: 'include' }),
 
     tagTypes: ['ProductReview'],
+
+    keepUnusedDataFor: import.meta.env.VITE_CACHE_VALIDITY,
 
     endpoints: (build) => ({
 

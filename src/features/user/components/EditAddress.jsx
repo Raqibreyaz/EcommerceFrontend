@@ -40,8 +40,8 @@ const AddressRemovalForm = () => {
   return (
     < Container
       LoadingConditions={[
-        isLoadingUser,
-        isLoadingRemoveAddress
+        !!isLoadingUser,
+        !!isLoadingRemoveAddress
       ]}
       RenderingConditions={[!!user, !!user?.addresses?.length]}
     >

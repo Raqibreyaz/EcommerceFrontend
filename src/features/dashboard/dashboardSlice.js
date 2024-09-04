@@ -4,13 +4,15 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 export const dashboardApi = createApi({
 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://ecommercebackend-5k4n.onrender.com/api/v1/dashboard/',
+        baseUrl: `${import.meta.env.VITE_API_BASE_URL}/dashboard/`,
         credentials: 'include',
     }),
 
     reducerPath: 'dashboardApi',
 
     tagTypes: ['DashBoard', 'Sellers', 'Messages','FetchedUser'],
+
+    keepUnusedDataFor: import.meta.env.VITE_CACHE_VALIDITY,
 
     endpoints: (build) => ({
         fetchDashboard: build.query({
