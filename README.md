@@ -1,6 +1,6 @@
 # **Banaras Mart**
 
-https://banaras-mart.netlify.app
+https://banaras-mart.vercel.app
 
 **Banaras Mart** is an e-commerce platform specializing in women's clothing. It offers customers a seamless shopping experience with options for cash on delivery or online payment via Razorpay. The platform provides robust features for customers, sellers, and admins, ensuring a user-friendly and efficient marketplace.
 
