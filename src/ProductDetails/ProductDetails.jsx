@@ -76,7 +76,6 @@ const SizesSection = memo(({ product, selectedSize, setSelectedSize }) => {
 
 const ColorsSection = memo(
   ({ product, setSelectedColor, selectedColor, user }) => {
-    console.log(product);
 
     return (
       <RadioGroup

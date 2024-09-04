@@ -152,7 +152,7 @@ const Navbar = memo(function Navbar() {
 
                     < NavLink to='/cart'
                       className={applyClass({
-                        active: 'bg-pink-900 text-white',
+                        active: ' text-pink-700',
                         inActive: 'text-gray-300 hover:bg-gray-700 hover:text-white',
                         common: "relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 mr-2"
                       })}
